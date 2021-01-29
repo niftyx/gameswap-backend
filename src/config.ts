@@ -155,13 +155,29 @@ export const MESH_HTTP_URI = _.isEmpty(process.env.MESH_HTTP_URI)
     );
 
 // 0x Endpoint
-export const SRA_WEBSOCKET_URI = process.env.SRA_WEBSOCKET_URI || "";
-export const SRA_HTTP_URI = process.env.SRA_HTTP_URI || "";
+export const SRA_WEBSOCKET_URIS = {
+  [ChainId.Mainnet]: process.env.RELAYER_WS_URL_MAINNET || "",
+  [ChainId.Kovan]: process.env.RELAYER_WS_URL_KOVAN || "",
+};
+export const SRA_WEBSOCKET_URI = SRA_WEBSOCKET_URIS[CHAIN_ID];
+export const SRA_HTTP_URIS = {
+  [ChainId.Mainnet]: process.env.RELAYER_URL_MAINNET || "",
+  [ChainId.Kovan]: process.env.RELAYER_URL_KOVAN || "",
+};
+export const SRA_HTTP_URI = SRA_HTTP_URIS[CHAIN_ID];
+
 // SUBGRAPN ENDPOINT
+export const GSWAP_SUBGRAPH_WEBSOCKET_URIS = {
+  [ChainId.Mainnet]: process.env.GRAPH_MAINNET_WS || "",
+  [ChainId.Kovan]: process.env.GRAPH_KOVAN_WS || "",
+};
 export const GSWAP_SUBGRAPH_WEBSOCKET_URI =
-  process.env.GSWAP_SUBGRAPH_WEBSOCKET_URI || "";
-export const GSWAP_SUBGRAPH_HTTP_URI =
-  process.env.GSWAP_SUBGRAPH_HTTP_URI || "";
+  GSWAP_SUBGRAPH_WEBSOCKET_URIS[CHAIN_ID];
+export const GSWAP_SUBGRAPH_HTTP_URIS = {
+  [ChainId.Mainnet]: process.env.GRAPH_MAINNET_HTTP || "",
+  [ChainId.Kovan]: process.env.GRAPH_KOVAN_HTTP || "",
+};
+export const GSWAP_SUBGRAPH_HTTP_URI = GSWAP_SUBGRAPH_HTTP_URIS[CHAIN_ID];
 
 // The fee recipient for orders
 export const FEE_RECIPIENT_ADDRESS = _.isEmpty(

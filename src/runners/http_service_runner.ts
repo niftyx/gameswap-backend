@@ -4,12 +4,20 @@ import * as core from "express-serve-static-core";
 import { Server } from "http";
 
 import { AppDependencies } from "../app";
-import { CRYPTO_CONTENT_PATH } from "../constants";
+import {
+  ACCOUNT_PATH,
+  COLLECTION_PATH,
+  CRYPTO_CONTENT_PATH,
+  GAME_PATH,
+} from "../constants";
 import { rootHandler } from "../handlers/root_handler";
 import { logger } from "../logger";
 import { addressNormalizer } from "../middleware/address_normalizer";
 import { errorHandler } from "../middleware/error_handling";
-import { createCryptoContentRouter } from "../routers/crytpo_content_route";
+import { createAccountRouter } from "../routers/account_route";
+import { createCollectionRouter } from "../routers/collection_route";
+import { createCryptoContentRouter } from "../routers/crypto_content_route";
+import { createGameRouter } from "../routers/game_route";
 // import { createSRARouter } from "../routers/sra_router";
 import { WebsocketService } from "../services/websocket_service";
 import { HttpServiceConfig } from "../types";
@@ -61,6 +69,15 @@ export async function runHttpServiceAsync(
 
   // staking http service
   app.use(CRYPTO_CONTENT_PATH, createCryptoContentRouter());
+
+  // GAME http service
+  app.use(GAME_PATH, createGameRouter());
+
+  // ACCOUNT http service
+  app.use(ACCOUNT_PATH, createAccountRouter());
+
+  // COLLECTION http service
+  app.use(COLLECTION_PATH, createCollectionRouter());
 
   // SRA http service
   // app.use(SRA_PATH, createSRARouter(dependencies.orderBookService));
