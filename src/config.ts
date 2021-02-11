@@ -179,6 +179,10 @@ export const GSWAP_SUBGRAPH_HTTP_URIS = {
 };
 export const GSWAP_SUBGRAPH_HTTP_URI = GSWAP_SUBGRAPH_HTTP_URIS[CHAIN_ID];
 
+// CONTENT_SECRET_KEY
+export const CONTENT_SECRET_KEY: string =
+  process.env.CONTENT_SECRET_KEY || "CONTENT_SECRET_KEY";
+
 // The fee recipient for orders
 export const FEE_RECIPIENT_ADDRESS = _.isEmpty(
   process.env.FEE_RECIPIENT_ADDRESS

@@ -68,16 +68,25 @@ export async function runHttpServiceAsync(
   app.use(addressNormalizer);
 
   // staking http service
-  app.use(CRYPTO_CONTENT_PATH, createCryptoContentRouter());
+  app.use(
+    CRYPTO_CONTENT_PATH,
+    createCryptoContentRouter(
+      dependencies.cryptoContentService,
+      dependencies.subgraphService
+    )
+  );
 
   // GAME http service
-  app.use(GAME_PATH, createGameRouter());
+  app.use(GAME_PATH, createGameRouter(dependencies.gameService));
 
   // ACCOUNT http service
   app.use(ACCOUNT_PATH, createAccountRouter());
 
   // COLLECTION http service
-  app.use(COLLECTION_PATH, createCollectionRouter());
+  app.use(
+    COLLECTION_PATH,
+    createCollectionRouter(dependencies.collectionService)
+  );
 
   // SRA http service
   // app.use(SRA_PATH, createSRARouter(dependencies.orderBookService));

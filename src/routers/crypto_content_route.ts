@@ -1,15 +1,34 @@
 import { CryptoContentHandler } from "../handlers/crypto_content_handler";
 import * as express from "express";
+import { CryptoContentService } from "../services/crypto_content_service";
+import { SubGraphService } from "../services/subgraph_service";
+import * as asyncHandler from "express-async-handler";
+import CryptoContentValidation from "../validators/crypto_content.validation";
+import { validate } from "express-validation";
 
 // tslint:disable-next-line:completed-docs
-export function createCryptoContentRouter(): express.Router {
+export function createCryptoContentRouter(
+  cryptoContentService: CryptoContentService,
+  subgraphService: SubGraphService
+): express.Router {
   const router = express.Router();
-  const handlers = new CryptoContentHandler();
+  const handlers = new CryptoContentHandler(
+    cryptoContentService,
+    subgraphService
+  );
 
   router.get("/", handlers.root);
 
-  router.post("/encrypt", handlers.encryptData);
-  router.post("/decrypt", handlers.decryptData);
+  router.post(
+    "/encrypt",
+    validate(CryptoContentValidation.encrypt),
+    asyncHandler(handlers.encryptData.bind(handlers))
+  );
+  router.post(
+    "/decrypt",
+    validate(CryptoContentValidation.decrypt),
+    asyncHandler(handlers.decryptData.bind(handlers))
+  );
 
   return router;
 }

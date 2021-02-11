@@ -1,39 +1,12 @@
 import { Connection } from "typeorm";
 
-import { getDefaultAppDependenciesAsync } from "../app";
-import { defaultHttpServiceWithRateLimiterConfig } from "../config";
 import { OrderWatcherSyncError } from "../errors";
 import { logger } from "../logger";
 import { OrderWatcherService } from "../services/order_watcher_service";
 import { MeshClient } from "../utils/mesh_client";
 
 if (require.main === module) {
-  (async () => {
-    const { connection, meshClient } = await getDefaultAppDependenciesAsync(
-      defaultHttpServiceWithRateLimiterConfig
-    );
-
-    if (meshClient) {
-      await runOrderWatcherServiceAsync(connection, meshClient);
-
-      logger.info(
-        `Order Watching Service started!\nConfig: ${JSON.stringify(
-          defaultHttpServiceWithRateLimiterConfig,
-          null,
-          2
-        )}`
-      );
-    } else {
-      logger.error(
-        `Order Watching Service could not be started! Could not start mesh client!\nConfig: ${JSON.stringify(
-          defaultHttpServiceWithRateLimiterConfig,
-          null,
-          2
-        )}`
-      );
-      process.exit(1);
-    }
-  })().catch((error) => logger.error(error.stack));
+  (async () => {})().catch((error) => logger.error(error.stack));
 }
 process.on("uncaughtException", (err) => {
   logger.error(err);

@@ -4,3 +4,4 @@ export { KeyValueEntity } from "./KeyValueEntity";
 export { TransactionEntityOpts } from "./types";
 export { PersistentSignedOrderEntity } from "./PersistentSignedOrderEntity";
 export { CollectionEntity } from "./CollectionEntity";
+export { GameEntity } from "./GameEntity";

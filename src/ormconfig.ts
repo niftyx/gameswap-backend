@@ -6,6 +6,7 @@ import {
   PersistentSignedOrderEntity,
   SignedOrderEntity,
   TransactionEntity,
+  CollectionEntity,
 } from "./entities";
 
 const entities = [
@@ -13,12 +14,13 @@ const entities = [
   PersistentSignedOrderEntity,
   TransactionEntity,
   KeyValueEntity,
+  CollectionEntity,
 ];
 
 const config: ConnectionOptions = {
   type: "postgres",
   entities,
-  synchronize: false,
+  synchronize: true,
   logging: true,
   logger: "debug",
   extra: {
@@ -34,5 +36,9 @@ const config: ConnectionOptions = {
         },
       }
     : { url: POSTGRES_URI }),
+  cli: {
+    migrationsDir: "./migrations",
+  },
 };
+
 module.exports = config;

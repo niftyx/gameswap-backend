@@ -554,3 +554,33 @@ export enum TransactionStates {
 }
 
 export type ZeroExTransactionWithoutDomain = Omit<ZeroExTransaction, "domain">;
+
+// Collection
+
+export interface IPlatform {
+  os: string;
+  version: string;
+}
+
+export interface IGame {
+  id: string;
+  title: string;
+  version: string;
+  imageUrl: string;
+  categoryId: string;
+  description: string;
+  platform: IPlatform[];
+  owner?: string;
+}
+
+export interface ICollection {
+  id: string;
+  displayName: string;
+  description?: string;
+  imageUrl: string;
+  shortUrl?: string;
+}
+
+export interface GraphVariables {
+  [key: string]: string | number;
+}

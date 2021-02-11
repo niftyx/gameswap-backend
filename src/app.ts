@@ -8,12 +8,23 @@ import * as express from "express";
 import { Server } from "http";
 import { Connection } from "typeorm";
 
-import { CHAIN_ID, LOGGER_INCLUDE_TIMESTAMP, LOG_LEVEL } from "./config";
+import {
+  CHAIN_ID,
+  CONTENT_SECRET_KEY,
+  GSWAP_SUBGRAPH_HTTP_URI,
+  GSWAP_SUBGRAPH_WEBSOCKET_URI,
+  LOGGER_INCLUDE_TIMESTAMP,
+  LOG_LEVEL,
+} from "./config";
 import { getDBConnectionAsync } from "./db_connection";
 
 import { runHttpServiceAsync } from "./runners/http_service_runner";
 import { ChainId, HttpServiceConfig } from "./types";
 import * as pino from "pino";
+import { CollectionService } from "./services/collection_service";
+import { CryptoContentService } from "./services/crypto_content_service";
+import { SubGraphService } from "./services/subgraph_service";
+import { GameService } from "./services/game_service";
 //import { runOrderWatcherServiceAsync } from "./runners/order_watcher_service_runner";
 export const logger = pino({
   level: LOG_LEVEL,
@@ -24,6 +35,10 @@ export const logger = pino({
 export interface AppDependencies {
   contractAddresses: ContractAddresses;
   connection: Connection;
+  collectionService: CollectionService;
+  gameService: GameService;
+  cryptoContentService: CryptoContentService;
+  subgraphService: SubGraphService;
 }
 
 let contractAddresses_: AssetSwapperContractAddresses | undefined;
@@ -60,9 +75,21 @@ export async function getDefaultAppDependenciesAsync(
   );
   const connection = await getDBConnectionAsync();
 
+  const collectionService = new CollectionService(connection);
+  const gameService = new GameService(connection);
+  const cryptoContentService = new CryptoContentService(CONTENT_SECRET_KEY);
+  const subgraphService = new SubGraphService(
+    GSWAP_SUBGRAPH_HTTP_URI,
+    GSWAP_SUBGRAPH_WEBSOCKET_URI
+  );
+
   return {
     contractAddresses,
     connection,
+    collectionService,
+    cryptoContentService,
+    subgraphService,
+    gameService,
   };
 }
 /**
