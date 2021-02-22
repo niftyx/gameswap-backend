@@ -88,3 +88,6 @@ export const NUMBER_SOURCES_PER_LOG_LINE = 12;
 
 // RFQ Quote Validator expiration threshold
 export const RFQ_FIRM_QUOTE_CACHE_EXPIRY = ONE_MINUTE_MS * 2;
+
+// async rate limit
+export const RPC_RATE_LIMIT = 10;

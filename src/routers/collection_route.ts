@@ -13,13 +13,7 @@ export function createCollectionRouter(
   const router = express.Router();
   const handlers = new CollectionHandler(collectionService);
 
-  router
-    .route("/")
-    .get(handlers.root)
-    .post(
-      validate(CollectionValidation.createCollection),
-      asyncHandler(handlers.create.bind(handlers))
-    );
+  router.route("/").get(handlers.root);
 
   router
     .route("/all")

@@ -1,5 +1,6 @@
-import { GameEntity } from "../entities";
+import { AssetEntity, GameEntity } from "../entities";
 import { IGame, IPlatform } from "../types";
+import { assetUtils } from "./asset_utils";
 
 export const gameUtils = {
   deserializeGame: (gameEntity: Required<GameEntity>): IGame => {
@@ -12,6 +13,10 @@ export const gameUtils = {
       categoryId: gameEntity.categoryId,
       platform: JSON.parse(gameEntity.platform) as IPlatform[],
       owner: gameEntity.owner,
+      createdAt: gameEntity.createdAt,
+      assets: gameEntity.assets.map((assetEntity) =>
+        assetUtils.deserializeAsset(assetEntity as Required<AssetEntity>)
+      ),
     };
     return game;
   },
@@ -26,6 +31,7 @@ export const gameUtils = {
       categoryId: game.categoryId,
       platform: JSON.stringify(game.platform),
       owner: game.owner,
+      assets: game.assets.map(assetUtils.serializeAsset),
     });
     return gameEntity;
   },

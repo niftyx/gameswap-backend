@@ -15,7 +15,9 @@
     "test:rest": "env-cmd -f ./test/test_env mocha --exclude lib/test/rfqt_test.js --require source-map-support/register --require make-promises-safe lib/test/**/*_test.js --timeout 200000 --exit --bail",
     "test:rfqt": "env-cmd -f ./test/test_env mocha --require source-map-support/register --require make-promises-safe lib/test/rfqt_**.js --timeout 200000 --exit --bail",
     "dev": "nodemon -r dotenv/config src/index.ts | pino-pretty",
-    "start": "node -r dotenv/config lib/src/index.js"
+    "start": "node -r dotenv/config lib/src/index.js",
+    "dev:assetsSync": "nodemon -r dotenv/config src/runners/sync_assets_runner.ts | pino-pretty",
+    "start:assetsSync": "node -r dotenv/config lib/src/runners/sync_assets_runner.js"
   },
   "repository": {
     "type": "git",
@@ -61,6 +63,7 @@
     "@0x/utils": "^6.2.0",
     "@types/uuid": "^8.3.0",
     "@types/uuid-validate": "^0.0.1",
+    "async-sema": "^3.1.0",
     "axios": "^0.21.1",
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
@@ -68,7 +71,7 @@
     "debug": "^4.3.1",
     "delay": "^4.4.0",
     "dotenv": "^8.2.0",
-    "ethers": "^5.0.27",
+    "ethers": "^5.0.31",
     "express": "^4.17.1",
     "express-async-handler": "^1.1.4",
     "express-validation": "^3.0.6",

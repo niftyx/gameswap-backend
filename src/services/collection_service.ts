@@ -48,11 +48,13 @@ export class CollectionService {
   }
 
   private async _addCollectionAsnyc(
-    collections: ICollection[]
+    _collections: ICollection[]
   ): Promise<ICollection[]> {
     const records = await this._connection
       .getRepository(CollectionEntity)
-      .save(collections);
-    return records;
+      .save(_collections.map(collectionUtils.serializeCollection));
+    return (records as Required<CollectionEntity>[]).map(
+      collectionUtils.deserializeCollection
+    );
   }
 }

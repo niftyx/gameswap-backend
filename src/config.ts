@@ -20,10 +20,6 @@ import {
   NULL_ADDRESS,
   TX_BASE_GAS,
 } from "./constants";
-import {
-  ERC20TokenMetaDatasForChains,
-  Test721TokenMetaData,
-} from "./token_metadatas_for_networks";
 import { ChainId, HttpServiceConfig } from "./types";
 
 enum EnvVarType {
@@ -138,46 +134,21 @@ export const PINNED_MM_ADDRESSES: string[] = _.isEmpty(
       EnvVarType.AddressList
     );
 
-// Mesh Endpoint
-export const MESH_WEBSOCKET_URI = _.isEmpty(process.env.MESH_WEBSOCKET_URI)
-  ? "ws://localhost:60557"
-  : assertEnvVarType(
-      "MESH_WEBSOCKET_URI",
-      process.env.MESH_WEBSOCKET_URI,
-      EnvVarType.Url
-    );
-export const MESH_HTTP_URI = _.isEmpty(process.env.MESH_HTTP_URI)
-  ? undefined
-  : assertEnvVarType(
-      "assertEnvVarType",
-      process.env.MESH_HTTP_URI,
-      EnvVarType.Url
-    );
-
 // 0x Endpoint
 export const SRA_WEBSOCKET_URIS = {
   [ChainId.Mainnet]: process.env.RELAYER_WS_URL_MAINNET || "",
   [ChainId.Kovan]: process.env.RELAYER_WS_URL_KOVAN || "",
+  [ChainId.AVAXTEST]: process.env.RELAYER_WS_URL_AVAXTEST || "",
+  [ChainId.AVAXMAIN]: process.env.RELAYER_WS_URL_AVAXMAIN || "",
 };
 export const SRA_WEBSOCKET_URI = SRA_WEBSOCKET_URIS[CHAIN_ID];
 export const SRA_HTTP_URIS = {
   [ChainId.Mainnet]: process.env.RELAYER_URL_MAINNET || "",
   [ChainId.Kovan]: process.env.RELAYER_URL_KOVAN || "",
+  [ChainId.AVAXTEST]: process.env.RELAYER_URL_AVAXTEST || "",
+  [ChainId.AVAXMAIN]: process.env.RELAYER_URL_AVAXMAIN || "",
 };
 export const SRA_HTTP_URI = SRA_HTTP_URIS[CHAIN_ID];
-
-// SUBGRAPN ENDPOINT
-export const GSWAP_SUBGRAPH_WEBSOCKET_URIS = {
-  [ChainId.Mainnet]: process.env.GRAPH_MAINNET_WS || "",
-  [ChainId.Kovan]: process.env.GRAPH_KOVAN_WS || "",
-};
-export const GSWAP_SUBGRAPH_WEBSOCKET_URI =
-  GSWAP_SUBGRAPH_WEBSOCKET_URIS[CHAIN_ID];
-export const GSWAP_SUBGRAPH_HTTP_URIS = {
-  [ChainId.Mainnet]: process.env.GRAPH_MAINNET_HTTP || "",
-  [ChainId.Kovan]: process.env.GRAPH_KOVAN_HTTP || "",
-};
-export const GSWAP_SUBGRAPH_HTTP_URI = GSWAP_SUBGRAPH_HTTP_URIS[CHAIN_ID];
 
 // CONTENT_SECRET_KEY
 export const CONTENT_SECRET_KEY: string =
@@ -306,6 +277,25 @@ export const META_TXN_MAX_GAS_PRICE_GWEI: BigNumber = _.isEmpty(
       process.env.META_TXN_MAX_GAS_PRICE_GWEI,
       EnvVarType.UnitAmount
     );
+
+// Ethereum RPC Url
+export const ETHEREUM_RPC_URL = assertEnvVarType(
+  "ETHEREUM_RPC_URL",
+  process.env.ETHEREUM_RPC_URL,
+  EnvVarType.Url
+);
+
+export const ERC721FACTORY_CONTRACT = assertEnvVarType(
+  "ERC721FACTORY_CONTRACT",
+  process.env.ERC721FACTORY_CONTRACT,
+  EnvVarType.NonEmptyString
+);
+
+export const ERC721FACTORY_CONTRACT_BLOCK = assertEnvVarType(
+  "ERC721FACTORY_CONTRACT_BLOCK",
+  process.env.ERC721FACTORY_CONTRACT_BLOCK,
+  EnvVarType.Integer
+);
 
 // Whether or not prometheus metrics should be enabled.
 // tslint:disable-next-line:boolean-naming
@@ -441,8 +431,9 @@ export const defaultHttpServiceConfig: HttpServiceConfig = {
   httpHeadersTimeout: HTTP_HEADERS_TIMEOUT,
   enablePrometheusMetrics: ENABLE_PROMETHEUS_METRICS,
   prometheusPort: PROMETHEUS_PORT,
-  meshWebsocketUri: MESH_WEBSOCKET_URI,
-  meshHttpUri: MESH_HTTP_URI,
+  ethereumRpcUrl: ETHEREUM_RPC_URL,
+  factoryContractAddress: ERC721FACTORY_CONTRACT,
+  factoryBlockNumber: ERC721FACTORY_CONTRACT_BLOCK,
 };
 
 export const defaultHttpServiceWithRateLimiterConfig: HttpServiceConfig = {
@@ -514,13 +505,3 @@ function assertEnvVarType(
       );
   }
 }
-
-export const WHITELISTED_TOKENS: string[] = ERC20TokenMetaDatasForChains.map(
-  (tm) => tm.tokenAddresses[CHAIN_ID]
-);
-
-export const ERC20TokenAddresses: string[] = ERC20TokenMetaDatasForChains.map(
-  (tm) => tm.tokenAddresses[CHAIN_ID]
-);
-export const Test721TokenAddress =
-  Test721TokenMetaData.tokenAddresses[CHAIN_ID];

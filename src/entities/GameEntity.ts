@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryColumn } from "typeorm";
+import { Column, Entity, OneToMany, PrimaryColumn } from "typeorm";
+import { AssetEntity } from "./AssetEntity";
 
 @Entity({ name: "games" })
 export class GameEntity {
@@ -26,8 +27,11 @@ export class GameEntity {
   @Column({ name: "owner", type: "varchar" })
   public owner?: string;
 
-  @Column({ name: "created_at", type: "timestamptz", default: "now()" })
-  public createdAt?: string;
+  @Column({ name: "created_at", type: "int" })
+  public createdAt?: number;
+
+  @OneToMany(() => AssetEntity, (asset) => asset.game)
+  public assets?: AssetEntity[];
 
   constructor(
     opts: {
@@ -39,6 +43,8 @@ export class GameEntity {
       version?: string;
       platform?: string;
       owner?: string;
+      assets?: AssetEntity[];
+      createdAt?: number;
     } = {}
   ) {
     this.id = opts.id;
@@ -49,5 +55,7 @@ export class GameEntity {
     this.version = opts.version;
     this.platform = opts.platform;
     this.owner = opts.owner;
+    this.assets = opts.assets;
+    this.createdAt = opts.createdAt;
   }
 }

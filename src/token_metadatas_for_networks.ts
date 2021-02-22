@@ -7,6 +7,8 @@ export interface TokenMetadataAndChainAddresses {
   tokenAddresses: {
     [ChainId.Mainnet]: string;
     [ChainId.Kovan]: string;
+    [ChainId.AVAXTEST]: string;
+    [ChainId.AVAXMAIN]: string;
   };
 }
 
@@ -22,25 +24,19 @@ export const ERC20TokenMetaDatasForChains: TokenMetadataAndChainAddresses[] = [
     tokenAddresses: {
       [ChainId.Mainnet]: "0xaac41ec512808d64625576eddd580e7ea40ef8b2",
       [ChainId.Kovan]: "0xb2c7d27f78bec818391498dc4108ab782d65cd76",
+      [ChainId.AVAXTEST]: "0x444806D2C0856c12dD8DB239b809Fc4641FCbB5E",
+      [ChainId.AVAXMAIN]: "0x444806D2C0856c12dD8DB239b809Fc4641FCbB5E",
     },
   },
   {
-    symbol: "wETH",
-    name: "wrapped ETH",
+    symbol: "SHROOM",
+    name: "Shroom Finance",
     decimals: 18,
     tokenAddresses: {
-      [ChainId.Mainnet]: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
-      [ChainId.Kovan]: "0xd0a1e359811322d97991e03f863a0c30c2cf029c",
+      [ChainId.Mainnet]: "0xaac41ec512808d64625576eddd580e7ea40ef8b2",
+      [ChainId.Kovan]: "0xb2c7d27f78bec818391498dc4108ab782d65cd76",
+      [ChainId.AVAXTEST]: "0xbE0382B9cbD516527431beADad01A683641956c4",
+      [ChainId.AVAXMAIN]: "0x444806D2C0856c12dD8DB239b809Fc4641FCbB5E",
     },
   },
 ];
-
-export const Test721TokenMetaData: TokenMetadataAndChainAddresses = {
-  symbol: "T71",
-  name: "Test721",
-  decimals: 18,
-  tokenAddresses: {
-    [ChainId.Mainnet]: "0x254D5259539b3ec85Cd76A1931899ec7E8851dD4",
-    [ChainId.Kovan]: "0xb917795f6b1107f2635df03df1f4a97c29959dd9",
-  },
-};

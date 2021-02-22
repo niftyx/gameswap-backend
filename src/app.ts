@@ -1,9 +1,8 @@
 import {
   AssetSwapperContractAddresses,
-  BRIDGE_ADDRESSES_BY_CHAIN,
   ContractAddresses,
 } from "@0x/asset-swapper";
-import { getContractAddressesForChainOrThrow } from "@0x/contract-addresses";
+import { getContractAddressesForChainOrThrow } from "./custom/contract-addresses";
 import * as express from "express";
 import { Server } from "http";
 import { Connection } from "typeorm";
@@ -11,8 +10,6 @@ import { Connection } from "typeorm";
 import {
   CHAIN_ID,
   CONTENT_SECRET_KEY,
-  GSWAP_SUBGRAPH_HTTP_URI,
-  GSWAP_SUBGRAPH_WEBSOCKET_URI,
   LOGGER_INCLUDE_TIMESTAMP,
   LOG_LEVEL,
 } from "./config";
@@ -23,8 +20,9 @@ import { ChainId, HttpServiceConfig } from "./types";
 import * as pino from "pino";
 import { CollectionService } from "./services/collection_service";
 import { CryptoContentService } from "./services/crypto_content_service";
-import { SubGraphService } from "./services/subgraph_service";
 import { GameService } from "./services/game_service";
+import { FactoryService } from "./services/factory_service";
+import { AccountService } from "./services/account_service";
 //import { runOrderWatcherServiceAsync } from "./runners/order_watcher_service_runner";
 export const logger = pino({
   level: LOG_LEVEL,
@@ -38,7 +36,8 @@ export interface AppDependencies {
   collectionService: CollectionService;
   gameService: GameService;
   cryptoContentService: CryptoContentService;
-  subgraphService: SubGraphService;
+  factoryService: FactoryService;
+  accountService: AccountService;
 }
 
 let contractAddresses_: AssetSwapperContractAddresses | undefined;
@@ -56,7 +55,25 @@ export async function getContractAddressesForNetworkOrThrowAsync(
     return contractAddresses_;
   }
   let contractAddresses = getContractAddressesForChainOrThrow(chainId);
-  const bridgeAddresses = BRIDGE_ADDRESSES_BY_CHAIN[chainId];
+  const bridgeAddresses = {
+    uniswapBridge: exports.NULL_ADDRESS,
+    uniswapV2Bridge: exports.NULL_ADDRESS,
+    eth2DaiBridge: exports.NULL_ADDRESS,
+    kyberBridge: exports.NULL_ADDRESS,
+    curveBridge: exports.NULL_ADDRESS,
+    multiBridge: exports.NULL_ADDRESS,
+    balancerBridge: exports.NULL_ADDRESS,
+    bancorBridge: exports.NULL_ADDRESS,
+    mStableBridge: exports.NULL_ADDRESS,
+    mooniswapBridge: exports.NULL_ADDRESS,
+    sushiswapBridge: exports.NULL_ADDRESS,
+    shellBridge: exports.NULL_ADDRESS,
+    dodoBridge: exports.NULL_ADDRESS,
+    creamBridge: exports.NULL_ADDRESS,
+    snowswapBridge: exports.NULL_ADDRESS,
+    swerveBridge: exports.NULL_ADDRESS,
+    cryptoComBridge: exports.NULL_ADDRESS,
+  };
   // In a testnet where the environment does not support overrides
   // so we deploy the latest sampler
   contractAddresses_ = { ...contractAddresses, ...bridgeAddresses };
@@ -78,18 +95,21 @@ export async function getDefaultAppDependenciesAsync(
   const collectionService = new CollectionService(connection);
   const gameService = new GameService(connection);
   const cryptoContentService = new CryptoContentService(CONTENT_SECRET_KEY);
-  const subgraphService = new SubGraphService(
-    GSWAP_SUBGRAPH_HTTP_URI,
-    GSWAP_SUBGRAPH_WEBSOCKET_URI
+  const factoryService = new FactoryService(
+    connection,
+    _config.factoryContractAddress,
+    _config.factoryBlockNumber
   );
+  const accountService = new AccountService(connection);
 
   return {
     contractAddresses,
     connection,
     collectionService,
     cryptoContentService,
-    subgraphService,
     gameService,
+    factoryService,
+    accountService,
   };
 }
 /**
@@ -106,22 +126,16 @@ export async function getAppAsync(
 ): Promise<{ app: Express.Application; server: Server }> {
   const app = express();
   const { server } = await runHttpServiceAsync(dependencies, config, app);
-  // try {
-  //   await runOrderWatcherServiceAsync(
-  //     dependencies.connection,
-  //     dependencies.meshClient
-  //   );
-  // } catch (e) {
-  //   logger.error(
-  //     `Error attempting to start Order Watcher service, [${JSON.stringify(e)}]`
-  //   );
-  // }
-  // Register a shutdown event listener.
-  // TODO: More teardown logic should be added here. For example, the mesh rpc
-  // client should be destroyed and services should be torn down.
-  // server.on("close", async () => {
-  //   await wsService.destroyAsync();
-  // });
+
+  // list contracts
+  try {
+    await dependencies.factoryService.listenERC721Contracts();
+  } catch (e) {
+    logger.error(
+      `Error attempting to start ERC721 Factory service, [${JSON.stringify(e)}]`
+    );
+  }
+  // listen
 
   return { app, server };
 }

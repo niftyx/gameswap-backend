@@ -19,7 +19,6 @@ import { createCollectionRouter } from "../routers/collection_route";
 import { createCryptoContentRouter } from "../routers/crypto_content_route";
 import { createGameRouter } from "../routers/game_route";
 // import { createSRARouter } from "../routers/sra_router";
-import { WebsocketService } from "../services/websocket_service";
 import { HttpServiceConfig } from "../types";
 
 import { createDefaultServer } from "./utils";
@@ -42,7 +41,6 @@ process.on("unhandledRejection", (err) => {
 
 export interface HttpServices {
   server: Server;
-  wsService?: WebsocketService;
 }
 
 /**
@@ -70,10 +68,7 @@ export async function runHttpServiceAsync(
   // staking http service
   app.use(
     CRYPTO_CONTENT_PATH,
-    createCryptoContentRouter(
-      dependencies.cryptoContentService,
-      dependencies.subgraphService
-    )
+    createCryptoContentRouter(dependencies.cryptoContentService)
   );
 
   // GAME http service
@@ -88,27 +83,10 @@ export async function runHttpServiceAsync(
     createCollectionRouter(dependencies.collectionService)
   );
 
-  // SRA http service
-  // app.use(SRA_PATH, createSRARouter(dependencies.orderBookService));
-
   app.use(errorHandler);
 
-  // websocket service
-  // let wsService: WebsocketService;
-  // if (dependencies.meshClient) {
-  //   // tslint:disable-next-line:no-unused-expression
-  //   wsService = new WebsocketService(
-  //     server,
-  //     dependencies.meshClient,
-  //     dependencies.websocketOpts
-  //   );
-  // } else {
-  //   logger.error(`Could not establish mesh connection, exiting`);
-  //   process.exit(1);
-  // }
   server.listen(config.httpPort);
   return {
     server,
-    // wsService,
   };
 }

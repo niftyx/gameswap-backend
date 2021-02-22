@@ -16,7 +16,7 @@ import {
   UpdateOrdersChannelMessage,
   ZeroExTransaction,
 } from "@0x/types";
-import { BigNumber } from "@0x/utils";
+import { BigNumber } from "ethers";
 
 export enum OrderWatcherLifeCycleEvents {
   Added,
@@ -354,6 +354,8 @@ export interface ObjectMap<T> {
 export enum ChainId {
   Mainnet = 1,
   Kovan = 42,
+  AVAXTEST = 43113,
+  AVAXMAIN = 43114,
 }
 
 export interface TokenMetadata {
@@ -504,8 +506,9 @@ export interface HttpServiceConfig {
   httpHeadersTimeout: number;
   enablePrometheusMetrics: boolean;
   prometheusPort: number;
-  meshWebsocketUri: string;
-  meshHttpUri: string;
+  ethereumRpcUrl: string;
+  factoryContractAddress: string;
+  factoryBlockNumber: number;
 }
 
 export interface SRAGetOrdersRequestOpts {
@@ -571,14 +574,98 @@ export interface IGame {
   description: string;
   platform: IPlatform[];
   owner?: string;
+  createdAt: number;
+  assets: IAsset[];
+}
+
+export interface IAsset {
+  id: string;
+  assetId: BigNumber;
+  assetURL: string;
+  gameId: string;
+  categoryId: string;
+  contentId: string;
+  currentOwner?: IAccount;
+  createTimeStamp: number;
+  updateTimeStamp: number;
+  collection?: ICollection;
+  history: IAssetHistory[];
+  orders: IZeroXOrder[];
+}
+
+export interface IAssetHistory {
+  id: string;
+  owner: string;
+  txHash: string;
+  timestamp: number;
+  asset?: IAsset;
 }
 
 export interface ICollection {
   id: string;
-  displayName: string;
-  description?: string;
+  block: number;
+  address: string;
+  name: string;
+  symbol: string;
   imageUrl: string;
+  description?: string;
   shortUrl?: string;
+  owner: string;
+  totalSupply: BigNumber;
+  totalMinted: BigNumber;
+  totalBurned: BigNumber;
+  createTimeStamp: number;
+  updateTimeStamp: number;
+  assets: IAsset[];
+  history: ICollectionHistory[];
+}
+
+export interface ICollectionHistory {
+  id: string;
+  owner: string;
+  timestamp: number;
+  collection?: ICollection;
+  txHash: string;
+}
+
+export interface IAccount {
+  id: string;
+  address: string;
+  assetCount: number;
+  createTimeStamp: number;
+  assets: IAsset[];
+}
+
+export enum ZeroXOrderType {
+  Created = "Created",
+  Filled = "Filled",
+  Cancelled = "Cancelled",
+}
+
+export interface IZeroXOrder {
+  hash: string;
+  senderAddress: string;
+  makerAddress: string;
+  takerAddress: string;
+  makerAssetData: string;
+  takerAssetData: string;
+  exchangeAddress: string;
+  feeRecipientAddress: string;
+  expirationTimeSeconds: string;
+  makerFee: string;
+  takerFee: string;
+  makerAssetAmount: string;
+  takerAssetAmount: string;
+  salt: string;
+  signature: string;
+
+  remainingFillableTakerAssetAmount: string;
+  makerFeeAssetData: string;
+  takerFeeAssetData: string;
+  status: ZeroXOrderType;
+  createdAt: number;
+
+  asset?: IAsset;
 }
 
 export interface GraphVariables {

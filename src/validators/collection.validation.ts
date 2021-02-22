@@ -14,15 +14,6 @@ const CollectionValidation = {
       page: Joi.number().min(1),
     }),
   },
-  // POST /collections/v1/
-  createCollection: {
-    body: Joi.object({
-      displayName: Joi.string().required(),
-      description: Joi.string(),
-      imageUrl: Joi.string().required(),
-      shortUrl: Joi.string(),
-    }),
-  },
 };
 
 export default CollectionValidation;

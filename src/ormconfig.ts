@@ -2,18 +2,23 @@ import { ConnectionOptions } from "typeorm";
 
 import { POSTGRES_READ_REPLICA_URIS, POSTGRES_URI } from "./config";
 import {
-  KeyValueEntity,
-  PersistentSignedOrderEntity,
-  SignedOrderEntity,
-  TransactionEntity,
+  AssetEntity,
+  AccountEntity,
+  AssetHistoryEntity,
   CollectionEntity,
+  CollectionHistoryEntity,
+  GameEntity,
+  ZeroXOrderEntity,
 } from "./entities";
 
 const entities = [
-  SignedOrderEntity,
-  PersistentSignedOrderEntity,
-  TransactionEntity,
-  KeyValueEntity,
+  AssetEntity,
+  AccountEntity,
+  AssetHistoryEntity,
+  CollectionEntity,
+  CollectionHistoryEntity,
+  GameEntity,
+  ZeroXOrderEntity,
   CollectionEntity,
 ];
 

@@ -1,19 +1,13 @@
 import * as express from "express";
 import * as HttpStatus from "http-status-codes";
 import { CryptoContentService } from "../services/crypto_content_service";
-import { SubGraphService } from "../services/subgraph_service";
 import { v4 as uuidv4 } from "uuid";
 import * as isValidUUID from "uuid-validate";
 import { utils } from "ethers";
 export class CryptoContentHandler {
   private readonly _cryptoContentService;
-  private readonly _subgraphService;
-  constructor(
-    cryptoContentService: CryptoContentService,
-    subgraphService: SubGraphService
-  ) {
+  constructor(cryptoContentService: CryptoContentService) {
     this._cryptoContentService = cryptoContentService;
-    this._subgraphService = subgraphService;
   }
   public async encryptData(
     req: express.Request,
@@ -52,9 +46,7 @@ export class CryptoContentHandler {
       signedContentStr
     );
 
-    const ownerAddress = await this._subgraphService.getOwnerFromAssetContentId(
-      contentId
-    );
+    const ownerAddress = "";
 
     if (
       String(ownerAddressFromRequest).toLowerCase() ===
