@@ -19,12 +19,15 @@ export class AssetService {
     return records[0];
   }
 
-  public async getAsset(id: string): Promise<IAsset> {
+  public async getAsset(id: string): Promise<IAsset | null> {
     const assetEntity = (await this._connection.manager.findOne(
       AssetEntity,
       id
     )) as Required<AssetEntity>;
 
+    if (assetEntity) {
+      return null;
+    }
     const asset = assetUtils.deserializeAsset(assetEntity);
 
     return asset;
@@ -42,7 +45,7 @@ export class AssetService {
     return paginatedAssets;
   }
 
-  public async updateAccount(asset: IAsset): Promise<IAsset> {
+  public async update(asset: IAsset): Promise<IAsset> {
     const records = (await this._connection
       .getRepository(AssetEntity)
       .save([asset].map(assetUtils.serializeAsset))) as Required<AssetEntity>[];

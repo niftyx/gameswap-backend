@@ -44,7 +44,7 @@ export class AccountService {
     return records[0];
   }
 
-  public async updateAccount(account: IAccount): Promise<IAccount> {
+  public async update(account: IAccount): Promise<IAccount> {
     const records = (await this._connection
       .getRepository(AccountEntity)
       .save(

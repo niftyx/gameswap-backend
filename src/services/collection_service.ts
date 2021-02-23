@@ -47,7 +47,7 @@ export class CollectionService {
     return paginatedCollections;
   }
 
-  public async updateCollection(collection: ICollection): Promise<ICollection> {
+  public async update(collection: ICollection): Promise<ICollection> {
     const records = (await this._connection
       .getRepository(CollectionEntity)
       .save(

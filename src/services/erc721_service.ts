@@ -79,7 +79,7 @@ export class ERC721Service {
 
       collection.owner = ownerAddress;
       collection.updateTimeStamp = block.timestamp;
-      collection = await this._collectionService.updateCollection(collection);
+      collection = await this._collectionService.update(collection);
 
       const collectionHistory: ICollectionHistory = {
         id: `${collectionTxHash}${ownerAddress}`,
@@ -121,7 +121,7 @@ export class ERC721Service {
         // increase totalSupply and totalMinted of collection
         collection.totalSupply = collection.totalSupply.add(ONE_NUMBER);
         collection.totalMinted = collection.totalMinted.add(ONE_NUMBER);
-        collection = await this._collectionService.updateCollection(collection);
+        collection = await this._collectionService.update(collection);
 
         // handle account
         const ownerAddress = String(parsed.args[1]).toLowerCase();
@@ -132,10 +132,10 @@ export class ERC721Service {
 
         // increase assetCount and update
         account.assetCount = account.assetCount.add(ONE_NUMBER);
-        account = await this._accountService.updateAccount(account);
+        account = await this._accountService.update(account);
 
         let asset: IAsset = {
-          id: (parsed.args[2] as BigNumber).toHexString(),
+          id: (parsed.args[2] as BigNumber).toHexString().toLowerCase(),
           assetId: parsed.args[2],
           assetURL: "",
           gameId: "",
@@ -172,8 +172,89 @@ export class ERC721Service {
         await this._assetHistoryService.addHistory(assetHistory);
       } else if (parsed.args[1] === ZERO_ADDRESS) {
         // burn assets
+        const previousOwner = String(parsed.args[0]).toLowerCase();
+        const assetId = (parsed.args[2] as BigNumber)
+          .toHexString()
+          .toLowerCase();
+        let asset = await this._assetService.getAsset(assetId);
+        let previousAccount = await this._accountService.getAccount(
+          previousOwner
+        );
+        let account = await this._accountService.getOrCreateAccount(
+          ZERO_ADDRESS,
+          block.timestamp
+        );
+
+        if (asset) {
+          // change owner of asset
+          asset.currentOwner = account;
+          asset = await this._assetService.update(asset);
+
+          // write asset history
+          const assetTxHash = String(log.transactionHash).toLowerCase();
+          const assetHistory: IAssetHistory = {
+            id: assetTxHash,
+            owner: ZERO_ADDRESS,
+            txHash: assetTxHash,
+            timestamp: block.timestamp,
+            asset,
+          };
+          await this._assetHistoryService.addHistory(assetHistory);
+
+          // previousOwner.assetCount - 1
+          previousAccount.assetCount = previousAccount.assetCount.sub(
+            ONE_NUMBER
+          );
+          await this._accountService.update(previousAccount);
+
+          account.assetCount = account.assetCount.add(ONE_NUMBER);
+          await this._accountService.update(account);
+
+          // update totalBurn and totalSupply of collection
+          collection.totalSupply = collection.totalSupply.sub(ONE_NUMBER);
+          collection.totalBurned = collection.totalBurned.add(ONE_NUMBER);
+          collection = await this._collectionService.update(collection);
+        }
       } else {
         // transfer asset
+        const previousOwner = String(parsed.args[0]).toLowerCase();
+        const assetId = (parsed.args[2] as BigNumber)
+          .toHexString()
+          .toLowerCase();
+        let asset = await this._assetService.getAsset(assetId);
+        let previousAccount = await this._accountService.getAccount(
+          previousOwner
+        );
+        let newAccount = await this._accountService.getOrCreateAccount(
+          ZERO_ADDRESS,
+          block.timestamp
+        );
+
+        if (asset) {
+          // update asset
+          asset.currentOwner = newAccount;
+          await this._assetService.update(asset);
+
+          //
+          previousAccount.assetCount = previousAccount.assetCount.sub(
+            ONE_NUMBER
+          );
+          await this._accountService.update(previousAccount);
+
+          newAccount.assetCount = newAccount.assetCount.sub(ONE_NUMBER);
+          await this._accountService.update(newAccount);
+
+          const assetTxHash = String(log.transactionHash).toLowerCase();
+          const assetHistory: IAssetHistory = {
+            id: assetTxHash,
+            owner: newAccount.address,
+            txHash: assetTxHash,
+            timestamp: block.timestamp,
+            asset,
+          };
+
+          await this._assetHistoryService.addHistory(assetHistory);
+        }
       }
     }
 
