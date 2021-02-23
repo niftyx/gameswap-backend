@@ -9,8 +9,8 @@ export class AccountEntity {
   @Column({ name: "address", type: "varchar" })
   public address?: string;
 
-  @Column({ name: "asset_count", type: "int" })
-  public assetCount?: number;
+  @Column({ name: "asset_count", type: "bigint" })
+  public assetCount?: string;
 
   @Column({ name: "create_time_stamp", type: "int" })
   public createTimeStamp?: number;
@@ -22,7 +22,7 @@ export class AccountEntity {
     opts: {
       id?: string;
       address?: string;
-      assetCount?: number;
+      assetCount?: string;
       createTimeStamp?: number;
       assets?: AssetEntity[];
     } = {}

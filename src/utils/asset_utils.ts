@@ -28,19 +28,25 @@ export const assetUtils = {
             assetEntity.currentOwner as Required<AccountEntity>
           )
         : undefined,
-      history: assetEntity.history.map((historyEntity) =>
-        assetHistoryUtils.deserializeAssetHistory(
-          historyEntity as Required<AssetHistoryEntity>
-        )
-      ),
+      history: assetEntity.history
+        ? assetEntity.history.map((historyEntity) =>
+            assetHistoryUtils.deserializeAssetHistory(
+              historyEntity as Required<AssetHistoryEntity>
+            )
+          )
+        : undefined,
       collection: assetEntity.collection
         ? collectionUtils.deserializeCollection(
             assetEntity.collection as Required<CollectionEntity>
           )
         : undefined,
-      orders: assetEntity.orders.map((order) =>
-        zeroXOrderUtils.deserializeOrder(order as Required<ZeroXOrderEntity>)
-      ),
+      orders: assetEntity.orders
+        ? assetEntity.orders.map((order) =>
+            zeroXOrderUtils.deserializeOrder(
+              order as Required<ZeroXOrderEntity>
+            )
+          )
+        : undefined,
     };
     return asset;
   },
@@ -48,7 +54,7 @@ export const assetUtils = {
   serializeAsset: (asset: IAsset): AssetEntity => {
     const assetEntity = new AssetEntity({
       id: asset.id,
-      assetId: asset.assetId.toHexString(),
+      assetId: asset.assetId.toString(),
       assetURL: asset.assetURL,
       gameId: asset.gameId,
       categoryId: asset.categoryId,
@@ -58,11 +64,15 @@ export const assetUtils = {
       currentOwner: asset.currentOwner
         ? accountUtils.serializeAccount(asset.currentOwner)
         : undefined,
-      history: asset.history.map(assetHistoryUtils.serializeAssetHistory),
+      history: asset.history
+        ? asset.history.map(assetHistoryUtils.serializeAssetHistory)
+        : undefined,
       collection: asset.collection
         ? collectionUtils.serializeCollection(asset.collection)
         : undefined,
-      orders: asset.orders.map(zeroXOrderUtils.serializeOrder),
+      orders: asset.orders
+        ? asset.orders.map(zeroXOrderUtils.serializeOrder)
+        : undefined,
     });
     return assetEntity;
   },

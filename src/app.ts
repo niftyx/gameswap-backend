@@ -23,6 +23,9 @@ import { CryptoContentService } from "./services/crypto_content_service";
 import { GameService } from "./services/game_service";
 import { FactoryService } from "./services/factory_service";
 import { AccountService } from "./services/account_service";
+import { AssetHistoryService } from "./services/asset_history_service";
+import { CollectionHistoryService } from "./services/collection_history_service";
+import { AssetService } from "./services/asset_service";
 //import { runOrderWatcherServiceAsync } from "./runners/order_watcher_service_runner";
 export const logger = pino({
   level: LOG_LEVEL,
@@ -33,11 +36,14 @@ export const logger = pino({
 export interface AppDependencies {
   contractAddresses: ContractAddresses;
   connection: Connection;
-  collectionService: CollectionService;
-  gameService: GameService;
   cryptoContentService: CryptoContentService;
   factoryService: FactoryService;
   accountService: AccountService;
+  assetService: AssetService;
+  assetHistoryService: AssetHistoryService;
+  collectionService: CollectionService;
+  collectionHistoryService: CollectionHistoryService;
+  gameService: GameService;
 }
 
 let contractAddresses_: AssetSwapperContractAddresses | undefined;
@@ -93,6 +99,7 @@ export async function getDefaultAppDependenciesAsync(
   const connection = await getDBConnectionAsync();
 
   const collectionService = new CollectionService(connection);
+  const collectionHistoryService = new CollectionHistoryService(connection);
   const gameService = new GameService(connection);
   const cryptoContentService = new CryptoContentService(CONTENT_SECRET_KEY);
   const factoryService = new FactoryService(
@@ -101,15 +108,20 @@ export async function getDefaultAppDependenciesAsync(
     _config.factoryBlockNumber
   );
   const accountService = new AccountService(connection);
+  const assetService = new AssetService(connection);
+  const assetHistoryService = new AssetHistoryService(connection);
 
   return {
     contractAddresses,
     connection,
     collectionService,
+    collectionHistoryService,
     cryptoContentService,
     gameService,
     factoryService,
     accountService,
+    assetService,
+    assetHistoryService,
   };
 }
 /**

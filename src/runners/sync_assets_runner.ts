@@ -37,7 +37,10 @@ if (require.main === module) {
           erc721.block,
           dependencies.connection,
           dependencies.collectionService,
-          dependencies.accountService
+          dependencies.collectionHistoryService,
+          dependencies.accountService,
+          dependencies.assetService,
+          dependencies.assetHistoryService
         );
         await erc721Service.syncAssets();
       }

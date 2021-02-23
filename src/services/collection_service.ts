@@ -47,6 +47,15 @@ export class CollectionService {
     return paginatedCollections;
   }
 
+  public async updateCollection(collection: ICollection): Promise<ICollection> {
+    const records = (await this._connection
+      .getRepository(CollectionEntity)
+      .save(
+        [collection].map(collectionUtils.serializeCollection)
+      )) as Required<CollectionEntity>[];
+    return collectionUtils.deserializeCollection(records[0]);
+  }
+
   private async _addCollectionAsnyc(
     _collections: ICollection[]
   ): Promise<ICollection[]> {

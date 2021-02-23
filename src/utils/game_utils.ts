@@ -14,9 +14,11 @@ export const gameUtils = {
       platform: JSON.parse(gameEntity.platform) as IPlatform[],
       owner: gameEntity.owner,
       createdAt: gameEntity.createdAt,
-      assets: gameEntity.assets.map((assetEntity) =>
-        assetUtils.deserializeAsset(assetEntity as Required<AssetEntity>)
-      ),
+      assets: gameEntity.assets
+        ? gameEntity.assets.map((assetEntity) =>
+            assetUtils.deserializeAsset(assetEntity as Required<AssetEntity>)
+          )
+        : undefined,
     };
     return game;
   },
@@ -31,7 +33,23 @@ export const gameUtils = {
       categoryId: game.categoryId,
       platform: JSON.stringify(game.platform),
       owner: game.owner,
-      assets: game.assets.map(assetUtils.serializeAsset),
+    });
+    return gameEntity;
+  },
+
+  serializeGameAll: (game: IGame): GameEntity => {
+    const gameEntity = new GameEntity({
+      id: game.id,
+      title: game.title,
+      description: game.description,
+      imageUrl: game.imageUrl,
+      version: game.version,
+      categoryId: game.categoryId,
+      platform: JSON.stringify(game.platform),
+      owner: game.owner,
+      assets: game.assets
+        ? game.assets.map(assetUtils.serializeAsset)
+        : undefined,
     });
     return gameEntity;
   },

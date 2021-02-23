@@ -5,6 +5,7 @@ import { Connection } from "typeorm";
 import { AccountEntity } from "../entities";
 import { IAccount } from "../types";
 import { accountUtils } from "../utils/account_utils";
+import { ZERO_NUMBER } from "../utils/number";
 import { paginationUtils } from "../utils/pagination_utils";
 
 export class AccountService {
@@ -31,7 +32,7 @@ export class AccountService {
     const account = await this.addAccount({
       id,
       address: id,
-      assetCount: 0,
+      assetCount: ZERO_NUMBER,
       createTimeStamp: timestamp,
       assets: [],
     });
@@ -41,6 +42,15 @@ export class AccountService {
   public async addAccount(account: IAccount): Promise<IAccount> {
     const records = await this._addAccountsAsync([account]);
     return records[0];
+  }
+
+  public async updateAccount(account: IAccount): Promise<IAccount> {
+    const records = (await this._connection
+      .getRepository(AccountEntity)
+      .save(
+        [account].map(accountUtils.serializeAccount)
+      )) as Required<AccountEntity>[];
+    return accountUtils.deserializeAccount(records[0]);
   }
 
   public async getAccount(id: string): Promise<IAccount> {
@@ -77,6 +87,5 @@ export class AccountService {
     return (records as Required<AccountEntity>[]).map(
       accountUtils.deserializeAccount
     );
-    return [];
   }
 }

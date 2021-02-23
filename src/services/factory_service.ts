@@ -93,7 +93,9 @@ export class FactoryService {
 
     const erc721Contracts: { address: string; block: number }[] = [];
 
-    const promises = logs.map(async (log) => {
+    for (let index = 0; index < logs.length; index++) {
+      const log = logs[index];
+
       const blockNumber = log.blockNumber;
       const block = await provider.getBlock(blockNumber);
       const parsed = iface.parseLog(log);
@@ -113,19 +115,15 @@ export class FactoryService {
         totalBurned: ZERO_NUMBER,
         createTimeStamp: block.timestamp,
         updateTimeStamp: block.timestamp,
-        assets: [],
-        history: [],
       };
 
-      await this._createOrGetCollection([collection]);
+      await this._createCollections([collection]);
 
       erc721Contracts.push({
         address: collection.address,
         block: collection.block,
       });
-    });
-
-    await Promise.all(promises);
+    }
 
     logger.info("==== ERC721 Factory Sync End ===");
 
@@ -134,7 +132,7 @@ export class FactoryService {
 
   async listenERC721Contracts() {}
 
-  private async _createOrGetCollection(collections: ICollection[]) {
+  private async _createCollections(collections: ICollection[]) {
     const records = await this._connection
       .getRepository(CollectionEntity)
       .save(collections.map(collectionUtils.serializeCollection));

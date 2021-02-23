@@ -1,6 +1,12 @@
 import { BigNumber } from "ethers";
-import { CollectionEntity } from "../entities";
+import {
+  AssetEntity,
+  CollectionEntity,
+  CollectionHistoryEntity,
+} from "../entities";
 import { ICollection } from "../types";
+import { assetUtils } from "./asset_utils";
+import { collectionHistoryUtils } from "./collection_history_utils";
 
 export const collectionUtils = {
   deserializeCollection: (
@@ -21,8 +27,18 @@ export const collectionUtils = {
       totalBurned: BigNumber.from(collectionEntity.totalBurned),
       createTimeStamp: collectionEntity.createTimeStamp,
       updateTimeStamp: collectionEntity.updateTimeStamp,
-      assets: [],
-      history: [],
+      assets: collectionEntity.assets
+        ? collectionEntity.assets.map((asset) =>
+            assetUtils.deserializeAsset(asset as Required<AssetEntity>)
+          )
+        : undefined,
+      history: collectionEntity.history
+        ? collectionEntity.history.map((history) =>
+            collectionHistoryUtils.deserializeCollectionHistory(
+              history as Required<CollectionHistoryEntity>
+            )
+          )
+        : undefined,
     };
     return collection;
   },
@@ -43,8 +59,14 @@ export const collectionUtils = {
       totalBurned: collection.totalBurned.toString(),
       createTimeStamp: collection.createTimeStamp,
       updateTimeStamp: collection.updateTimeStamp,
-      assets: [],
-      history: [],
+      assets: collection.assets
+        ? collection.assets.map(assetUtils.serializeAsset)
+        : undefined,
+      history: collection.history
+        ? collection.history.map(
+            collectionHistoryUtils.serializeCollectionHistory
+          )
+        : undefined,
     });
     return gameEntity;
   },

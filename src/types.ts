@@ -575,7 +575,7 @@ export interface IGame {
   platform: IPlatform[];
   owner?: string;
   createdAt: number;
-  assets: IAsset[];
+  assets?: IAsset[];
 }
 
 export interface IAsset {
@@ -589,8 +589,8 @@ export interface IAsset {
   createTimeStamp: number;
   updateTimeStamp: number;
   collection?: ICollection;
-  history: IAssetHistory[];
-  orders: IZeroXOrder[];
+  history?: IAssetHistory[];
+  orders?: IZeroXOrder[];
 }
 
 export interface IAssetHistory {
@@ -616,8 +616,8 @@ export interface ICollection {
   totalBurned: BigNumber;
   createTimeStamp: number;
   updateTimeStamp: number;
-  assets: IAsset[];
-  history: ICollectionHistory[];
+  assets?: IAsset[];
+  history?: ICollectionHistory[];
 }
 
 export interface ICollectionHistory {
@@ -631,9 +631,9 @@ export interface ICollectionHistory {
 export interface IAccount {
   id: string;
   address: string;
-  assetCount: number;
+  assetCount: BigNumber;
   createTimeStamp: number;
-  assets: IAsset[];
+  assets?: IAsset[];
 }
 
 export enum ZeroXOrderType {

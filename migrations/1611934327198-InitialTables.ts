@@ -3,7 +3,7 @@ import { MigrationInterface, QueryRunner } from "typeorm";
 export class InitialTables1611934327198 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
-      `CREATE TABLE "accounts" ("id" character varying NOT NULL, "address" character varying NOT NULL, "asset_count" integer, "create_time_stamp" integer NOT NULL, PRIMARY KEY ("id"))`
+      `CREATE TABLE "accounts" ("id" character varying NOT NULL, "address" character varying NOT NULL, "asset_count" bigint NOT NULL, "create_time_stamp" integer NOT NULL, PRIMARY KEY ("id"))`
     );
     await queryRunner.query(
       `CREATE TABLE "assets" ("id" character varying NOT NULL, "asset_id" bigint NOT NULL, "asset_url" character NOT NULL, "game_id" character varying NOT NULL, "category_id" character varying NOT NULL, "content_id" character varying NOT NULL, "create_time_stamp" integer NOT NULL, "update_time_stamp" integer NOT NULL, PRIMARY KEY ("id"))`
@@ -98,16 +98,25 @@ export class InitialTables1611934327198 implements MigrationInterface {
       `ALTER TABLE "assets" DROP COLUMN "currentOwnerId"`
     );
     // INDEX
-    await queryRunner.query(`DROP INDEX "maker_taker_asset_data_idx"`);
-    await queryRunner.query(`DROP INDEX "maker_asset_data_idx"`);
-    await queryRunner.query(`DROP INDEX "taker_asset_data_idx"`);
-    await queryRunner.query(`DROP INDEX "maker_address_idx"`);
+    await queryRunner.query(
+      `DROP INDEX "maker_taker_asset_data_idx" ON "zero_x_orders"`
+    );
+    await queryRunner.query(
+      `DROP INDEX "maker_asset_data_idx" ON "zero_x_orders"`
+    );
+    await queryRunner.query(
+      `DROP INDEX "taker_asset_data_idx" ON "zero_x_orders"`
+    );
+    await queryRunner.query(
+      `DROP INDEX "maker_address_idx" ON "zero_x_orders"`
+    );
+    // table
     await queryRunner.query(`DROP TABLE "accounts"`);
-    await queryRunner.query(`DROP TABLE "assets"`);
     await queryRunner.query(`DROP TABLE "asset_histories"`);
-    await queryRunner.query(`DROP TABLE "collections"`);
-    await queryRunner.query(`DROP TABLE "collection_histories"`);
-    await queryRunner.query(`DROP TABLE "games"`);
     await queryRunner.query(`DROP TABLE "zero_x_orders"`);
+    await queryRunner.query(`DROP TABLE "games"`);
+    await queryRunner.query(`DROP TABLE "assets"`);
+    await queryRunner.query(`DROP TABLE "collection_histories"`);
+    await queryRunner.query(`DROP TABLE "collections"`);
   }
 }
