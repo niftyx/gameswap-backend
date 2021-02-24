@@ -22,7 +22,7 @@ const GameValidation = {
       imageUrl: Joi.string().required(),
       version: Joi.string(),
       categoryId: Joi.string(),
-      platform: Joi.object(),
+      platform: Joi.array(),
       message: Joi.string().required(), // to validate and get address of creator
     }),
   },

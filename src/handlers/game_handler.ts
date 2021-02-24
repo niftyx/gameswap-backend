@@ -25,6 +25,7 @@ export class GameHandler {
       ...gameData,
       id: gameId,
       owner,
+      createdAt: Math.floor(Date.now() / 1000),
     });
 
     res.status(HttpStatus.OK).send(game);

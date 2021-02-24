@@ -33,6 +33,7 @@ export const gameUtils = {
       categoryId: game.categoryId,
       platform: JSON.stringify(game.platform),
       owner: game.owner,
+      createdAt: game.createdAt,
     });
     return gameEntity;
   },

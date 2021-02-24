@@ -352,8 +352,6 @@ export interface ObjectMap<T> {
 }
 
 export enum ChainId {
-  Mainnet = 1,
-  Kovan = 42,
   AVAXTEST = 43113,
   AVAXMAIN = 43114,
 }

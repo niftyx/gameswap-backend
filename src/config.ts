@@ -1,7 +1,7 @@
 // tslint:disable:custom-no-magic-numbers max-file-line-count
 import { assert } from "@0x/assert";
 import {
-  BlockParamLiteral,
+  // BlockParamLiteral,
   ERC20BridgeSource,
   SamplerOverrides,
   SOURCE_FLAGS,
@@ -89,7 +89,7 @@ export const HTTP_HEADERS_TIMEOUT = _.isEmpty(process.env.HTTP_HEADERS_TIMEOUT)
 
 // Default chain id to use when not specified
 export const CHAIN_ID: ChainId = _.isEmpty(process.env.CHAIN_ID)
-  ? ChainId.Kovan
+  ? ChainId.AVAXTEST
   : assertEnvVarType("CHAIN_ID", process.env.CHAIN_ID, EnvVarType.ChainId);
 
 // Ignored addresses. These are ignored at the ingress (Mesh) level and are never stored.
@@ -136,15 +136,11 @@ export const PINNED_MM_ADDRESSES: string[] = _.isEmpty(
 
 // 0x Endpoint
 export const SRA_WEBSOCKET_URIS = {
-  [ChainId.Mainnet]: process.env.RELAYER_WS_URL_MAINNET || "",
-  [ChainId.Kovan]: process.env.RELAYER_WS_URL_KOVAN || "",
   [ChainId.AVAXTEST]: process.env.RELAYER_WS_URL_AVAXTEST || "",
   [ChainId.AVAXMAIN]: process.env.RELAYER_WS_URL_AVAXMAIN || "",
 };
 export const SRA_WEBSOCKET_URI = SRA_WEBSOCKET_URIS[CHAIN_ID];
 export const SRA_HTTP_URIS = {
-  [ChainId.Mainnet]: process.env.RELAYER_URL_MAINNET || "",
-  [ChainId.Kovan]: process.env.RELAYER_URL_KOVAN || "",
   [ChainId.AVAXTEST]: process.env.RELAYER_URL_AVAXTEST || "",
   [ChainId.AVAXMAIN]: process.env.RELAYER_URL_AVAXMAIN || "",
 };
@@ -363,13 +359,13 @@ export const RFQT_PROTOCOL_FEE_GAS_PRICE_MAX_PADDING_MULTIPLIER = 1.2;
 const EXCLUDED_SOURCES = (() => {
   const allERC20BridgeSources = Object.values(ERC20BridgeSource);
   switch (CHAIN_ID) {
-    case ChainId.Mainnet:
-      return [ERC20BridgeSource.MultiBridge];
-    case ChainId.Kovan:
-      return allERC20BridgeSources.filter(
-        (s) =>
-          s !== ERC20BridgeSource.Native && s !== ERC20BridgeSource.UniswapV2
-      );
+    // case ChainId.Mainnet:
+    //   return [ERC20BridgeSource.MultiBridge];
+    // case ChainId.Kovan:
+    //   return allERC20BridgeSources.filter(
+    //     (s) =>
+    //       s !== ERC20BridgeSource.Native && s !== ERC20BridgeSource.UniswapV2
+    //   );
     default:
       return allERC20BridgeSources.filter(
         (s) => s !== ERC20BridgeSource.Native
@@ -379,10 +375,10 @@ const EXCLUDED_SOURCES = (() => {
 
 const EXCLUDED_FEE_SOURCES = (() => {
   switch (CHAIN_ID) {
-    case ChainId.Mainnet:
-      return [];
-    case ChainId.Kovan:
-      return [ERC20BridgeSource.Uniswap];
+    // case ChainId.Mainnet:
+    //   return [];
+    // case ChainId.Kovan:
+    //   return [ERC20BridgeSource.Uniswap];
     default:
       return [ERC20BridgeSource.Uniswap, ERC20BridgeSource.UniswapV2];
   }
@@ -417,8 +413,8 @@ export const ASSET_SWAPPER_MARKET_ORDERS_OPTS_NO_VIP: Partial<SwapQuoteRequestOp
 
 export const SAMPLER_OVERRIDES: SamplerOverrides | undefined = (() => {
   switch (CHAIN_ID) {
-    case ChainId.Kovan:
-      return { overrides: {}, block: BlockParamLiteral.Latest };
+    // case ChainId.Kovan:
+    //   return { overrides: {}, block: BlockParamLiteral.Latest };
     default:
       return undefined;
   }
