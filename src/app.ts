@@ -26,6 +26,8 @@ import { AccountService } from "./services/account_service";
 import { AssetHistoryService } from "./services/asset_history_service";
 import { CollectionHistoryService } from "./services/collection_history_service";
 import { AssetService } from "./services/asset_service";
+import { OrderService } from "./services/order_service";
+import { ERC721Service } from "./services/erc721_service";
 //import { runOrderWatcherServiceAsync } from "./runners/order_watcher_service_runner";
 export const logger = pino({
   level: LOG_LEVEL,
@@ -44,6 +46,7 @@ export interface AppDependencies {
   collectionService: CollectionService;
   collectionHistoryService: CollectionHistoryService;
   gameService: GameService;
+  orderService: OrderService;
 }
 
 let contractAddresses_: AssetSwapperContractAddresses | undefined;
@@ -102,14 +105,21 @@ export async function getDefaultAppDependenciesAsync(
   const collectionHistoryService = new CollectionHistoryService(connection);
   const gameService = new GameService(connection);
   const cryptoContentService = new CryptoContentService(CONTENT_SECRET_KEY);
-  const factoryService = new FactoryService(
-    connection,
-    _config.factoryContractAddress,
-    _config.factoryBlockNumber
-  );
   const accountService = new AccountService(connection);
   const assetService = new AssetService(connection);
   const assetHistoryService = new AssetHistoryService(connection);
+  const orderService = new OrderService(connection);
+  const factoryService = new FactoryService(
+    connection,
+    _config.factoryContractAddress,
+    _config.factoryBlockNumber,
+    collectionService,
+    collectionHistoryService,
+    accountService,
+    assetService,
+    assetHistoryService,
+    orderService
+  );
 
   return {
     contractAddresses,
@@ -122,6 +132,7 @@ export async function getDefaultAppDependenciesAsync(
     accountService,
     assetService,
     assetHistoryService,
+    orderService,
   };
 }
 /**
@@ -142,6 +153,22 @@ export async function getAppAsync(
   // list contracts
   try {
     await dependencies.factoryService.listenERC721Contracts();
+    const erc721Contracts = await dependencies.collectionService.list(1, 100);
+    for (let index = 0; index < erc721Contracts.records.length; index++) {
+      const element = erc721Contracts.records[index];
+      const erc721Service = new ERC721Service(
+        element.address,
+        element.block,
+        dependencies.connection,
+        dependencies.collectionService,
+        dependencies.collectionHistoryService,
+        dependencies.accountService,
+        dependencies.assetService,
+        dependencies.assetHistoryService,
+        dependencies.orderService
+      );
+      await erc721Service.listenAssets();
+    }
   } catch (e) {
     logger.error(
       `Error attempting to start ERC721 Factory service, [${JSON.stringify(e)}]`

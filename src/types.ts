@@ -671,3 +671,8 @@ export interface IZeroXOrder {
 export interface GraphVariables {
   [key: string]: string | number;
 }
+
+export interface IERC721ContractInfo {
+  address: string;
+  block: number;
+}

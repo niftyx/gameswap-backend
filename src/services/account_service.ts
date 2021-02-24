@@ -23,13 +23,13 @@ export class AccountService {
       id
     );
     if (accountEntity) {
-      const account = accountUtils.deserializeAccount(
+      const account = accountUtils.deserialize(
         accountEntity as Required<AccountEntity>
       );
 
       return account;
     }
-    const account = await this.addAccount({
+    const account = await this.add({
       id,
       address: id,
       assetCount: ZERO_NUMBER,
@@ -39,8 +39,8 @@ export class AccountService {
     return account;
   }
 
-  public async addAccount(account: IAccount): Promise<IAccount> {
-    const records = await this._addAccountsAsync([account]);
+  public async add(account: IAccount): Promise<IAccount> {
+    const records = await this._addRecordsAsync([account]);
     return records[0];
   }
 
@@ -48,30 +48,34 @@ export class AccountService {
     const records = (await this._connection
       .getRepository(AccountEntity)
       .save(
-        [account].map(accountUtils.serializeAccount)
+        [account].map(accountUtils.serialize)
       )) as Required<AccountEntity>[];
-    return accountUtils.deserializeAccount(records[0]);
+    return accountUtils.deserialize(records[0]);
   }
 
-  public async getAccount(id: string): Promise<IAccount> {
+  public async get(id: string): Promise<IAccount | null> {
     const accountEntity = (await this._connection.manager.findOne(
       AccountEntity,
       id
     )) as Required<AccountEntity>;
 
-    const account = accountUtils.deserializeAccount(accountEntity);
+    if (!accountEntity) {
+      return null;
+    }
+
+    const account = accountUtils.deserialize(accountEntity);
 
     return account;
   }
 
-  public async listAccounts(
+  public async list(
     page: number,
     perPage: number
   ): Promise<PaginatedCollection<IAccount>> {
     const accountEntities = (await this._connection.manager.find(
       AccountEntity
     )) as Required<AccountEntity>[];
-    const accountItems = accountEntities.map(accountUtils.deserializeAccount);
+    const accountItems = accountEntities.map(accountUtils.deserialize);
     const paginatedAccounts = paginationUtils.paginate(
       accountItems,
       page,
@@ -80,12 +84,10 @@ export class AccountService {
     return paginatedAccounts;
   }
 
-  private async _addAccountsAsync(_accounts: IAccount[]): Promise<IAccount[]> {
+  private async _addRecordsAsync(_accounts: IAccount[]): Promise<IAccount[]> {
     const records = await this._connection
       .getRepository(AccountEntity)
-      .save(_accounts.map(accountUtils.serializeAccount));
-    return (records as Required<AccountEntity>[]).map(
-      accountUtils.deserializeAccount
-    );
+      .save(_accounts.map(accountUtils.serialize));
+    return (records as Required<AccountEntity>[]).map(accountUtils.deserialize);
   }
 }

@@ -24,11 +24,6 @@ if (require.main === module) {
     try {
       await dependencies.factoryService.resetRelatedTables();
       const erc721Contracts = await dependencies.factoryService.syncERC721Contracts();
-      // const erc721Contracts = [
-      //   { address: "0x3c563b93cf3cc1ad687f117a19c33cf4bb69ca8f", block: 39662 },
-      //   { address: "0x1f98dc56314aa5fca8f676d10d6171867214fcc2", block: 40565 },
-      // ];
-      logger.info(erc721Contracts);
 
       for (let index = 0; index < erc721Contracts.length; index++) {
         const erc721 = erc721Contracts[index];
@@ -40,7 +35,8 @@ if (require.main === module) {
           dependencies.collectionHistoryService,
           dependencies.accountService,
           dependencies.assetService,
-          dependencies.assetHistoryService
+          dependencies.assetHistoryService,
+          dependencies.orderService
         );
         await erc721Service.syncAssets();
       }

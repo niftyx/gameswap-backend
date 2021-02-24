@@ -18,14 +18,14 @@ export function createCollectionRouter(
   router
     .route("/all")
     .get(
-      validate(CollectionValidation.listCollections),
+      validate(CollectionValidation.list),
       asyncHandler(handlers.list.bind(handlers))
     );
 
   router
     .route("/:id")
     .get(
-      validate(CollectionValidation.getCollection),
+      validate(CollectionValidation.get),
       asyncHandler(handlers.get.bind(handlers))
     );
 

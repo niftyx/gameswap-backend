@@ -16,7 +16,7 @@ export class CollectionHandler {
     res: express.Response
   ): Promise<void> {
     const collectionId = uuidv4();
-    const collection = await this._collectionService.addCollection({
+    const collection = await this._collectionService.add({
       ...req.body,
       id: collectionId,
     });
@@ -29,7 +29,7 @@ export class CollectionHandler {
       res.status(HttpStatus.NOT_FOUND).send();
       return;
     }
-    const collection = await this._collectionService.getCollection(id);
+    const collection = await this._collectionService.get(id);
     res.status(HttpStatus.OK).send(collection);
   }
 
@@ -39,7 +39,7 @@ export class CollectionHandler {
   ): Promise<void> {
     const page = Number(req.query.page || 1);
     const perPage = Number(req.query.perPage || 100);
-    const result = await this._collectionService.listCollections(page, perPage);
+    const result = await this._collectionService.list(page, perPage);
     res.status(HttpStatus.OK).send(result);
   }
 

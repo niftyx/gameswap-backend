@@ -13,38 +13,42 @@ export class GameService {
     this._connection = connection;
   }
 
-  public async addGame(game: IGame): Promise<IGame> {
-    const records = await this._addGameAsnyc([game]);
+  public async add(game: IGame): Promise<IGame> {
+    const records = await this._addRecordsAsnyc([game]);
     return records[0];
   }
 
-  public async getGame(id: string): Promise<IGame> {
+  public async get(id: string): Promise<IGame | null> {
     const gameEntity = (await this._connection.manager.findOne(
       GameEntity,
       id
     )) as Required<GameEntity>;
 
-    const game = gameUtils.deserializeGame(gameEntity);
+    if (!gameEntity) {
+      return null;
+    }
+
+    const game = gameUtils.deserialize(gameEntity);
 
     return game;
   }
 
-  public async listGames(
+  public async list(
     page: number,
     perPage: number
   ): Promise<PaginatedCollection<IGame>> {
     const gameEntities = (await this._connection.manager.find(
       GameEntity
     )) as Required<GameEntity>[];
-    const gameItems = gameEntities.map(gameUtils.deserializeGame);
+    const gameItems = gameEntities.map(gameUtils.deserialize);
     const paginatedGames = paginationUtils.paginate(gameItems, page, perPage);
     return paginatedGames;
   }
 
-  private async _addGameAsnyc(games: IGame[]): Promise<IGame[]> {
+  private async _addRecordsAsnyc(games: IGame[]): Promise<IGame[]> {
     const records = await this._connection
       .getRepository(GameEntity)
-      .save(games.map(gameUtils.serializeGame));
-    return (records as Required<GameEntity>[]).map(gameUtils.deserializeGame);
+      .save(games.map(gameUtils.serialize));
+    return (records as Required<GameEntity>[]).map(gameUtils.deserialize);
   }
 }

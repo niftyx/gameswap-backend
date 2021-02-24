@@ -37,6 +37,18 @@ export class InitialTables1611934327198 implements MigrationInterface {
     await queryRunner.query(
       `CREATE INDEX "maker_taker_asset_data_idx" ON "zero_x_orders" ("maker_asset_data", "taker_asset_data") `
     );
+    await queryRunner.query(
+      `CREATE INDEX "asset_id_idx" ON "assets" ("asset_id") `
+    );
+    await queryRunner.query(
+      `CREATE INDEX "game_id_idx" ON "assets" ("game_id") `
+    );
+    await queryRunner.query(
+      `CREATE INDEX "category_id_idx" ON "assets" ("category_id") `
+    );
+    await queryRunner.query(
+      `CREATE INDEX "asset_category_id_idx" ON "assets" ("asset_id", "category_id") `
+    );
 
     // LINK
     // accounts <= assets
@@ -98,18 +110,14 @@ export class InitialTables1611934327198 implements MigrationInterface {
       `ALTER TABLE "assets" DROP COLUMN "currentOwnerId"`
     );
     // INDEX
-    await queryRunner.query(
-      `DROP INDEX "maker_taker_asset_data_idx" ON "zero_x_orders"`
-    );
-    await queryRunner.query(
-      `DROP INDEX "maker_asset_data_idx" ON "zero_x_orders"`
-    );
-    await queryRunner.query(
-      `DROP INDEX "taker_asset_data_idx" ON "zero_x_orders"`
-    );
-    await queryRunner.query(
-      `DROP INDEX "maker_address_idx" ON "zero_x_orders"`
-    );
+    await queryRunner.query(`DROP INDEX "asset_category_id_idx"`);
+    await queryRunner.query(`DROP INDEX "category_id_idx"`);
+    await queryRunner.query(`DROP INDEX "game_id_idx"`);
+    await queryRunner.query(`DROP INDEX "asset_id_idx"`);
+    await queryRunner.query(`DROP INDEX "maker_taker_asset_data_idx"`);
+    await queryRunner.query(`DROP INDEX "maker_asset_data_idx"`);
+    await queryRunner.query(`DROP INDEX "taker_asset_data_idx"`);
+    await queryRunner.query(`DROP INDEX "maker_address_idx"`);
     // table
     await queryRunner.query(`DROP TABLE "accounts"`);
     await queryRunner.query(`DROP TABLE "asset_histories"`);

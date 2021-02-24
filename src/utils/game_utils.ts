@@ -3,7 +3,7 @@ import { IGame, IPlatform } from "../types";
 import { assetUtils } from "./asset_utils";
 
 export const gameUtils = {
-  deserializeGame: (gameEntity: Required<GameEntity>): IGame => {
+  deserialize: (gameEntity: Required<GameEntity>): IGame => {
     const game: IGame = {
       id: gameEntity.id,
       title: gameEntity.title,
@@ -16,14 +16,14 @@ export const gameUtils = {
       createdAt: gameEntity.createdAt,
       assets: gameEntity.assets
         ? gameEntity.assets.map((assetEntity) =>
-            assetUtils.deserializeAsset(assetEntity as Required<AssetEntity>)
+            assetUtils.deserialize(assetEntity as Required<AssetEntity>)
           )
         : undefined,
     };
     return game;
   },
 
-  serializeGame: (game: IGame): GameEntity => {
+  serialize: (game: IGame): GameEntity => {
     const gameEntity = new GameEntity({
       id: game.id,
       title: game.title,
@@ -47,9 +47,7 @@ export const gameUtils = {
       categoryId: game.categoryId,
       platform: JSON.stringify(game.platform),
       owner: game.owner,
-      assets: game.assets
-        ? game.assets.map(assetUtils.serializeAsset)
-        : undefined,
+      assets: game.assets ? game.assets.map(assetUtils.serialize) : undefined,
     });
     return gameEntity;
   },

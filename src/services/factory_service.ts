@@ -12,9 +12,16 @@ import {
   CollectionHistoryEntity,
   ZeroXOrderEntity,
 } from "../entities";
-import { ICollection } from "../types";
+import { ICollection, IERC721ContractInfo } from "../types";
 import { collectionUtils } from "../utils/collection_utils";
 import { ZERO_NUMBER } from "../utils/number";
+import { AccountService } from "./account_service";
+import { AssetHistoryService } from "./asset_history_service";
+import { AssetService } from "./asset_service";
+import { CollectionHistoryService } from "./collection_history_service";
+import { CollectionService } from "./collection_service";
+import { ERC721Service } from "./erc721_service";
+import { OrderService } from "./order_service";
 
 const abi = [
   "event CollectionCreated(address indexed tokenAddress,string name,string symbol,string imageURL,string description,string shortUrl)",
@@ -24,15 +31,33 @@ export class FactoryService {
   private readonly _factoryAddress: string;
   private readonly _factoryBlockNumber: number;
   private readonly _connection: Connection;
+  private readonly _collectionService: CollectionService;
+  private readonly _accountService: AccountService;
+  private readonly _collectionHistoryService: CollectionHistoryService;
+  private readonly _assetService: AssetService;
+  private readonly _assetHistoryService: AssetHistoryService;
+  private readonly _orderService: OrderService;
 
   constructor(
     _connection: Connection,
     factoryAddress: string,
-    _factoryBlockNumber: number
+    _factoryBlockNumber: number,
+    _collectionService: CollectionService,
+    _collectionHistoryService: CollectionHistoryService,
+    _accountService: AccountService,
+    _assetService: AssetService,
+    _assetHistoryService: AssetHistoryService,
+    _orderService: OrderService
   ) {
     this._connection = _connection;
     this._factoryAddress = factoryAddress;
     this._factoryBlockNumber = _factoryBlockNumber;
+    this._collectionService = _collectionService;
+    this._collectionHistoryService = _collectionHistoryService;
+    this._accountService = _accountService;
+    this._assetService = _assetService;
+    this._assetHistoryService = _assetHistoryService;
+    this._orderService = _orderService;
   }
 
   async resetRelatedTables() {
@@ -76,7 +101,7 @@ export class FactoryService {
     logger.info("==== reset tables end ====");
   }
 
-  async syncERC721Contracts(): Promise<{ address: string; block: number }[]> {
+  async syncERC721Contracts(): Promise<IERC721ContractInfo[]> {
     const provider = new ethers.providers.JsonRpcProvider(
       defaultHttpServiceWithRateLimiterConfig.ethereumRpcUrl,
       CHAIN_ID
@@ -91,7 +116,7 @@ export class FactoryService {
 
     const logs = await provider.getLogs(filter);
 
-    const erc721Contracts: { address: string; block: number }[] = [];
+    const erc721Contracts: IERC721ContractInfo[] = [];
 
     for (let index = 0; index < logs.length; index++) {
       const log = logs[index];
@@ -130,14 +155,70 @@ export class FactoryService {
     return erc721Contracts;
   }
 
-  async listenERC721Contracts() {}
+  async listenERC721Contracts() {
+    const provider = new ethers.providers.JsonRpcProvider(
+      defaultHttpServiceWithRateLimiterConfig.ethereumRpcUrl,
+      CHAIN_ID
+    );
+    const iface = new Interface(abi);
+    const ens = new Contract(this._factoryAddress, iface, provider);
+
+    ens.on(
+      "CollectionCreated",
+      async (
+        tokenAddress: string,
+        name: string,
+        symbol: string,
+        imageURL: string,
+        description: string,
+        shortUrl: string,
+        log: ethers.providers.Log
+      ) => {
+        logger.info(`=== new collection ${tokenAddress} ${name} ${symbol} ===`);
+        const blockNumber = log.blockNumber;
+        const block = await provider.getBlock(blockNumber);
+
+        const collection: ICollection = {
+          id: String(tokenAddress).toLowerCase(),
+          block: log.blockNumber,
+          address: String(tokenAddress).toLowerCase(),
+          name,
+          symbol,
+          imageUrl: imageURL,
+          description,
+          shortUrl,
+          owner: log.address,
+          totalSupply: ZERO_NUMBER,
+          totalMinted: ZERO_NUMBER,
+          totalBurned: ZERO_NUMBER,
+          createTimeStamp: block.timestamp,
+          updateTimeStamp: block.timestamp,
+        };
+
+        await this._createCollections([collection]);
+
+        const erc721Service = new ERC721Service(
+          collection.address,
+          collection.block,
+          this._connection,
+          this._collectionService,
+          this._collectionHistoryService,
+          this._accountService,
+          this._assetService,
+          this._assetHistoryService,
+          this._orderService
+        );
+        await erc721Service.listenAssets();
+      }
+    );
+  }
 
   private async _createCollections(collections: ICollection[]) {
     const records = await this._connection
       .getRepository(CollectionEntity)
-      .save(collections.map(collectionUtils.serializeCollection));
+      .save(collections.map(collectionUtils.serialize));
     return (records as Required<CollectionEntity>[]).map(
-      collectionUtils.deserializeCollection
+      collectionUtils.deserialize
     );
   }
 }

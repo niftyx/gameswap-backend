@@ -2,13 +2,13 @@ import { Joi } from "express-validation";
 
 const GameValidation = {
   // GET /games/v1/:id
-  getGame: {
+  get: {
     params: Joi.object({
       id: Joi.string().required(),
     }),
   },
   // GET /games/v1/all
-  listGames: {
+  list: {
     query: Joi.object({
       perPage: Joi.number().greater(0),
       page: Joi.number().min(1),

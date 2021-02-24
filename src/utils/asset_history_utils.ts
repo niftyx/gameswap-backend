@@ -3,7 +3,7 @@ import { IAssetHistory } from "../types";
 import { assetUtils } from "./asset_utils";
 
 export const assetHistoryUtils = {
-  deserializeAssetHistory: (
+  deserialize: (
     assetHistoryEntity: Required<AssetHistoryEntity>
   ): IAssetHistory => {
     const assetHistory: IAssetHistory = {
@@ -12,7 +12,7 @@ export const assetHistoryUtils = {
       timestamp: assetHistoryEntity.timestamp,
       txHash: assetHistoryEntity.txHash,
       asset: assetHistoryEntity.asset
-        ? assetUtils.deserializeAsset(
+        ? assetUtils.deserialize(
             assetHistoryEntity.asset as Required<AssetEntity>
           )
         : undefined,
@@ -20,14 +20,14 @@ export const assetHistoryUtils = {
     return assetHistory;
   },
 
-  serializeAssetHistory: (assetHistory: IAssetHistory): AssetHistoryEntity => {
+  serialize: (assetHistory: IAssetHistory): AssetHistoryEntity => {
     const assetHistoryEntity = new AssetHistoryEntity({
       id: assetHistory.id,
       owner: assetHistory.owner,
       timestamp: assetHistory.timestamp,
       txHash: assetHistory.txHash,
       asset: assetHistory.asset
-        ? assetUtils.serializeAsset(assetHistory.asset)
+        ? assetUtils.serialize(assetHistory.asset)
         : undefined,
     });
     return assetHistoryEntity;

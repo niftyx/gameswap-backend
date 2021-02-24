@@ -21,14 +21,14 @@ export function createGameRouter(gameService: GameService): express.Router {
   router
     .route("/all")
     .get(
-      validate(GameValidation.listGames),
+      validate(GameValidation.list),
       asyncHandler(handlers.list.bind(handlers))
     );
 
   router
     .route("/:id")
     .get(
-      validate(GameValidation.getGame),
+      validate(GameValidation.get),
       asyncHandler(handlers.get.bind(handlers))
     );
 

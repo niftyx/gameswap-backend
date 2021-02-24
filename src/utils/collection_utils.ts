@@ -9,9 +9,7 @@ import { assetUtils } from "./asset_utils";
 import { collectionHistoryUtils } from "./collection_history_utils";
 
 export const collectionUtils = {
-  deserializeCollection: (
-    collectionEntity: Required<CollectionEntity>
-  ): ICollection => {
+  deserialize: (collectionEntity: Required<CollectionEntity>): ICollection => {
     const collection: ICollection = {
       id: collectionEntity.id,
       block: collectionEntity.block,
@@ -29,12 +27,12 @@ export const collectionUtils = {
       updateTimeStamp: collectionEntity.updateTimeStamp,
       assets: collectionEntity.assets
         ? collectionEntity.assets.map((asset) =>
-            assetUtils.deserializeAsset(asset as Required<AssetEntity>)
+            assetUtils.deserialize(asset as Required<AssetEntity>)
           )
         : undefined,
       history: collectionEntity.history
         ? collectionEntity.history.map((history) =>
-            collectionHistoryUtils.deserializeCollectionHistory(
+            collectionHistoryUtils.deserialize(
               history as Required<CollectionHistoryEntity>
             )
           )
@@ -43,7 +41,7 @@ export const collectionUtils = {
     return collection;
   },
 
-  serializeCollection: (collection: ICollection): CollectionEntity => {
+  serialize: (collection: ICollection): CollectionEntity => {
     const gameEntity = new CollectionEntity({
       id: collection.id,
       block: collection.block,
@@ -60,12 +58,10 @@ export const collectionUtils = {
       createTimeStamp: collection.createTimeStamp,
       updateTimeStamp: collection.updateTimeStamp,
       assets: collection.assets
-        ? collection.assets.map(assetUtils.serializeAsset)
+        ? collection.assets.map(assetUtils.serialize)
         : undefined,
       history: collection.history
-        ? collection.history.map(
-            collectionHistoryUtils.serializeCollectionHistory
-          )
+        ? collection.history.map(collectionHistoryUtils.serialize)
         : undefined,
     });
     return gameEntity;

@@ -3,7 +3,7 @@ import { IZeroXOrder, ZeroXOrderType } from "../types";
 import { assetUtils } from "./asset_utils";
 
 export const zeroXOrderUtils = {
-  deserializeOrder: (orderEntity: Required<ZeroXOrderEntity>): IZeroXOrder => {
+  deserialize: (orderEntity: Required<ZeroXOrderEntity>): IZeroXOrder => {
     const order: IZeroXOrder = {
       hash: orderEntity.hash,
       senderAddress: orderEntity.senderAddress,
@@ -27,15 +27,13 @@ export const zeroXOrderUtils = {
       status: orderEntity.status as ZeroXOrderType,
       createdAt: orderEntity.createdAt,
       asset: orderEntity.asset
-        ? assetUtils.deserializeAsset(
-            orderEntity.asset as Required<AssetEntity>
-          )
+        ? assetUtils.deserialize(orderEntity.asset as Required<AssetEntity>)
         : undefined,
     };
     return order;
   },
 
-  serializeOrder: (order: IZeroXOrder): ZeroXOrderEntity => {
+  serialize: (order: IZeroXOrder): ZeroXOrderEntity => {
     const orderEntity = new ZeroXOrderEntity({
       hash: order.hash,
       senderAddress: order.senderAddress,
@@ -58,7 +56,7 @@ export const zeroXOrderUtils = {
       takerFeeAssetData: order.takerFeeAssetData,
       status: order.status,
       createdAt: order.createdAt,
-      asset: order.asset ? assetUtils.serializeAsset(order.asset) : undefined,
+      asset: order.asset ? assetUtils.serialize(order.asset) : undefined,
     });
     return orderEntity;
   },

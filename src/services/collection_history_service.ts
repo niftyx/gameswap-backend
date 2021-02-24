@@ -13,27 +13,27 @@ export class CollectionHistoryService {
     this._connection = connection;
   }
 
-  public async addHistory(
-    history: ICollectionHistory
-  ): Promise<ICollectionHistory> {
-    const records = await this._addHistoryAsync([history]);
+  public async add(history: ICollectionHistory): Promise<ICollectionHistory> {
+    const records = await this._addRecordsAsync([history]);
     return records[0];
   }
 
-  public async getHistory(id: string): Promise<ICollectionHistory> {
+  public async get(id: string): Promise<ICollectionHistory | null> {
     const collectionHistoryEntity = (await this._connection.manager.findOne(
       CollectionHistoryEntity,
       id
     )) as Required<CollectionHistoryEntity>;
 
-    const history = collectionHistoryUtils.deserializeCollectionHistory(
-      collectionHistoryEntity
-    );
+    if (!collectionHistoryEntity) {
+      return null;
+    }
+
+    const history = collectionHistoryUtils.deserialize(collectionHistoryEntity);
 
     return history;
   }
 
-  public async listHistory(
+  public async list(
     page: number,
     perPage: number
   ): Promise<PaginatedCollection<ICollectionHistory>> {
@@ -41,20 +41,20 @@ export class CollectionHistoryService {
       CollectionHistoryEntity
     )) as Required<CollectionHistoryEntity>[];
     const history = collectionHistoryEntities.map(
-      collectionHistoryUtils.deserializeCollectionHistory
+      collectionHistoryUtils.deserialize
     );
     const paginatedHistory = paginationUtils.paginate(history, page, perPage);
     return paginatedHistory;
   }
 
-  private async _addHistoryAsync(
+  private async _addRecordsAsync(
     _history: ICollectionHistory[]
   ): Promise<ICollectionHistory[]> {
     const records = await this._connection
       .getRepository(CollectionHistoryEntity)
-      .save(_history.map(collectionHistoryUtils.serializeCollectionHistory));
+      .save(_history.map(collectionHistoryUtils.serialize));
     return (records as Required<CollectionHistoryEntity>[]).map(
-      collectionHistoryUtils.deserializeCollectionHistory
+      collectionHistoryUtils.deserialize
     );
   }
 }

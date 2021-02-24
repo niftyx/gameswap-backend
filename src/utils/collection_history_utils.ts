@@ -3,7 +3,7 @@ import { ICollectionHistory } from "../types";
 import { collectionUtils } from "./collection_utils";
 
 export const collectionHistoryUtils = {
-  deserializeCollectionHistory: (
+  deserialize: (
     collectionHistoryEntity: Required<CollectionHistoryEntity>
   ): ICollectionHistory => {
     const collectionHistory: ICollectionHistory = {
@@ -12,7 +12,7 @@ export const collectionHistoryUtils = {
       timestamp: collectionHistoryEntity.timestamp,
       txHash: collectionHistoryEntity.txHash,
       collection: collectionHistoryEntity.collection
-        ? collectionUtils.deserializeCollection(
+        ? collectionUtils.deserialize(
             collectionHistoryEntity.collection as Required<CollectionEntity>
           )
         : undefined,
@@ -20,7 +20,7 @@ export const collectionHistoryUtils = {
     return collectionHistory;
   },
 
-  serializeCollectionHistory: (
+  serialize: (
     collectionHistory: ICollectionHistory
   ): CollectionHistoryEntity => {
     const collectionHistoryEntity = new CollectionHistoryEntity({
@@ -29,7 +29,7 @@ export const collectionHistoryUtils = {
       timestamp: collectionHistory.timestamp,
       txHash: collectionHistory.txHash,
       collection: collectionHistory.collection
-        ? collectionUtils.serializeCollection(collectionHistory.collection)
+        ? collectionUtils.serialize(collectionHistory.collection)
         : undefined,
     });
     return collectionHistoryEntity;

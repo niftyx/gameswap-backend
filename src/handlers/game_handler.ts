@@ -21,7 +21,7 @@ export class GameHandler {
     const owner = utils.recoverAddress(msgHashBytes, message);
     const gameId = uuidv4();
 
-    const game = await this._gameService.addGame({
+    const game = await this._gameService.add({
       ...gameData,
       id: gameId,
       owner,
@@ -36,7 +36,7 @@ export class GameHandler {
       res.status(HttpStatus.NOT_FOUND).send();
       return;
     }
-    const game = await this._gameService.getGame(id);
+    const game = await this._gameService.get(id);
     res.status(HttpStatus.OK).send(game);
   }
 
@@ -46,7 +46,7 @@ export class GameHandler {
   ): Promise<void> {
     const page = Number(req.query.page || 1);
     const perPage = Number(req.query.perPage || 100);
-    const result = await this._gameService.listGames(page, perPage);
+    const result = await this._gameService.list(page, perPage);
     res.status(HttpStatus.OK).send(result);
   }
 

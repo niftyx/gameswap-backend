@@ -46,14 +46,12 @@ export const AFFILIATE_FEE_TRANSFORMER_GAS = new BigNumber(15000);
 export const ONE_GWEI = new BigNumber(1000000000);
 
 // API namespaces
-export const SRA_PATH = "/sra/v3";
-
 export const CRYPTO_CONTENT_PATH = "/lock-content/v1";
 export const GAME_PATH = "/games/v1";
 export const ACCOUNT_PATH = "/accounts/v1";
 export const COLLECTION_PATH = "/collections/v1";
+export const ASSET_PATH = "/assets/v1";
 
-export const API_KEY_HEADER = "0x-api-key";
 export const HEALTHCHECK_PATH = "/healthz";
 
 // Meta Transactions

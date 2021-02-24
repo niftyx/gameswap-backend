@@ -1,11 +1,12 @@
 import { PaginatedCollection } from "@0x/connect";
+import { BigNumber } from "ethers";
 import * as _ from "lodash";
 import { Connection } from "typeorm";
-import { logger } from "../app";
 
 import { AssetEntity } from "../entities";
-import { IAsset } from "../types";
+import { IAsset, ICollection } from "../types";
 import { assetUtils } from "../utils/asset_utils";
+import { collectionUtils } from "../utils/collection_utils";
 import { paginationUtils } from "../utils/pagination_utils";
 
 export class AssetService {
@@ -14,33 +15,51 @@ export class AssetService {
     this._connection = connection;
   }
 
-  public async addAsset(asset: IAsset): Promise<IAsset> {
-    const records = await this._addAssetsAsync([asset]);
+  public async add(asset: IAsset): Promise<IAsset> {
+    const records = await this._addRecordsAsync([asset]);
     return records[0];
   }
 
-  public async getAsset(id: string): Promise<IAsset | null> {
+  public async get(id: string): Promise<IAsset | null> {
     const assetEntity = (await this._connection.manager.findOne(
       AssetEntity,
       id
     )) as Required<AssetEntity>;
 
-    if (assetEntity) {
+    if (!assetEntity) {
       return null;
     }
-    const asset = assetUtils.deserializeAsset(assetEntity);
+    const asset = assetUtils.deserialize(assetEntity);
 
     return asset;
   }
 
-  public async listAssets(
+  public async getByTokenIdAndCollectionId(
+    tokenId: BigNumber,
+    collection: ICollection
+  ): Promise<IAsset | null> {
+    const repository = this._connection.getRepository(AssetEntity);
+    const assetEntity = (await repository.findOne({
+      assetId: tokenId.toString(),
+      collection: collectionUtils.serialize(collection),
+    })) as Required<AssetEntity>;
+
+    if (assetEntity) {
+      return null;
+    }
+    const asset = assetUtils.deserialize(assetEntity);
+
+    return asset;
+  }
+
+  public async list(
     page: number,
     perPage: number
   ): Promise<PaginatedCollection<IAsset>> {
     const assetEntities = (await this._connection.manager.find(
       AssetEntity
     )) as Required<AssetEntity>[];
-    const assetItems = assetEntities.map(assetUtils.deserializeAsset);
+    const assetItems = assetEntities.map(assetUtils.deserialize);
     const paginatedAssets = paginationUtils.paginate(assetItems, page, perPage);
     return paginatedAssets;
   }
@@ -48,17 +67,14 @@ export class AssetService {
   public async update(asset: IAsset): Promise<IAsset> {
     const records = (await this._connection
       .getRepository(AssetEntity)
-      .save([asset].map(assetUtils.serializeAsset))) as Required<AssetEntity>[];
-    return assetUtils.deserializeAsset(records[0]);
+      .save([asset].map(assetUtils.serialize))) as Required<AssetEntity>[];
+    return assetUtils.deserialize(records[0]);
   }
 
-  private async _addAssetsAsync(_assets: IAsset[]): Promise<IAsset[]> {
-    logger.info(_assets);
+  private async _addRecordsAsync(_assets: IAsset[]): Promise<IAsset[]> {
     const records = await this._connection
       .getRepository(AssetEntity)
-      .save(_assets.map(assetUtils.serializeAsset));
-    return (records as Required<AssetEntity>[]).map(
-      assetUtils.deserializeAsset
-    );
+      .save(_assets.map(assetUtils.serialize));
+    return (records as Required<AssetEntity>[]).map(assetUtils.deserialize);
   }
 }
