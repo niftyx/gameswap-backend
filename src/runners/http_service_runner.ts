@@ -6,6 +6,7 @@ import { Server } from "http";
 import { AppDependencies } from "../app";
 import {
   ACCOUNT_PATH,
+  ASSET_PATH,
   COLLECTION_PATH,
   CRYPTO_CONTENT_PATH,
   GAME_PATH,
@@ -15,6 +16,7 @@ import { logger } from "../logger";
 import { addressNormalizer } from "../middleware/address_normalizer";
 import { errorHandler } from "../middleware/error_handling";
 import { createAccountRouter } from "../routers/account_route";
+import { createAssetRouter } from "../routers/asset_route";
 import { createCollectionRouter } from "../routers/collection_route";
 import { createCryptoContentRouter } from "../routers/crypto_content_route";
 import { createGameRouter } from "../routers/game_route";
@@ -82,6 +84,9 @@ export async function runHttpServiceAsync(
     COLLECTION_PATH,
     createCollectionRouter(dependencies.collectionService)
   );
+
+  // ASSET http service
+  app.use(ASSET_PATH, createAssetRouter(dependencies.assetService));
 
   app.use(errorHandler);
 

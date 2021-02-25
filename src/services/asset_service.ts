@@ -34,6 +34,22 @@ export class AssetService {
     return asset;
   }
 
+  public async getWithDetails(id: string): Promise<IAsset | null> {
+    const assetEntity = (await this._connection
+      .getRepository(AssetEntity)
+      .findOne({
+        where: { id },
+        relations: ["currentOwner", "collection"],
+      })) as Required<AssetEntity>;
+
+    if (!assetEntity) {
+      return null;
+    }
+    const asset = assetUtils.deserialize(assetEntity);
+
+    return asset;
+  }
+
   public async getByTokenIdAndCollectionId(
     tokenId: BigNumber,
     collection: ICollection
@@ -59,6 +75,22 @@ export class AssetService {
     const assetEntities = (await this._connection.manager.find(
       AssetEntity
     )) as Required<AssetEntity>[];
+    const assetItems = assetEntities.map(assetUtils.deserialize);
+    const paginatedAssets = paginationUtils.paginate(assetItems, page, perPage);
+    return paginatedAssets;
+  }
+
+  public async listByAddress(
+    owner: string,
+    page: number,
+    perPage: number
+  ): Promise<PaginatedCollection<IAsset>> {
+    const assetEntities = (await this._connection
+      .getRepository(AssetEntity)
+      .find({
+        relations: ["currentOwner", "collection"],
+        where: { currentOwner: { id: owner } },
+      })) as Required<AssetEntity>[];
     const assetItems = assetEntities.map(assetUtils.deserialize);
     const paginatedAssets = paginationUtils.paginate(assetItems, page, perPage);
     return paginatedAssets;

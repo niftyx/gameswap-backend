@@ -25,6 +25,7 @@ export function createDefaultServer(
   app.use(requestLogger());
   app.use(cors());
   app.use(bodyParser.json());
+  app.use(bodyParser.urlencoded({ extended: true }));
 
   const server = createServer(app);
   server.keepAliveTimeout = config.httpKeepAliveTimeout;
