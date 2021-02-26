@@ -49,6 +49,25 @@ export class AssetService {
     return asset;
   }
 
+  public async getForContentData(
+    contentId: string,
+    owner: string
+  ): Promise<IAsset | null> {
+    const assetEntity = (await this._connection
+      .getRepository(AssetEntity)
+      .findOne({
+        where: { contentId, currentOwner: { id: owner } },
+        relations: ["currentOwner", "collection"],
+      })) as Required<AssetEntity>;
+
+    if (!assetEntity) {
+      return null;
+    }
+    const asset = assetUtils.deserialize(assetEntity);
+
+    return asset;
+  }
+
   public async getByTokenIdAndCollectionId(
     tokenId: BigNumber,
     collectionId: string

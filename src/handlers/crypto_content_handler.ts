@@ -4,10 +4,16 @@ import { CryptoContentService } from "../services/crypto_content_service";
 import { v4 as uuidv4 } from "uuid";
 import * as isValidUUID from "uuid-validate";
 import { utils } from "ethers";
+import { AssetService } from "../services/asset_service";
 export class CryptoContentHandler {
   private readonly _cryptoContentService;
-  constructor(cryptoContentService: CryptoContentService) {
+  private readonly _assetService;
+  constructor(
+    cryptoContentService: CryptoContentService,
+    assetService: AssetService
+  ) {
     this._cryptoContentService = cryptoContentService;
+    this._assetService = assetService;
   }
   public async encryptData(
     req: express.Request,
@@ -46,15 +52,16 @@ export class CryptoContentHandler {
       signedContentStr
     );
 
-    const ownerAddress = "";
+    const asset = await this._assetService.getForContentData(
+      contentId,
+      String(ownerAddressFromRequest).toLowerCase()
+    );
 
-    if (
-      String(ownerAddressFromRequest).toLowerCase() ===
-      String(ownerAddress).toLowerCase()
-    ) {
+    if (asset) {
       res.status(HttpStatus.OK).send(content);
       return;
     }
+
     res.status(HttpStatus.UNAUTHORIZED).send();
   }
 

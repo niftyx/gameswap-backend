@@ -70,7 +70,10 @@ export async function runHttpServiceAsync(
   // staking http service
   app.use(
     CRYPTO_CONTENT_PATH,
-    createCryptoContentRouter(dependencies.cryptoContentService)
+    createCryptoContentRouter(
+      dependencies.cryptoContentService,
+      dependencies.assetService
+    )
   );
 
   // GAME http service
