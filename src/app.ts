@@ -82,6 +82,7 @@ export async function getContractAddressesForNetworkOrThrowAsync(
     snowswapBridge: exports.NULL_ADDRESS,
     swerveBridge: exports.NULL_ADDRESS,
     cryptoComBridge: exports.NULL_ADDRESS,
+    positiveSlippageFeeTransformer: exports.NULL_ADDRESS,
   };
   // In a testnet where the environment does not support overrides
   // so we deploy the latest sampler

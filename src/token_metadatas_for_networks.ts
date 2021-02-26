@@ -5,8 +5,6 @@ export interface TokenMetadataAndChainAddresses {
   decimals: number;
   name: string;
   tokenAddresses: {
-    [ChainId.Mainnet]: string;
-    [ChainId.Kovan]: string;
     [ChainId.AVAXTEST]: string;
     [ChainId.AVAXMAIN]: string;
   };
@@ -22,9 +20,7 @@ export const ERC20TokenMetaDatasForChains: TokenMetadataAndChainAddresses[] = [
     name: "GameSwap",
     decimals: 18,
     tokenAddresses: {
-      [ChainId.Mainnet]: "0xaac41ec512808d64625576eddd580e7ea40ef8b2",
-      [ChainId.Kovan]: "0xb2c7d27f78bec818391498dc4108ab782d65cd76",
-      [ChainId.AVAXTEST]: "0x444806D2C0856c12dD8DB239b809Fc4641FCbB5E",
+      [ChainId.AVAXTEST]: "0x1EeBC9a0e84006efE4067eDC78f3eB7636E730D5",
       [ChainId.AVAXMAIN]: "0x444806D2C0856c12dD8DB239b809Fc4641FCbB5E",
     },
   },
@@ -33,8 +29,6 @@ export const ERC20TokenMetaDatasForChains: TokenMetadataAndChainAddresses[] = [
     name: "Shroom Finance",
     decimals: 18,
     tokenAddresses: {
-      [ChainId.Mainnet]: "0xaac41ec512808d64625576eddd580e7ea40ef8b2",
-      [ChainId.Kovan]: "0xb2c7d27f78bec818391498dc4108ab782d65cd76",
       [ChainId.AVAXTEST]: "0xbE0382B9cbD516527431beADad01A683641956c4",
       [ChainId.AVAXMAIN]: "0x444806D2C0856c12dD8DB239b809Fc4641FCbB5E",
     },
