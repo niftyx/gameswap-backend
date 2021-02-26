@@ -7,6 +7,13 @@ const AssetValidation = {
       id: Joi.string().required(),
     }),
   },
+  // GET /assets/v1/collection/:collectionId/asset/:assetId
+  getByCollectionIdAndAssetId: {
+    params: Joi.object({
+      collectionId: Joi.string().required(),
+      assetId: Joi.string().required(),
+    }),
+  },
   // GET /assets/v1/all
   list: {
     query: Joi.object({

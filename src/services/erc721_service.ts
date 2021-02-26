@@ -185,7 +185,7 @@ export class ERC721Service {
         const assetId = parsed.args[2] as BigNumber;
         let asset = await this._assetService.getByTokenIdAndCollectionId(
           assetId,
-          collection
+          collection.id
         );
         let previousAccount = await this._accountService.get(previousOwner);
         if (!previousAccount) {
@@ -232,7 +232,7 @@ export class ERC721Service {
         const assetId = parsed.args[2] as BigNumber;
         let asset = await this._assetService.getByTokenIdAndCollectionId(
           assetId,
-          collection
+          collection.id
         );
         let previousAccount = await this._accountService.get(previousOwner);
         if (!previousAccount) return;
@@ -415,7 +415,7 @@ export class ERC721Service {
           const previousOwner = from.toLowerCase();
           let asset = await this._assetService.getByTokenIdAndCollectionId(
             tokenId,
-            collection
+            collection.id
           );
           let previousAccount = await this._accountService.get(previousOwner);
           if (!previousAccount) return;
@@ -465,7 +465,7 @@ export class ERC721Service {
           const previousOwner = from.toLowerCase();
           let asset = await this._assetService.getByTokenIdAndCollectionId(
             tokenId,
-            collection
+            collection.id
           );
           let previousAccount = await this._accountService.get(previousOwner);
           if (!previousAccount) return;

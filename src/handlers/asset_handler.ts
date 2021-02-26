@@ -1,3 +1,4 @@
+import { BigNumber } from "ethers";
 import { isAddress } from "ethers/lib/utils";
 import * as express from "express";
 import * as HttpStatus from "http-status-codes";
@@ -30,6 +31,18 @@ export class AssetHandler {
     const perPage = Number(req.query.perPage || 100);
     const result = await this._assetService.list(page, perPage);
     res.status(HttpStatus.OK).send(result);
+  }
+
+  public async getByCollectionIdAndAssetId(
+    req: express.Request,
+    res: express.Response
+  ): Promise<void> {
+    const { assetId, collectionId } = req.params;
+    const asset = await this._assetService.getFullDetailsByTokenIdAndCollectionId(
+      BigNumber.from(assetId),
+      collectionId
+    );
+    res.status(HttpStatus.OK).send(asset);
   }
 
   public async listByAddress(

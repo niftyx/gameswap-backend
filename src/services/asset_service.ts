@@ -4,9 +4,8 @@ import * as _ from "lodash";
 import { Connection } from "typeorm";
 
 import { AssetEntity } from "../entities";
-import { IAsset, ICollection } from "../types";
+import { IAsset } from "../types";
 import { assetUtils } from "../utils/asset_utils";
-import { collectionUtils } from "../utils/collection_utils";
 import { paginationUtils } from "../utils/pagination_utils";
 
 export class AssetService {
@@ -52,17 +51,39 @@ export class AssetService {
 
   public async getByTokenIdAndCollectionId(
     tokenId: BigNumber,
-    collection: ICollection
+    collectionId: string
   ): Promise<IAsset | null> {
     const repository = this._connection.getRepository(AssetEntity);
     const assetEntity = (await repository.findOne({
-      assetId: tokenId.toString(),
-      collection: collectionUtils.serialize(collection),
+      relations: ["collection"],
+      where: { collection: { id: collectionId }, assetId: tokenId.toString() },
     })) as Required<AssetEntity>;
 
-    if (assetEntity) {
+    if (!assetEntity) {
       return null;
     }
+    const asset = assetUtils.deserialize(assetEntity);
+
+    return asset;
+  }
+
+  public async getFullDetailsByTokenIdAndCollectionId(
+    _tokenId: BigNumber,
+    collectionId: string
+  ): Promise<IAsset | null> {
+    const assetEntity = (await this._connection
+      .getRepository(AssetEntity)
+      .findOne({
+        relations: ["currentOwner", "collection"],
+        where: {
+          collection: { id: collectionId },
+          assetId: _tokenId.toString(),
+        },
+      })) as Required<AssetEntity>;
+    if (!assetEntity) {
+      return null;
+    }
+
     const asset = assetUtils.deserialize(assetEntity);
 
     return asset;

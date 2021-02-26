@@ -28,6 +28,13 @@ export function createAssetRouter(assetService: AssetService): express.Router {
     );
 
   router
+    .route("/collection/:collectionId/asset/:assetId")
+    .get(
+      validate(AssetValidation.getByCollectionIdAndAssetId),
+      asyncHandler(handlers.getByCollectionIdAndAssetId.bind(handlers))
+    );
+
+  router
     .route("/:id")
     .get(
       validate(AssetValidation.get),
