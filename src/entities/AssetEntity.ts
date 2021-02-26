@@ -60,6 +60,7 @@ export class AssetEntity {
       collection?: CollectionEntity;
       orders?: ZeroXOrderEntity[];
       history?: AssetHistoryEntity[];
+      game?: GameEntity;
     } = {}
   ) {
     this.id = opts.id;
@@ -75,5 +76,6 @@ export class AssetEntity {
     this.collection = opts.collection;
     this.orders = opts.orders;
     this.history = opts.history;
+    this.game = opts.game;
   }
 }

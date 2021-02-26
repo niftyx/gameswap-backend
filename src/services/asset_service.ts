@@ -55,7 +55,7 @@ export class AssetService {
   ): Promise<IAsset | null> {
     const repository = this._connection.getRepository(AssetEntity);
     const assetEntity = (await repository.findOne({
-      relations: ["collection"],
+      relations: ["collection", "currentOwner"],
       where: { collection: { id: collectionId }, assetId: tokenId.toString() },
     })) as Required<AssetEntity>;
 

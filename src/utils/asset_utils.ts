@@ -4,12 +4,14 @@ import {
   AssetEntity,
   AssetHistoryEntity,
   CollectionEntity,
+  GameEntity,
   ZeroXOrderEntity,
 } from "../entities";
 import { IAsset } from "../types";
 import { accountUtils } from "./account_utils";
 import { assetHistoryUtils } from "./asset_history_utils";
 import { collectionUtils } from "./collection_utils";
+import { gameUtils } from "./game_utils";
 import { zeroXOrderUtils } from "./zero_x_order_utils";
 
 export const assetUtils = {
@@ -40,6 +42,9 @@ export const assetUtils = {
             assetEntity.collection as Required<CollectionEntity>
           )
         : undefined,
+      game: assetEntity.game
+        ? gameUtils.deserialize(assetEntity.game as Required<GameEntity>)
+        : undefined,
       orders: assetEntity.orders
         ? assetEntity.orders.map((order) =>
             zeroXOrderUtils.deserialize(order as Required<ZeroXOrderEntity>)
@@ -59,6 +64,7 @@ export const assetUtils = {
       contentId: asset.contentId,
       createTimeStamp: asset.createTimeStamp,
       updateTimeStamp: asset.updateTimeStamp,
+
       currentOwner: asset.currentOwner
         ? accountUtils.serialize(asset.currentOwner)
         : undefined,
@@ -68,6 +74,7 @@ export const assetUtils = {
       collection: asset.collection
         ? collectionUtils.serialize(asset.collection)
         : undefined,
+      game: asset.game ? gameUtils.serialize(asset.game) : undefined,
       orders: asset.orders
         ? asset.orders.map(zeroXOrderUtils.serialize)
         : undefined,

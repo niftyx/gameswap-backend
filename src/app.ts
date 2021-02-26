@@ -118,7 +118,8 @@ export async function getDefaultAppDependenciesAsync(
     accountService,
     assetService,
     assetHistoryService,
-    orderService
+    orderService,
+    gameService
   );
 
   return {
@@ -165,7 +166,8 @@ export async function getAppAsync(
         dependencies.accountService,
         dependencies.assetService,
         dependencies.assetHistoryService,
-        dependencies.orderService
+        dependencies.orderService,
+        dependencies.gameService
       );
       await erc721Service.listenAssets();
     }

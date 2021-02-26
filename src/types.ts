@@ -589,6 +589,7 @@ export interface IAsset {
   collection?: ICollection;
   history?: IAssetHistory[];
   orders?: IZeroXOrder[];
+  game?: IGame;
 }
 
 export interface IAssetHistory {

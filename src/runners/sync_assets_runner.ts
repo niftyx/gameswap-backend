@@ -36,7 +36,8 @@ if (require.main === module) {
           dependencies.accountService,
           dependencies.assetService,
           dependencies.assetHistoryService,
-          dependencies.orderService
+          dependencies.orderService,
+          dependencies.gameService
         );
         await erc721Service.syncAssets();
       }

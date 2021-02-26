@@ -21,6 +21,7 @@ import { AssetService } from "./asset_service";
 import { CollectionHistoryService } from "./collection_history_service";
 import { CollectionService } from "./collection_service";
 import { ERC721Service } from "./erc721_service";
+import { GameService } from "./game_service";
 import { OrderService } from "./order_service";
 
 const abi = [
@@ -37,6 +38,7 @@ export class FactoryService {
   private readonly _assetService: AssetService;
   private readonly _assetHistoryService: AssetHistoryService;
   private readonly _orderService: OrderService;
+  private readonly _gameService: GameService;
 
   constructor(
     _connection: Connection,
@@ -47,7 +49,8 @@ export class FactoryService {
     _accountService: AccountService,
     _assetService: AssetService,
     _assetHistoryService: AssetHistoryService,
-    _orderService: OrderService
+    _orderService: OrderService,
+    _gameService: GameService
   ) {
     this._connection = _connection;
     this._factoryAddress = factoryAddress;
@@ -58,6 +61,7 @@ export class FactoryService {
     this._assetService = _assetService;
     this._assetHistoryService = _assetHistoryService;
     this._orderService = _orderService;
+    this._gameService = _gameService;
   }
 
   async resetRelatedTables() {
@@ -206,7 +210,8 @@ export class FactoryService {
           this._accountService,
           this._assetService,
           this._assetHistoryService,
-          this._orderService
+          this._orderService,
+          this._gameService
         );
         await erc721Service.listenAssets();
       }

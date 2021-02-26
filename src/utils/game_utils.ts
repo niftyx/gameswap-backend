@@ -34,6 +34,7 @@ export const gameUtils = {
       platform: JSON.stringify(game.platform),
       owner: game.owner,
       createdAt: game.createdAt,
+      assets: game.assets ? game.assets.map(assetUtils.serialize) : undefined,
     });
     return gameEntity;
   },
