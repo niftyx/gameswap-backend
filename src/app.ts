@@ -64,6 +64,17 @@ export async function getDefaultAppDependenciesAsync(
   const assetService = new AssetService(connection);
   const assetHistoryService = new AssetHistoryService(connection);
   const orderService = new OrderService(connection);
+
+  const contractAddresses = getContractAddressesForChainOrThrow(CHAIN_ID);
+  const exchangeService = new ExchangeService(
+    contractAddresses.exchange,
+    EXCHANGE_CONTRACT_BLOCK,
+    connection,
+    assetService,
+    assetHistoryService,
+    orderService
+  );
+
   const factoryService = new FactoryService(
     connection,
     _config.factoryContractAddress,
@@ -74,17 +85,8 @@ export async function getDefaultAppDependenciesAsync(
     assetService,
     assetHistoryService,
     orderService,
-    gameService
-  );
-
-  const contractAddresses = getContractAddressesForChainOrThrow(CHAIN_ID);
-  const exchangeService = new ExchangeService(
-    contractAddresses.exchange,
-    EXCHANGE_CONTRACT_BLOCK,
-    connection,
-    assetService,
-    assetHistoryService,
-    orderService
+    gameService,
+    contractAddresses.exchange
   );
 
   return {
@@ -118,6 +120,7 @@ export async function getAppAsync(
 
   // list contracts
   try {
+    const contractAddresses = getContractAddressesForChainOrThrow(CHAIN_ID);
     await dependencies.factoryService.listenERC721Contracts();
     const erc721Contracts = await dependencies.collectionService.list(1, 100);
     for (let index = 0; index < erc721Contracts.records.length; index++) {
@@ -132,7 +135,8 @@ export async function getAppAsync(
         dependencies.assetService,
         dependencies.assetHistoryService,
         dependencies.orderService,
-        dependencies.gameService
+        dependencies.gameService,
+        contractAddresses.exchange
       );
       await erc721Service.listenAssets();
     }

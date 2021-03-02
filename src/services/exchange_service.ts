@@ -49,8 +49,6 @@ export class ExchangeService {
     filter.fromBlock = this._blockNumber;
     filter.toBlock = "latest";
 
-    logger.info(filter);
-
     logger.info("==== Exchange Sync Start ===");
 
     const logs = await provider.getLogs(filter);

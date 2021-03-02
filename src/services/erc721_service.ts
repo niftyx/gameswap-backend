@@ -31,13 +31,10 @@ const SET_TOKEN_DATA_ID = id(
   "SetTokenData(uint256,string,string,string,string)"
 );
 
-const EXCHANGE_ORDER_FILLED_ID = id(
-  "Fill(address indexed,address indexed,bytes,bytes,bytes,bytes,bytes32 indexed,address,address,uint256,uint256,uint256,uint256,uint256)"
-);
-
 export class ERC721Service {
   private readonly _address: string;
   private readonly _blockNumber: number;
+  private readonly _exchangeAddress: string;
   //private readonly _connection: Connection;
   private readonly _collectionService: CollectionService;
   private readonly _accountService: AccountService;
@@ -57,7 +54,8 @@ export class ERC721Service {
     _assetService: AssetService,
     _assetHistoryService: AssetHistoryService,
     _orderService: OrderService,
-    _gameService: GameService
+    _gameService: GameService,
+    _exchangeAddress: string
   ) {
     //this._connection = _connection;
     this._address = _address;
@@ -69,6 +67,7 @@ export class ERC721Service {
     this._assetHistoryService = _assetHistoryService;
     // this._orderService = _orderService;
     this._gameService = _gameService;
+    this._exchangeAddress = _exchangeAddress;
   }
 
   async syncAssets() {
@@ -304,6 +303,16 @@ export class ERC721Service {
     );
     const iface = new Interface(abi);
     const ens = new Contract(this._address, iface, provider);
+
+    const exchangeInterface = new Interface(exchangeAbi);
+    const exchangeContract = new Contract(
+      this._exchangeAddress,
+      exchangeInterface,
+      provider
+    );
+
+    const exchangeFilter: any = exchangeContract.filters.Fill();
+    const EXCHANGE_ORDER_FILLED_ID = exchangeFilter.topics[0];
 
     logger.info(`=== listen asset ${this._address}=====`);
 

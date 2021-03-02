@@ -39,6 +39,7 @@ export class FactoryService {
   private readonly _assetHistoryService: AssetHistoryService;
   private readonly _orderService: OrderService;
   private readonly _gameService: GameService;
+  private readonly _exchangeAddress: string;
 
   constructor(
     _connection: Connection,
@@ -50,7 +51,8 @@ export class FactoryService {
     _assetService: AssetService,
     _assetHistoryService: AssetHistoryService,
     _orderService: OrderService,
-    _gameService: GameService
+    _gameService: GameService,
+    _exchangeAddress: string
   ) {
     this._connection = _connection;
     this._factoryAddress = factoryAddress;
@@ -62,6 +64,7 @@ export class FactoryService {
     this._assetHistoryService = _assetHistoryService;
     this._orderService = _orderService;
     this._gameService = _gameService;
+    this._exchangeAddress = _exchangeAddress;
   }
 
   async resetRelatedTables() {
@@ -211,7 +214,8 @@ export class FactoryService {
           this._assetService,
           this._assetHistoryService,
           this._orderService,
-          this._gameService
+          this._gameService,
+          this._exchangeAddress
         );
         await erc721Service.listenAssets();
       }
