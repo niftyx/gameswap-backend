@@ -3,7 +3,9 @@ import { Server } from "http";
 import { Connection } from "typeorm";
 
 import {
+  CHAIN_ID,
   CONTENT_SECRET_KEY,
+  EXCHANGE_CONTRACT_BLOCK,
   LOGGER_INCLUDE_TIMESTAMP,
   LOG_LEVEL,
 } from "./config";
@@ -22,6 +24,8 @@ import { CollectionHistoryService } from "./services/collection_history_service"
 import { AssetService } from "./services/asset_service";
 import { OrderService } from "./services/order_service";
 import { ERC721Service } from "./services/erc721_service";
+import { ExchangeService } from "./services/exchange_service";
+import { getContractAddressesForChainOrThrow } from "./custom/contract-addresses";
 //import { runOrderWatcherServiceAsync } from "./runners/order_watcher_service_runner";
 export const logger = pino({
   level: LOG_LEVEL,
@@ -40,6 +44,7 @@ export interface AppDependencies {
   collectionHistoryService: CollectionHistoryService;
   gameService: GameService;
   orderService: OrderService;
+  exchangeService: ExchangeService;
 }
 
 /**
@@ -72,6 +77,16 @@ export async function getDefaultAppDependenciesAsync(
     gameService
   );
 
+  const contractAddresses = getContractAddressesForChainOrThrow(CHAIN_ID);
+  const exchangeService = new ExchangeService(
+    contractAddresses.exchange,
+    EXCHANGE_CONTRACT_BLOCK,
+    connection,
+    assetService,
+    assetHistoryService,
+    orderService
+  );
+
   return {
     connection,
     collectionService,
@@ -83,6 +98,7 @@ export async function getDefaultAppDependenciesAsync(
     assetService,
     assetHistoryService,
     orderService,
+    exchangeService,
   };
 }
 /**

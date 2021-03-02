@@ -1,12 +1,14 @@
+import { AssetHistoryEntity } from "./../entities/AssetHistoryEntity";
 import { PaginatedCollection } from "@0x/connect";
 import { BigNumber } from "ethers";
 import * as _ from "lodash";
 import { Connection } from "typeorm";
 
 import { AssetEntity } from "../entities";
-import { IAsset } from "../types";
+import { IAsset, IAssetHistory } from "../types";
 import { assetUtils } from "../utils/asset_utils";
 import { paginationUtils } from "../utils/pagination_utils";
+import { assetHistoryUtils } from "../utils/asset_history_utils";
 
 export class AssetService {
   private readonly _connection: Connection;
@@ -120,7 +122,29 @@ export class AssetService {
     return paginatedAssets;
   }
 
-  public async listByAddress(
+  public async getHistory(
+    page: number,
+    perPage: number,
+    assetId: string
+  ): Promise<PaginatedCollection<IAssetHistory>> {
+    const assetHistoryEntities = (await this._connection
+      .getRepository(AssetHistoryEntity)
+      .find({
+        where: { asset: { id: assetId } },
+        order: { timestamp: "DESC" },
+      })) as Required<AssetHistoryEntity>[];
+    const assetHistoryItems = assetHistoryEntities.map(
+      assetHistoryUtils.deserialize
+    );
+    const paginatedHistoryAssets = paginationUtils.paginate(
+      assetHistoryItems,
+      page,
+      perPage
+    );
+    return paginatedHistoryAssets;
+  }
+
+  public async listByOwner(
     owner: string,
     page: number,
     perPage: number

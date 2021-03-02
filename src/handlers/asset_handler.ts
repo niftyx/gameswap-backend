@@ -33,6 +33,17 @@ export class AssetHandler {
     res.status(HttpStatus.OK).send(result);
   }
 
+  public async getHistory(
+    req: express.Request,
+    res: express.Response
+  ): Promise<void> {
+    const { id } = req.params;
+    const page = Number(req.query.page || 1);
+    const perPage = Number(req.query.perPage || 100);
+    const result = await this._assetService.getHistory(page, perPage, id);
+    res.status(HttpStatus.OK).send(result);
+  }
+
   public async getByCollectionIdAndAssetId(
     req: express.Request,
     res: express.Response
@@ -45,7 +56,7 @@ export class AssetHandler {
     res.status(HttpStatus.OK).send(asset);
   }
 
-  public async listByAddress(
+  public async listByOwner(
     req: express.Request,
     res: express.Response
   ): Promise<void> {
@@ -56,7 +67,7 @@ export class AssetHandler {
       res.status(HttpStatus.BAD_REQUEST).send();
       return;
     }
-    const result = await this._assetService.listByAddress(
+    const result = await this._assetService.listByOwner(
       address.toLowerCase(),
       page,
       perPage

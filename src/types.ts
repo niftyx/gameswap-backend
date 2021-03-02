@@ -598,6 +598,8 @@ export interface IAssetHistory {
   txHash: string;
   timestamp: number;
   asset?: IAsset;
+  erc20?: string;
+  erc20Amount?: BigNumber;
 }
 
 export interface ICollection {

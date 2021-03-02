@@ -293,6 +293,12 @@ export const ERC721FACTORY_CONTRACT_BLOCK = assertEnvVarType(
   EnvVarType.Integer
 );
 
+export const EXCHANGE_CONTRACT_BLOCK = assertEnvVarType(
+  "EXCHANGE_CONTRACT_BLOCK",
+  process.env.EXCHANGE_CONTRACT_BLOCK,
+  EnvVarType.Integer
+);
+
 // Whether or not prometheus metrics should be enabled.
 // tslint:disable-next-line:boolean-naming
 export const ENABLE_PROMETHEUS_METRICS: boolean = _.isEmpty(

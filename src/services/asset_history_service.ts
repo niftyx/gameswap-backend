@@ -18,6 +18,20 @@ export class AssetHistoryService {
     return records[0];
   }
 
+  public async getByTxId(txId: string): Promise<IAssetHistory | null> {
+    const assetHistoryEntity = (await this._connection
+      .getRepository(AssetHistoryEntity)
+      .findOne({ txHash: txId })) as Required<AssetHistoryEntity>;
+
+    if (!assetHistoryEntity) {
+      return null;
+    }
+
+    const history = assetHistoryUtils.deserialize(assetHistoryEntity);
+
+    return history;
+  }
+
   public async get(id: string): Promise<IAssetHistory | null> {
     const assetHistoryEntity = (await this._connection.manager.findOne(
       AssetHistoryEntity,
@@ -31,6 +45,15 @@ export class AssetHistoryService {
     const history = assetHistoryUtils.deserialize(assetHistoryEntity);
 
     return history;
+  }
+
+  public async update(history: IAssetHistory): Promise<IAssetHistory> {
+    const records = (await this._connection
+      .getRepository(AssetHistoryEntity)
+      .save(
+        [history].map(assetHistoryUtils.serialize)
+      )) as Required<AssetHistoryEntity>[];
+    return assetHistoryUtils.deserialize(records[0]);
   }
 
   public async list(

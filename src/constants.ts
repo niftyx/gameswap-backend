@@ -89,3 +89,6 @@ export const RFQ_FIRM_QUOTE_CACHE_EXPIRY = ONE_MINUTE_MS * 2;
 
 // async rate limit
 export const RPC_RATE_LIMIT = 10;
+
+export const ERC20_ASSET_PROXY_ID = "0xf47261b0";
+export const ERC721_ASSET_PROXY_ID = "0x02571792";

@@ -1,3 +1,4 @@
+import { assetDataUtils } from "@0x/order-utils";
 import { GameService } from "./game_service";
 import { BigNumber, Contract, ethers } from "ethers";
 import { id, Interface } from "ethers/lib/utils";
@@ -15,6 +16,10 @@ import { AssetService } from "./asset_service";
 import { AssetHistoryService } from "./asset_history_service";
 import { OrderService } from "./order_service";
 
+const exchangeAbi = [
+  "event Fill(address indexed,address indexed,bytes,bytes,bytes,bytes,bytes32 indexed,address,address,uint256,uint256,uint256,uint256,uint256)",
+];
+
 const abi = [
   "event SetTokenData(uint256,string,string,string,string)",
   "event Transfer(address indexed from,address indexed to,uint256 indexed tokenId)",
@@ -24,6 +29,10 @@ const abi = [
 
 const SET_TOKEN_DATA_ID = id(
   "SetTokenData(uint256,string,string,string,string)"
+);
+
+const EXCHANGE_ORDER_FILLED_ID = id(
+  "Fill(address indexed,address indexed,bytes,bytes,bytes,bytes,bytes32 indexed,address,address,uint256,uint256,uint256,uint256,uint256)"
 );
 
 export class ERC721Service {
@@ -482,6 +491,17 @@ export class ERC721Service {
         } else {
           // transfer asset
 
+          const transaction = await provider.getTransactionReceipt(
+            log.transactionHash
+          );
+
+          const orderFillLog = transaction.logs.find((lg) =>
+            lg.topics.includes(EXCHANGE_ORDER_FILLED_ID)
+          );
+
+          logger.info(EXCHANGE_ORDER_FILLED_ID);
+          logger.info(orderFillLog || {});
+
           const previousOwner = from.toLowerCase();
           const newOwner = to.toLowerCase();
           let asset = await this._assetService.getByTokenIdAndCollectionId(
@@ -526,6 +546,36 @@ export class ERC721Service {
               asset,
             };
 
+            if (orderFillLog) {
+              const exchangeInterface = new Interface(exchangeAbi);
+              const parsed = exchangeInterface.parseLog(orderFillLog);
+              const orderFillInfo = {
+                makerAddress: String(parsed.args[0]).toLowerCase(),
+                feeRecipientAddress: String(parsed.args[1]).toLowerCase(),
+                makerAssetData: parsed.args[2],
+                takerAssetData: parsed.args[3],
+                makerFeeAssetData: parsed.args[4],
+                takerFeeAssetData: parsed.args[5],
+                orderHash: String(parsed.args[6]),
+                takerAddress: String(parsed.args[7]).toLowerCase(),
+                senderAddress: String(parsed.args[8]).toLowerCase(),
+                makerAssetFilledAmount: parsed.args[9] as BigNumber,
+                takerAssetFilledAmount: parsed.args[10] as BigNumber,
+                makerFeePaid: parsed.args[11] as BigNumber,
+                takerFeePaid: parsed.args[12] as BigNumber,
+                protocolFeePaid: parsed.args[13] as BigNumber,
+              };
+              const takerAsset = assetDataUtils.decodeAssetDataOrThrow(
+                orderFillInfo.takerAssetData
+              ) as any;
+              assetHistory.erc20 = String(
+                takerAsset.tokenAddress
+              ).toLowerCase();
+              assetHistory.erc20Amount = orderFillInfo.takerAssetFilledAmount;
+              logger.info(
+                `====Order Filled => txHash${assetHistory.erc20} ${assetHistory.erc20Amount}===`
+              );
+            }
             await this._assetHistoryService.add(assetHistory);
           }
         }

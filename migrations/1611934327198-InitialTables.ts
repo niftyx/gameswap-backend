@@ -3,16 +3,16 @@ import { MigrationInterface, QueryRunner } from "typeorm";
 export class InitialTables1611934327198 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
-      `CREATE TABLE "accounts" ("id" character varying NOT NULL, "address" character varying NOT NULL, "asset_count" bigint NOT NULL, "create_time_stamp" integer NOT NULL, PRIMARY KEY ("id"))`
+      `CREATE TABLE "accounts" ("id" character varying NOT NULL, "address" character varying NOT NULL, "asset_count"  character varying NOT NULL, "create_time_stamp" integer NOT NULL, PRIMARY KEY ("id"))`
     );
     await queryRunner.query(
-      `CREATE TABLE "assets" ("id" character varying NOT NULL, "asset_id" bigint NOT NULL, "asset_url" character NOT NULL, "game_id" character varying NOT NULL, "category_id" character varying NOT NULL, "content_id" character varying NOT NULL, "create_time_stamp" integer NOT NULL, "update_time_stamp" integer NOT NULL, PRIMARY KEY ("id"))`
+      `CREATE TABLE "assets" ("id" character varying NOT NULL, "asset_id"  character varying NOT NULL, "asset_url" character NOT NULL, "game_id" character varying NOT NULL, "category_id" character varying NOT NULL, "content_id" character varying NOT NULL, "create_time_stamp" integer NOT NULL, "update_time_stamp" integer NOT NULL, PRIMARY KEY ("id"))`
     );
     await queryRunner.query(
-      `CREATE TABLE "asset_histories" ("id" character varying NOT NULL, "owner" character varying NOT NULL, "tx_hash" character varying NOT NULL, "timestamp" integer NOT NULL, PRIMARY KEY ("id"))`
+      `CREATE TABLE "asset_histories" ("id" character varying NOT NULL, "owner" character varying NOT NULL, "tx_hash" character varying NOT NULL, "erc20" character NOT NULL, "erc20_amount"  character varying NOT NULL, "timestamp" integer NOT NULL, PRIMARY KEY ("id"))`
     );
     await queryRunner.query(
-      `CREATE TABLE "collections" ("id" character varying NOT NULL, "address" character varying NOT NULL, "name" character varying NOT NULL, "symbol" character varying NOT NULL, "image_url" character varying NOT NULL, "description" character, "short_url" character, "owner" character varying NOT NULL, "total_supply" bigint NOT NULL, "total_minted" bigint NOT NULL, "total_burned" bigint NOT NULL, "block" integer NOT NULL, "create_time_stamp" integer NOT NULL, "update_time_stamp" integer NOT NULL, PRIMARY KEY ("id"))`
+      `CREATE TABLE "collections" ("id" character varying NOT NULL, "address" character varying NOT NULL, "name" character varying NOT NULL, "symbol" character varying NOT NULL, "image_url" character varying NOT NULL, "description" character, "short_url" character, "owner" character varying NOT NULL, "total_supply"  character varying NOT NULL, "total_minted"  character varying NOT NULL, "total_burned"  character varying NOT NULL, "block" integer NOT NULL, "create_time_stamp" integer NOT NULL, "update_time_stamp" integer NOT NULL, PRIMARY KEY ("id"))`
     );
     await queryRunner.query(
       `CREATE TABLE "collection_histories" ("id" character varying NOT NULL, "owner" character varying NOT NULL, "timestamp" integer NOT NULL,"tx_hash" character varying NOT NULL, PRIMARY KEY ("id"))`
@@ -110,14 +110,14 @@ export class InitialTables1611934327198 implements MigrationInterface {
       `ALTER TABLE "assets" DROP COLUMN "currentOwnerId"`
     );
     // INDEX
-    await queryRunner.query(`DROP INDEX "asset_category_id_idx"`);
-    await queryRunner.query(`DROP INDEX "category_id_idx"`);
-    await queryRunner.query(`DROP INDEX "game_id_idx"`);
-    await queryRunner.query(`DROP INDEX "asset_id_idx"`);
-    await queryRunner.query(`DROP INDEX "maker_taker_asset_data_idx"`);
-    await queryRunner.query(`DROP INDEX "maker_asset_data_idx"`);
-    await queryRunner.query(`DROP INDEX "taker_asset_data_idx"`);
-    await queryRunner.query(`DROP INDEX "maker_address_idx"`);
+    // await queryRunner.query(`DROP INDEX "asset_category_id_idx"`);
+    // await queryRunner.query(`DROP INDEX "category_id_idx"`);
+    // await queryRunner.query(`DROP INDEX "game_id_idx"`);
+    // await queryRunner.query(`DROP INDEX "asset_id_idx"`);
+    // await queryRunner.query(`DROP INDEX "maker_taker_asset_data_idx"`);
+    // await queryRunner.query(`DROP INDEX "maker_asset_data_idx"`);
+    // await queryRunner.query(`DROP INDEX "taker_asset_data_idx"`);
+    // await queryRunner.query(`DROP INDEX "maker_address_idx"`);
     // table
     await queryRunner.query(`DROP TABLE "accounts"`);
     await queryRunner.query(`DROP TABLE "asset_histories"`);

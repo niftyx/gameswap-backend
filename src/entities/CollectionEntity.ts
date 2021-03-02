@@ -31,13 +31,13 @@ export class CollectionEntity {
   @Column({ name: "owner", type: "varchar" })
   public owner?: string;
 
-  @Column({ name: "total_supply", type: "bigint" })
+  @Column({ name: "total_supply", type: "varchar" })
   public totalSupply?: string;
 
-  @Column({ name: "total_minted", type: "bigint" })
+  @Column({ name: "total_minted", type: "varchar" })
   public totalMinted?: string;
 
-  @Column({ name: "total_burned", type: "bigint" })
+  @Column({ name: "total_burned", type: "varchar" })
   public totalBurned?: string;
 
   @OneToMany(() => AssetEntity, (asset) => asset.collection)

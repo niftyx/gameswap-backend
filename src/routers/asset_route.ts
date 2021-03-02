@@ -21,10 +21,10 @@ export function createAssetRouter(assetService: AssetService): express.Router {
     );
 
   router
-    .route("/address/:id")
+    .route("/user/:id")
     .get(
-      validate(AssetValidation.listByAddress),
-      asyncHandler(handlers.listByAddress.bind(handlers))
+      validate(AssetValidation.listByOwner),
+      asyncHandler(handlers.listByOwner.bind(handlers))
     );
 
   router
@@ -32,6 +32,13 @@ export function createAssetRouter(assetService: AssetService): express.Router {
     .get(
       validate(AssetValidation.getByCollectionIdAndAssetId),
       asyncHandler(handlers.getByCollectionIdAndAssetId.bind(handlers))
+    );
+
+  router
+    .route("/:id/history")
+    .get(
+      validate(AssetValidation.getHistory),
+      asyncHandler(handlers.getHistory.bind(handlers))
     );
 
   router

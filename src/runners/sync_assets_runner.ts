@@ -41,6 +41,7 @@ if (require.main === module) {
         );
         await erc721Service.syncAssets();
       }
+      await dependencies.exchangeService.syncExchanges();
     } catch (e) {
       logger.error(`Error attempting to sync Assets, [${JSON.stringify(e)}]`);
     }

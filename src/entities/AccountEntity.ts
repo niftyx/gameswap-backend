@@ -9,7 +9,7 @@ export class AccountEntity {
   @Column({ name: "address", type: "varchar" })
   public address?: string;
 
-  @Column({ name: "asset_count", type: "bigint" })
+  @Column({ name: "asset_count", type: "varchar" })
   public assetCount?: string;
 
   @Column({ name: "create_time_stamp", type: "int" })

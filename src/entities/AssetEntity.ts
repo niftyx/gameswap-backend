@@ -10,7 +10,7 @@ export class AssetEntity {
   @PrimaryColumn({ name: "id", type: "varchar" })
   public id?: string;
 
-  @Column({ name: "asset_id", type: "bigint" })
+  @Column({ name: "asset_id", type: "varchar" })
   public assetId?: string;
 
   @Column({ name: "asset_url", type: "varchar" })

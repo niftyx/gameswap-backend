@@ -21,7 +21,17 @@ const AssetValidation = {
       page: Joi.number().min(1),
     }),
   },
-  listByAddress: {
+  listByOwner: {
+    params: Joi.object({
+      id: Joi.string().required(),
+    }),
+    query: Joi.object({
+      perPage: Joi.number().greater(0),
+      page: Joi.number().min(1),
+    }),
+  },
+  // GET /assets/v1/:id/history
+  getHistory: {
     params: Joi.object({
       id: Joi.string().required(),
     }),
