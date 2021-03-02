@@ -508,9 +508,6 @@ export class ERC721Service {
             lg.topics.includes(EXCHANGE_ORDER_FILLED_ID)
           );
 
-          logger.info(EXCHANGE_ORDER_FILLED_ID);
-          logger.info(orderFillLog || {});
-
           const previousOwner = from.toLowerCase();
           const newOwner = to.toLowerCase();
           let asset = await this._assetService.getByTokenIdAndCollectionId(
