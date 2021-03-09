@@ -80,7 +80,7 @@ export async function runHttpServiceAsync(
   app.use(GAME_PATH, createGameRouter(dependencies.gameService));
 
   // ACCOUNT http service
-  app.use(ACCOUNT_PATH, createAccountRouter());
+  app.use(ACCOUNT_PATH, createAccountRouter(dependencies.accountService));
 
   // COLLECTION http service
   app.use(

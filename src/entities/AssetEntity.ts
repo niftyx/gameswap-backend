@@ -28,6 +28,9 @@ export class AssetEntity {
   @ManyToOne(() => AccountEntity, (account) => account.assets)
   public currentOwner?: AccountEntity;
 
+  @ManyToOne(() => AccountEntity, (account) => account.assets)
+  public creator?: AccountEntity;
+
   @Column({ name: "created_time_stamp", type: "int" })
   public createTimeStamp?: number;
 
@@ -55,6 +58,7 @@ export class AssetEntity {
       categoryId?: string;
       contentId?: string;
       currentOwner?: AccountEntity;
+      creator?: AccountEntity;
       createTimeStamp?: number;
       updateTimeStamp?: number;
       collection?: CollectionEntity;
@@ -77,5 +81,6 @@ export class AssetEntity {
     this.orders = opts.orders;
     this.history = opts.history;
     this.game = opts.game;
+    this.creator = opts.creator;
   }
 }

@@ -5,9 +5,9 @@ import { v4 as uuidv4 } from "uuid";
 import * as isValidUUID from "uuid-validate";
 import { utils } from "ethers";
 export class GameHandler {
-  private readonly _gameService: GameService;
+  private readonly gameService: GameService;
   constructor(gameService: GameService) {
-    this._gameService = gameService;
+    this.gameService = gameService;
   }
   public async create(
     req: express.Request,
@@ -21,7 +21,7 @@ export class GameHandler {
     const owner = utils.recoverAddress(msgHashBytes, message);
     const gameId = uuidv4();
 
-    const game = await this._gameService.add({
+    const game = await this.gameService.add({
       ...gameData,
       id: gameId,
       owner,
@@ -37,7 +37,7 @@ export class GameHandler {
       res.status(HttpStatus.NOT_FOUND).send();
       return;
     }
-    const game = await this._gameService.get(id);
+    const game = await this.gameService.get(id);
     res.status(HttpStatus.OK).send(game);
   }
 
@@ -47,7 +47,7 @@ export class GameHandler {
   ): Promise<void> {
     const page = Number(req.query.page || 1);
     const perPage = Number(req.query.perPage || 100);
-    const result = await this._gameService.list(page, perPage);
+    const result = await this.gameService.list(page, perPage);
     res.status(HttpStatus.OK).send(result);
   }
 

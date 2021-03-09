@@ -32,9 +32,16 @@ export class AccountService {
     const account = await this.add({
       id,
       address: id,
+      name: "",
+      twitterUsername: "",
+      imageUrl: "",
+      customUrl: "",
+      bio: "",
+      personalSite: "",
       assetCount: ZERO_NUMBER,
       createTimeStamp: timestamp,
       assets: [],
+      createdAssets: [],
     });
     return account;
   }

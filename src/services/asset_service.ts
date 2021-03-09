@@ -40,7 +40,7 @@ export class AssetService {
       .getRepository(AssetEntity)
       .findOne({
         where: { id },
-        relations: ["currentOwner", "collection"],
+        relations: ["currentOwner", "collection", "creator"],
       })) as Required<AssetEntity>;
 
     if (!assetEntity) {

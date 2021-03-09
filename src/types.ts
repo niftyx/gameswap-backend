@@ -584,6 +584,7 @@ export interface IAsset {
   categoryId: string;
   contentId: string;
   currentOwner?: IAccount;
+  creator?: IAccount;
   createTimeStamp: number;
   updateTimeStamp: number;
   collection?: ICollection;
@@ -632,9 +633,16 @@ export interface ICollectionHistory {
 export interface IAccount {
   id: string;
   address: string;
+  name: string;
+  customUrl: string;
+  imageUrl: string;
+  bio: string;
+  twitterUsername: string;
+  personalSite: string;
   assetCount: BigNumber;
   createTimeStamp: number;
   assets?: IAsset[];
+  createdAssets?: IAsset[];
 }
 
 export enum ZeroXOrderType {

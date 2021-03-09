@@ -30,6 +30,11 @@ export const assetUtils = {
             assetEntity.currentOwner as Required<AccountEntity>
           )
         : undefined,
+      creator: assetEntity.creator
+        ? accountUtils.deserialize(
+            assetEntity.creator as Required<AccountEntity>
+          )
+        : undefined,
       history: assetEntity.history
         ? assetEntity.history.map((historyEntity) =>
             assetHistoryUtils.deserialize(
@@ -67,6 +72,9 @@ export const assetUtils = {
 
       currentOwner: asset.currentOwner
         ? accountUtils.serialize(asset.currentOwner)
+        : undefined,
+      creator: asset.creator
+        ? accountUtils.serialize(asset.creator)
         : undefined,
       history: asset.history
         ? asset.history.map(assetHistoryUtils.serialize)
