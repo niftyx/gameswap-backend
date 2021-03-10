@@ -6,9 +6,10 @@ export const gameUtils = {
   deserialize: (gameEntity: Required<GameEntity>): IGame => {
     const game: IGame = {
       id: gameEntity.id,
-      title: gameEntity.title,
+      name: gameEntity.name,
       description: gameEntity.description,
       imageUrl: gameEntity.imageUrl,
+      headerImageUrl: gameEntity.headerImageUrl,
       version: gameEntity.version,
       categoryId: gameEntity.categoryId,
       platform: JSON.parse(gameEntity.platform) as IPlatform[],
@@ -26,29 +27,15 @@ export const gameUtils = {
   serialize: (game: IGame): GameEntity => {
     const gameEntity = new GameEntity({
       id: game.id,
-      title: game.title,
+      name: game.name,
       description: game.description,
       imageUrl: game.imageUrl,
+      headerImageUrl: game.headerImageUrl,
       version: game.version,
       categoryId: game.categoryId,
       platform: JSON.stringify(game.platform),
       owner: game.owner,
       createdAt: game.createdAt,
-      assets: game.assets ? game.assets.map(assetUtils.serialize) : undefined,
-    });
-    return gameEntity;
-  },
-
-  serializeGameAll: (game: IGame): GameEntity => {
-    const gameEntity = new GameEntity({
-      id: game.id,
-      title: game.title,
-      description: game.description,
-      imageUrl: game.imageUrl,
-      version: game.version,
-      categoryId: game.categoryId,
-      platform: JSON.stringify(game.platform),
-      owner: game.owner,
       assets: game.assets ? game.assets.map(assetUtils.serialize) : undefined,
     });
     return gameEntity;

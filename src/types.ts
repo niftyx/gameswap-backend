@@ -565,9 +565,10 @@ export interface IPlatform {
 
 export interface IGame {
   id: string;
-  title: string;
+  name: string;
   version: string;
   imageUrl: string;
+  headerImageUrl?: string;
   categoryId: string;
   description: string;
   platform: IPlatform[];
@@ -611,7 +612,6 @@ export interface ICollection {
   symbol: string;
   imageUrl: string;
   description?: string;
-  shortUrl?: string;
   owner: string;
   totalSupply: BigNumber;
   totalMinted: BigNumber;

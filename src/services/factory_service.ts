@@ -140,7 +140,6 @@ export class FactoryService {
         symbol: parsed.args[2],
         imageUrl: parsed.args[3],
         description: parsed.args[4],
-        shortUrl: parsed.args[5],
         owner: String(log.address).toLowerCase(),
         totalSupply: ZERO_NUMBER,
         totalMinted: ZERO_NUMBER,
@@ -178,7 +177,7 @@ export class FactoryService {
         symbol: string,
         imageURL: string,
         description: string,
-        shortUrl: string,
+        _shortUrl: string,
         log: ethers.providers.Log
       ) => {
         logger.info(`=== new collection ${tokenAddress} ${name} ${symbol} ===`);
@@ -193,7 +192,6 @@ export class FactoryService {
           symbol,
           imageUrl: imageURL,
           description,
-          shortUrl,
           owner: String(log.address).toLowerCase(),
           totalSupply: ZERO_NUMBER,
           totalMinted: ZERO_NUMBER,

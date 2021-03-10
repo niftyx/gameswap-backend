@@ -15,7 +15,7 @@ export class GameHandler {
   ): Promise<void> {
     const { message, ...gameData } = req.body;
 
-    const msgHash = utils.hashMessage(gameData.title);
+    const msgHash = utils.hashMessage(gameData.name);
     const msgHashBytes = utils.arrayify(msgHash);
 
     const owner = utils.recoverAddress(msgHashBytes, message);

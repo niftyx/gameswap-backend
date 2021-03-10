@@ -25,9 +25,6 @@ export class CollectionEntity {
   @Column({ name: "description", type: "varchar" })
   public description?: string;
 
-  @Column({ name: "short_url", type: "varchar" })
-  public shortUrl?: string;
-
   @Column({ name: "owner", type: "varchar" })
   public owner?: string;
 
@@ -60,7 +57,6 @@ export class CollectionEntity {
       symbol?: string;
       imageUrl?: string;
       description?: string;
-      shortUrl?: string;
       owner?: string;
       totalSupply?: string;
       totalMinted?: string;
@@ -78,7 +74,6 @@ export class CollectionEntity {
     this.symbol = opts.symbol;
     this.imageUrl = opts.imageUrl;
     this.description = opts.description;
-    this.shortUrl = opts.shortUrl;
     this.owner = opts.owner;
     this.totalSupply = opts.totalSupply;
     this.totalMinted = opts.totalMinted;

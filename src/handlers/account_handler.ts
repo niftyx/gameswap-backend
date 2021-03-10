@@ -36,7 +36,7 @@ export class AccountHandler {
 
     let account = await this.accountService.getOrCreateAccount(
       accountId,
-      Date.now()
+      Math.floor(Date.now() / 1000)
     );
     account.name = restInfo.name;
     account.imageUrl = restInfo.imageUrl;
@@ -61,7 +61,7 @@ export class AccountHandler {
     }
     const account = await this.accountService.getOrCreateAccount(
       accountId,
-      Date.now()
+      Math.floor(Date.now() / 1000)
     );
 
     res.status(HttpStatus.OK).send(account);

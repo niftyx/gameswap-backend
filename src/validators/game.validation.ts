@@ -17,12 +17,13 @@ const GameValidation = {
   // POST /games/v1/
   createGame: {
     body: Joi.object({
-      title: Joi.string().required(),
-      description: Joi.string(),
+      name: Joi.string().required(),
+      description: Joi.any(),
       imageUrl: Joi.string().required(),
-      version: Joi.string(),
-      categoryId: Joi.string(),
-      platform: Joi.array(),
+      headerImageUrl: Joi.any(),
+      version: Joi.string().required(),
+      categoryId: Joi.string().required(),
+      platform: Joi.any(),
       message: Joi.string().required(), // to validate and get address of creator
     }),
   },

@@ -6,14 +6,17 @@ export class GameEntity {
   @PrimaryColumn({ name: "id", type: "varchar" })
   public id?: string;
 
-  @Column({ name: "title", type: "varchar" })
-  public title?: string;
+  @Column({ name: "name", type: "varchar" })
+  public name?: string;
 
   @Column({ name: "version", type: "varchar" })
   public version?: string;
 
   @Column({ name: "image_url", type: "varchar" })
   public imageUrl?: string;
+
+  @Column({ name: "header_image_url", type: "varchar" })
+  public headerImageUrl?: string;
 
   @Column({ name: "category_id", type: "varchar" })
   public categoryId?: string;
@@ -36,9 +39,10 @@ export class GameEntity {
   constructor(
     opts: {
       id?: string;
-      title?: string;
+      name?: string;
       description?: string;
       imageUrl?: string;
+      headerImageUrl?: string;
       categoryId?: string;
       version?: string;
       platform?: string;
@@ -48,9 +52,10 @@ export class GameEntity {
     } = {}
   ) {
     this.id = opts.id;
-    this.title = opts.title;
+    this.name = opts.name;
     this.description = opts.description;
     this.imageUrl = opts.imageUrl;
+    this.headerImageUrl = opts.headerImageUrl;
     this.categoryId = opts.categoryId;
     this.version = opts.version;
     this.platform = opts.platform;

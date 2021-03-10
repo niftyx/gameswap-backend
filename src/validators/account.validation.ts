@@ -12,15 +12,15 @@ const AccountValidation = {
     params: Joi.object({
       id: Joi.string().required(),
     }),
-    // body: Joi.object({
-    //   // name: Joi.string().required(),
-    //   customUrl: Joi.string(),
-    //   bio: Joi.string(),
-    //   twitterUsername: Joi.string(),
-    //   personalSite: Joi.string(),
-    //   imageUrl: Joi.string(),
-    //   // signedMessage: Joi.string().required(),
-    // }),
+    body: Joi.object({
+      name: Joi.string().required(),
+      customUrl: Joi.any(),
+      bio: Joi.any(),
+      twitterUsername: Joi.any(),
+      personalSite: Joi.any(),
+      imageUrl: Joi.any(),
+      signedMessage: Joi.string().required(),
+    }),
   },
   // GET /accounts/v1/all
   list: {
