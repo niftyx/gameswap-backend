@@ -184,6 +184,7 @@ export class AssetService {
       .find({
         where: { gameId },
         order: { createTimeStamp: "DESC" },
+        relations: ["currentOwner", "collection"],
       })) as Required<AssetEntity>[];
     const assetItems = assetEntities.map(assetUtils.deserialize);
     const paginatedAssets = paginationUtils.paginate(assetItems, page, perPage);
