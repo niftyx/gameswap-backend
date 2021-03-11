@@ -4,11 +4,15 @@ import { GameService } from "../services/game_service";
 import * as asyncHandler from "express-async-handler";
 import { validate } from "express-validation";
 import GameValidation from "../validators/game.validation";
+import { AssetService } from "../services/asset_service";
 
 // tslint:disable-next-line:completed-docs
-export function createGameRouter(gameService: GameService): express.Router {
+export function createGameRouter(
+  gameService: GameService,
+  assetService: AssetService
+): express.Router {
   const router = express.Router();
-  const handlers = new GameHandler(gameService);
+  const handlers = new GameHandler(gameService, assetService);
 
   router
     .route("/")
@@ -23,6 +27,20 @@ export function createGameRouter(gameService: GameService): express.Router {
     .get(
       validate(GameValidation.list),
       asyncHandler(handlers.list.bind(handlers))
+    );
+
+  router
+    .route("/:id/collections")
+    .get(
+      validate(GameValidation.listCollectionRelated),
+      asyncHandler(handlers.listCollectionsRelated.bind(handlers))
+    );
+
+  router
+    .route("/:id/assets")
+    .get(
+      validate(GameValidation.listAssetsRelated),
+      asyncHandler(handlers.listAssetsRelated.bind(handlers))
     );
 
   router

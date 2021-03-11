@@ -173,4 +173,20 @@ export class AssetService {
       .save(_assets.map(assetUtils.serialize));
     return (records as Required<AssetEntity>[]).map(assetUtils.deserialize);
   }
+
+  public async listAssetsRelatedToGame(
+    page: number,
+    perPage: number,
+    gameId: string
+  ): Promise<PaginatedCollection<IAsset>> {
+    const assetEntities = (await this._connection
+      .getRepository(AssetEntity)
+      .find({
+        where: { gameId },
+        order: { createTimeStamp: "DESC" },
+      })) as Required<AssetEntity>[];
+    const assetItems = assetEntities.map(assetUtils.deserialize);
+    const paginatedAssets = paginationUtils.paginate(assetItems, page, perPage);
+    return paginatedAssets;
+  }
 }

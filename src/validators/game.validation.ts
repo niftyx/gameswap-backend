@@ -27,6 +27,26 @@ const GameValidation = {
       message: Joi.string().required(), // to validate and get address of creator
     }),
   },
+  // GET /games/v1/:id/collections
+  listCollectionRelated: {
+    params: Joi.object({
+      id: Joi.string().required(),
+    }),
+    query: Joi.object({
+      perPage: Joi.number().greater(0),
+      page: Joi.number().min(1),
+    }),
+  },
+  // GET /games/v1/:id/assets
+  listAssetsRelated: {
+    params: Joi.object({
+      id: Joi.string().required(),
+    }),
+    query: Joi.object({
+      perPage: Joi.number().greater(0),
+      page: Joi.number().min(1),
+    }),
+  },
 };
 
 export default GameValidation;

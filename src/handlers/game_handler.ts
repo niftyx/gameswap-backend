@@ -4,10 +4,13 @@ import { GameService } from "../services/game_service";
 import { v4 as uuidv4 } from "uuid";
 import * as isValidUUID from "uuid-validate";
 import { utils } from "ethers";
+import { AssetService } from "../services/asset_service";
 export class GameHandler {
   private readonly gameService: GameService;
-  constructor(gameService: GameService) {
+  private readonly assetService: AssetService;
+  constructor(gameService: GameService, assetService: AssetService) {
     this.gameService = gameService;
+    this.assetService = assetService;
   }
   public async create(
     req: express.Request,
@@ -48,6 +51,40 @@ export class GameHandler {
     const page = Number(req.query.page || 1);
     const perPage = Number(req.query.perPage || 100);
     const result = await this.gameService.list(page, perPage);
+    res.status(HttpStatus.OK).send(result);
+  }
+
+  public async listCollectionsRelated(
+    req: express.Request,
+    res: express.Response
+  ): Promise<void> {
+    const id = req.params.id;
+    if (!isValidUUID(id)) {
+      res.status(HttpStatus.NOT_FOUND).send();
+      return;
+    }
+    const page = Number(req.query.page || 1);
+    const perPage = Number(req.query.perPage || 100);
+    const result = await this.gameService.list(page, perPage);
+    res.status(HttpStatus.OK).send(result);
+  }
+
+  public async listAssetsRelated(
+    req: express.Request,
+    res: express.Response
+  ): Promise<void> {
+    const id = req.params.id;
+    if (!isValidUUID(id)) {
+      res.status(HttpStatus.NOT_FOUND).send();
+      return;
+    }
+    const page = Number(req.query.page || 1);
+    const perPage = Number(req.query.perPage || 100);
+    const result = await this.assetService.listAssetsRelatedToGame(
+      page,
+      perPage,
+      id
+    );
     res.status(HttpStatus.OK).send(result);
   }
 
