@@ -1,24 +1,35 @@
 import { GameEntity } from "./GameEntity";
-import { Column, Entity, PrimaryColumn, OneToMany, ManyToOne } from "typeorm";
+import {
+  Column,
+  Entity,
+  PrimaryColumn,
+  OneToMany,
+  ManyToOne,
+  Index,
+} from "typeorm";
 import { AssetHistoryEntity } from "./AssetHistoryEntity";
 import { AccountEntity } from "./AccountEntity";
 import { CollectionEntity } from "./CollectionEntity";
 import { ZeroXOrderEntity } from "./ZeroXOrderEntity";
 
 @Entity({ name: "assets" })
+@Index("asset_category_id_idx", ["assetId", "categoryId"])
 export class AssetEntity {
   @PrimaryColumn({ name: "id", type: "varchar" })
   public id?: string;
 
+  @Index("asset_id_idx")
   @Column({ name: "asset_id", type: "varchar" })
   public assetId?: string;
 
   @Column({ name: "asset_url", type: "varchar" })
   public assetURL?: string;
 
+  @Index("game_id_idx")
   @Column({ name: "game_id", type: "varchar" })
   public gameId?: string;
 
+  @Index("category_id_idx")
   @Column({ name: "category_id", type: "varchar" })
   public categoryId?: string;
 
