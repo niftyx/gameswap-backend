@@ -116,14 +116,14 @@ export class InitialTables1611934327198 implements MigrationInterface {
       `ALTER TABLE "assets" DROP COLUMN "currentOwnerId"`
     );
     // INDEX
-    // await queryRunner.query(`DROP INDEX "asset_category_id_idx"`);
-    // await queryRunner.query(`DROP INDEX "category_id_idx"`);
-    // await queryRunner.query(`DROP INDEX "game_id_idx"`);
-    // await queryRunner.query(`DROP INDEX "asset_id_idx"`);
-    // await queryRunner.query(`DROP INDEX "maker_taker_asset_data_idx"`);
-    // await queryRunner.query(`DROP INDEX "maker_asset_data_idx"`);
-    // await queryRunner.query(`DROP INDEX "taker_asset_data_idx"`);
-    // await queryRunner.query(`DROP INDEX "maker_address_idx"`);
+    await queryRunner.query(`DROP INDEX "asset_category_id_idx"`);
+    await queryRunner.query(`DROP INDEX "category_id_idx"`);
+    await queryRunner.query(`DROP INDEX "game_id_idx"`);
+    await queryRunner.query(`DROP INDEX "asset_id_idx"`);
+    await queryRunner.query(`DROP INDEX "maker_taker_asset_data_idx"`);
+    await queryRunner.query(`DROP INDEX "maker_asset_data_idx"`);
+    await queryRunner.query(`DROP INDEX "taker_asset_data_idx"`);
+    await queryRunner.query(`DROP INDEX "maker_address_idx"`);
     // table
     await queryRunner.query(`DROP TABLE "accounts"`);
     await queryRunner.query(`DROP TABLE "asset_histories"`);

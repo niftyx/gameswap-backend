@@ -1,7 +1,8 @@
-import { Column, Entity, ManyToOne, PrimaryColumn } from "typeorm";
+import { Column, Entity, Index, ManyToOne, PrimaryColumn } from "typeorm";
 import { AssetEntity } from "./AssetEntity";
 
 @Entity({ name: "zero_x_orders" })
+@Index("maker_taker_asset_data_idx", ["makerAssetData", "takerAssetData"])
 export class ZeroXOrderEntity {
   @PrimaryColumn({ name: "hash", type: "varchar" })
   public hash?: string;
@@ -9,15 +10,18 @@ export class ZeroXOrderEntity {
   @Column({ name: "sender_address", type: "varchar" })
   public senderAddress?: string;
 
+  @Index("maker_address_idx")
   @Column({ name: "maker_address", type: "varchar" })
   public makerAddress?: string;
 
   @Column({ name: "taker_address", type: "varchar" })
   public takerAddress?: string;
 
+  @Index("maker_asset_data_idx")
   @Column({ name: "maker_asset_data", type: "varchar" })
   public makerAssetData?: string;
 
+  @Index("taker_asset_data_idx")
   @Column({ name: "taker_asset_data", type: "varchar" })
   public takerAssetData?: string;
 
