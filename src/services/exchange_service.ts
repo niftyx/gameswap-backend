@@ -6,7 +6,6 @@ import { logger } from "../app";
 import { CHAIN_ID, defaultHttpServiceWithRateLimiterConfig } from "../config";
 import { AssetService } from "./asset_service";
 import { AssetHistoryService } from "./asset_history_service";
-import { OrderService } from "./order_service";
 import { ERC20_ASSET_PROXY_ID, ERC721_ASSET_PROXY_ID } from "../constants";
 
 const abi = [
@@ -19,22 +18,19 @@ export class ExchangeService {
   //private readonly _connection: Connection;
   // private readonly _assetService: AssetService;
   private readonly _assetHistoryService: AssetHistoryService;
-  // private readonly _orderService: OrderService;
 
   constructor(
     _address: string,
     _blockNumber: number,
     _connection: Connection,
     _assetService: AssetService,
-    _assetHistoryService: AssetHistoryService,
-    _orderService: OrderService
+    _assetHistoryService: AssetHistoryService
   ) {
     //this._connection = _connection;
     this._address = _address;
     this._blockNumber = _blockNumber;
     // this._assetService = _assetService;
     this._assetHistoryService = _assetHistoryService;
-    // this._orderService = _orderService;
   }
 
   async syncExchanges() {

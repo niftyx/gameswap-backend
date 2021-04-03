@@ -8,7 +8,6 @@ import {
   CollectionEntity,
   CollectionHistoryEntity,
   GameEntity,
-  ZeroXOrderEntity,
 } from "./entities";
 
 const entities = [
@@ -18,7 +17,6 @@ const entities = [
   CollectionEntity,
   CollectionHistoryEntity,
   GameEntity,
-  ZeroXOrderEntity,
   CollectionEntity,
 ];
 

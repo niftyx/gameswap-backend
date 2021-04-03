@@ -10,7 +10,6 @@ import {
 import { AssetHistoryEntity } from "./AssetHistoryEntity";
 import { AccountEntity } from "./AccountEntity";
 import { CollectionEntity } from "./CollectionEntity";
-import { ZeroXOrderEntity } from "./ZeroXOrderEntity";
 
 @Entity({ name: "assets" })
 @Index("asset_category_id_idx", ["assetId", "categoryId"])
@@ -57,9 +56,6 @@ export class AssetEntity {
   @ManyToOne(() => CollectionEntity, (collection) => collection.assets)
   public collection?: CollectionEntity;
 
-  @OneToMany(() => ZeroXOrderEntity, (order) => order.asset)
-  public orders?: ZeroXOrderEntity[];
-
   constructor(
     opts: {
       id?: string;
@@ -73,7 +69,6 @@ export class AssetEntity {
       createTimeStamp?: number;
       updateTimeStamp?: number;
       collection?: CollectionEntity;
-      orders?: ZeroXOrderEntity[];
       history?: AssetHistoryEntity[];
       game?: GameEntity;
     } = {}
@@ -89,7 +84,6 @@ export class AssetEntity {
     this.createTimeStamp = opts.createTimeStamp;
     this.updateTimeStamp = opts.updateTimeStamp;
     this.collection = opts.collection;
-    this.orders = opts.orders;
     this.history = opts.history;
     this.game = opts.game;
     this.creator = opts.creator;

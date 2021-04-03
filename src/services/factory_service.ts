@@ -10,7 +10,6 @@ import {
   AssetHistoryEntity,
   CollectionEntity,
   CollectionHistoryEntity,
-  ZeroXOrderEntity,
 } from "../entities";
 import { ICollection, IERC721ContractInfo } from "../types";
 import { collectionUtils } from "../utils/collection_utils";
@@ -22,10 +21,9 @@ import { CollectionHistoryService } from "./collection_history_service";
 import { CollectionService } from "./collection_service";
 import { ERC721Service } from "./erc721_service";
 import { GameService } from "./game_service";
-import { OrderService } from "./order_service";
 
 const abi = [
-  "event CollectionCreated(address indexed tokenAddress,string name,string symbol,string imageURL,string description,string shortUrl)",
+  "event CollectionCreated(address indexed tokenAddress,string name,string symbol,string imageURL,string description,bool isPrivate)",
 ];
 
 export class FactoryService {
@@ -37,7 +35,6 @@ export class FactoryService {
   private readonly _collectionHistoryService: CollectionHistoryService;
   private readonly _assetService: AssetService;
   private readonly _assetHistoryService: AssetHistoryService;
-  private readonly _orderService: OrderService;
   private readonly _gameService: GameService;
   private readonly _exchangeAddress: string;
 
@@ -50,7 +47,6 @@ export class FactoryService {
     _accountService: AccountService,
     _assetService: AssetService,
     _assetHistoryService: AssetHistoryService,
-    _orderService: OrderService,
     _gameService: GameService,
     _exchangeAddress: string
   ) {
@@ -62,7 +58,6 @@ export class FactoryService {
     this._accountService = _accountService;
     this._assetService = _assetService;
     this._assetHistoryService = _assetHistoryService;
-    this._orderService = _orderService;
     this._gameService = _gameService;
     this._exchangeAddress = _exchangeAddress;
   }
@@ -94,18 +89,12 @@ export class FactoryService {
       .execute();
     logger.info("====CollectionEntity Removed====");
     await this._connection
+      .getRepository(AccountEntity)
       .createQueryBuilder()
-      .delete()
-      .from(AccountEntity)
+      .update()
+      .set({ assetCount: "0" })
       .execute();
-    logger.info("====AccountEntity Removed====");
-    await this._connection
-      .createQueryBuilder()
-      .delete()
-      .from(ZeroXOrderEntity)
-      .execute();
-    logger.info("====ZeroXOrderEntity Removed====");
-    logger.info("==== reset tables end ====");
+    logger.info("====AccountEntity assetCount Reset Done====");
   }
 
   async syncERC721Contracts(): Promise<IERC721ContractInfo[]> {
@@ -140,6 +129,7 @@ export class FactoryService {
         symbol: parsed.args[2],
         imageUrl: parsed.args[3],
         description: parsed.args[4],
+        isPrivate: parsed.args[5],
         owner: String(log.address).toLowerCase(),
         totalSupply: ZERO_NUMBER,
         totalMinted: ZERO_NUMBER,
@@ -177,7 +167,7 @@ export class FactoryService {
         symbol: string,
         imageURL: string,
         description: string,
-        _shortUrl: string,
+        isPrivate: boolean,
         log: ethers.providers.Log
       ) => {
         logger.info(`=== new collection ${tokenAddress} ${name} ${symbol} ===`);
@@ -192,6 +182,7 @@ export class FactoryService {
           symbol,
           imageUrl: imageURL,
           description,
+          isPrivate,
           owner: String(log.address).toLowerCase(),
           totalSupply: ZERO_NUMBER,
           totalMinted: ZERO_NUMBER,
@@ -211,7 +202,6 @@ export class FactoryService {
           this._accountService,
           this._assetService,
           this._assetHistoryService,
-          this._orderService,
           this._gameService,
           this._exchangeAddress
         );

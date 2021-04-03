@@ -14,7 +14,6 @@ import { ONE_NUMBER } from "../utils/number";
 import { CollectionHistoryService } from "./collection_history_service";
 import { AssetService } from "./asset_service";
 import { AssetHistoryService } from "./asset_history_service";
-import { OrderService } from "./order_service";
 
 const exchangeAbi = [
   "event Fill(address indexed,address indexed,bytes,bytes,bytes,bytes,bytes32 indexed,address,address,uint256,uint256,uint256,uint256,uint256)",
@@ -23,7 +22,7 @@ const exchangeAbi = [
 const abi = [
   "event SetTokenData(uint256,string,string,string,string)",
   "event Transfer(address indexed from,address indexed to,uint256 indexed tokenId)",
-  "event MetaDataChanged(string,string,string)",
+  "event MetaDataChanged(string,string,bool)",
   "event OwnershipTransferred(address indexed,address indexed)",
 ];
 
@@ -42,7 +41,6 @@ export class ERC721Service {
   private readonly _assetService: AssetService;
   private readonly _assetHistoryService: AssetHistoryService;
   private readonly _gameService: GameService;
-  // private readonly _orderService: OrderService;
 
   constructor(
     _address: string,
@@ -53,7 +51,6 @@ export class ERC721Service {
     _accountService: AccountService,
     _assetService: AssetService,
     _assetHistoryService: AssetHistoryService,
-    _orderService: OrderService,
     _gameService: GameService,
     _exchangeAddress: string
   ) {
@@ -65,7 +62,6 @@ export class ERC721Service {
     this._accountService = _accountService;
     this._assetService = _assetService;
     this._assetHistoryService = _assetHistoryService;
-    // this._orderService = _orderService;
     this._gameService = _gameService;
     this._exchangeAddress = _exchangeAddress;
   }
@@ -172,7 +168,6 @@ export class ERC721Service {
           createTimeStamp: block.timestamp,
           updateTimeStamp: block.timestamp,
           history: [],
-          orders: [],
           collection,
         };
 
@@ -294,6 +289,23 @@ export class ERC721Service {
       }
     }
 
+    logger.info("=== get MetaDataChanged events  ===");
+    filter = ens.filters.Transfer();
+    filter.fromBlock = this._blockNumber;
+    filter.toBlock = "latest";
+
+    logs = await provider.getLogs(filter);
+
+    for (let index = 0; index < logs.length; index++) {
+      const log = logs[index];
+      const parsed = iface.parseLog(log);
+
+      collection.imageUrl = parsed.args[0];
+      collection.description = parsed.args[1];
+      collection.isPrivate = parsed.args[2];
+      collection = await this._collectionService.update(collection);
+    }
+
     logger.info(`=== syncing asset end ${this._address}=====`);
   }
 
@@ -351,6 +363,28 @@ export class ERC721Service {
         };
 
         await this._collectionHistoryService.add(collectionHistory);
+      }
+    );
+
+    ens.on(
+      "MetaDataChanged",
+      async (
+        imageUrl: string,
+        description: string,
+        isPrivate: boolean,
+        _log: ethers.providers.Log
+      ) => {
+        logger.info(
+          `=== collection MetaDataChanged ${this._address} ${imageUrl}=>${isPrivate} ===`
+        );
+        let collection = await this._collectionService.get(this._address);
+
+        if (!collection) return;
+
+        collection.imageUrl = imageUrl;
+        collection.description = description;
+        collection.isPrivate = isPrivate;
+        collection = await this._collectionService.update(collection);
       }
     );
 
@@ -421,7 +455,6 @@ export class ERC721Service {
             createTimeStamp: block.timestamp,
             updateTimeStamp: block.timestamp,
             history: [],
-            orders: [],
             collection,
           };
 

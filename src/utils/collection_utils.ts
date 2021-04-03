@@ -24,6 +24,7 @@ export const collectionUtils = {
       totalBurned: BigNumber.from(collectionEntity.totalBurned),
       createTimeStamp: collectionEntity.createTimeStamp,
       updateTimeStamp: collectionEntity.updateTimeStamp,
+      isPrivate: collectionEntity.isPrivate,
       assets: collectionEntity.assets
         ? collectionEntity.assets.map((asset) =>
             assetUtils.deserialize(asset as Required<AssetEntity>)
@@ -49,6 +50,7 @@ export const collectionUtils = {
       symbol: collection.symbol,
       imageUrl: collection.imageUrl,
       description: collection.description,
+      isPrivate: collection.isPrivate,
       owner: collection.owner,
       totalSupply: collection.totalSupply.toString(),
       totalMinted: collection.totalMinted.toString(),

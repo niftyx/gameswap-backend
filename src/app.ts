@@ -22,7 +22,6 @@ import { AccountService } from "./services/account_service";
 import { AssetHistoryService } from "./services/asset_history_service";
 import { CollectionHistoryService } from "./services/collection_history_service";
 import { AssetService } from "./services/asset_service";
-import { OrderService } from "./services/order_service";
 import { ERC721Service } from "./services/erc721_service";
 import { ExchangeService } from "./services/exchange_service";
 import { getContractAddressesForChainOrThrow } from "./custom/contract-addresses";
@@ -44,7 +43,6 @@ export interface AppDependencies {
   collectionService: CollectionService;
   collectionHistoryService: CollectionHistoryService;
   gameService: GameService;
-  orderService: OrderService;
   exchangeService: ExchangeService;
   orbitService: OrbitService;
 }
@@ -65,7 +63,6 @@ export async function getDefaultAppDependenciesAsync(
   const accountService = new AccountService(connection);
   const assetService = new AssetService(connection);
   const assetHistoryService = new AssetHistoryService(connection);
-  const orderService = new OrderService(connection);
   const orbitService = new OrbitService();
 
   const contractAddresses = getContractAddressesForChainOrThrow(CHAIN_ID);
@@ -74,8 +71,7 @@ export async function getDefaultAppDependenciesAsync(
     EXCHANGE_CONTRACT_BLOCK,
     connection,
     assetService,
-    assetHistoryService,
-    orderService
+    assetHistoryService
   );
 
   const factoryService = new FactoryService(
@@ -87,7 +83,6 @@ export async function getDefaultAppDependenciesAsync(
     accountService,
     assetService,
     assetHistoryService,
-    orderService,
     gameService,
     contractAddresses.exchange
   );
@@ -102,7 +97,6 @@ export async function getDefaultAppDependenciesAsync(
     accountService,
     assetService,
     assetHistoryService,
-    orderService,
     exchangeService,
     orbitService,
   };
@@ -138,7 +132,6 @@ export async function getAppAsync(
         dependencies.accountService,
         dependencies.assetService,
         dependencies.assetHistoryService,
-        dependencies.orderService,
         dependencies.gameService,
         contractAddresses.exchange
       );

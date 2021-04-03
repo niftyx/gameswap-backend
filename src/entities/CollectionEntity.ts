@@ -37,6 +37,9 @@ export class CollectionEntity {
   @Column({ name: "total_burned", type: "varchar" })
   public totalBurned?: string;
 
+  @Column({ name: "is_private", type: "boolean" })
+  public isPrivate?: boolean;
+
   @OneToMany(() => AssetEntity, (asset) => asset.collection)
   public assets?: AssetEntity[];
 
@@ -64,6 +67,7 @@ export class CollectionEntity {
       createTimeStamp?: number;
       updateTimeStamp?: number;
       block?: number;
+      isPrivate?: boolean;
       assets?: AssetEntity[];
       history?: AssetHistoryEntity[];
     } = {}
@@ -81,6 +85,7 @@ export class CollectionEntity {
     this.createTimeStamp = opts.createTimeStamp;
     this.updateTimeStamp = opts.updateTimeStamp;
     this.block = opts.block;
+    this.isPrivate = opts.isPrivate;
     this.assets = opts.assets;
     this.history = opts.history;
   }

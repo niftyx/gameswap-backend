@@ -590,7 +590,6 @@ export interface IAsset {
   updateTimeStamp: number;
   collection?: ICollection;
   history?: IAssetHistory[];
-  orders?: IZeroXOrder[];
   game?: IGame;
 }
 
@@ -618,6 +617,7 @@ export interface ICollection {
   totalBurned: BigNumber;
   createTimeStamp: number;
   updateTimeStamp: number;
+  isPrivate: boolean;
   assets?: IAsset[];
   history?: ICollectionHistory[];
 }
@@ -649,32 +649,6 @@ export enum ZeroXOrderType {
   Created = "Created",
   Filled = "Filled",
   Cancelled = "Cancelled",
-}
-
-export interface IZeroXOrder {
-  hash: string;
-  senderAddress: string;
-  makerAddress: string;
-  takerAddress: string;
-  makerAssetData: string;
-  takerAssetData: string;
-  exchangeAddress: string;
-  feeRecipientAddress: string;
-  expirationTimeSeconds: string;
-  makerFee: string;
-  takerFee: string;
-  makerAssetAmount: string;
-  takerAssetAmount: string;
-  salt: string;
-  signature: string;
-
-  remainingFillableTakerAssetAmount: string;
-  makerFeeAssetData: string;
-  takerFeeAssetData: string;
-  status: ZeroXOrderType;
-  createdAt: number;
-
-  asset?: IAsset;
 }
 
 export interface GraphVariables {

@@ -38,7 +38,6 @@ if (require.main === module) {
           dependencies.accountService,
           dependencies.assetService,
           dependencies.assetHistoryService,
-          dependencies.orderService,
           dependencies.gameService,
           contractAddresses.exchange
         );
