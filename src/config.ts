@@ -134,18 +134,6 @@ export const PINNED_MM_ADDRESSES: string[] = _.isEmpty(
       EnvVarType.AddressList
     );
 
-// 0x Endpoint
-export const SRA_WEBSOCKET_URIS = {
-  [ChainId.AVAXTEST]: process.env.RELAYER_WS_URL_AVAXTEST || "",
-  [ChainId.AVAXMAIN]: process.env.RELAYER_WS_URL_AVAXMAIN || "",
-};
-export const SRA_WEBSOCKET_URI = SRA_WEBSOCKET_URIS[CHAIN_ID];
-export const SRA_HTTP_URIS = {
-  [ChainId.AVAXTEST]: process.env.RELAYER_URL_AVAXTEST || "",
-  [ChainId.AVAXMAIN]: process.env.RELAYER_URL_AVAXMAIN || "",
-};
-export const SRA_HTTP_URI = SRA_HTTP_URIS[CHAIN_ID];
-
 // CONTENT_SECRET_KEY
 export const CONTENT_SECRET_KEY: string =
   process.env.CONTENT_SECRET_KEY || "CONTENT_SECRET_KEY";
