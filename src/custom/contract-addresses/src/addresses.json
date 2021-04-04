@@ -249,11 +249,13 @@
     "exchangeProxyAllowanceTarget": "0x0cbc4c07cebb807b54087fd2177115e752a5ddce",
     "exchangeProxyTransformerDeployer": "0x2e84741f27e2993d637f3a537191101ccbf67050",
     "exchangeProxyFlashWallet": "0x3d3fe7df787f3cb7e626ca7721698f41f0da881b",
+    "exchangeProxyLiquidityProviderSandbox": "0x0000000000000000000000000000000000000000",
     "transformers": {
       "wethTransformer": "0x2ae4650bbf3213c91e5b2fea933038d2641d65c5",
       "payTakerTransformer": "0xadee7f8aac47ada153adf22a7b66eb48c6ae64a3",
       "fillQuoteTransformer": "0x7e6e51b697c4e52f3eb40660b7b65d31184c8791",
-      "affiliateFeeTransformer": "0x56c04041bf2962ca9868e532fe5696dbc4ec4734"
+      "affiliateFeeTransformer": "0x56c04041bf2962ca9868e532fe5696dbc4ec4734",
+      "positiveSlippageFeeTransformer": "0x0000000000000000000000000000000000000000"
     }
   },
   "43114": {
@@ -296,11 +298,13 @@
     "exchangeProxyAllowanceTarget": "0x0cbc4c07cebb807b54087fd2177115e752a5ddce",
     "exchangeProxyTransformerDeployer": "0x2e84741f27e2993d637f3a537191101ccbf67050",
     "exchangeProxyFlashWallet": "0x3d3fe7df787f3cb7e626ca7721698f41f0da881b",
+    "exchangeProxyLiquidityProviderSandbox": "0x0000000000000000000000000000000000000000",
     "transformers": {
       "wethTransformer": "0x2ae4650bbf3213c91e5b2fea933038d2641d65c5",
       "payTakerTransformer": "0xadee7f8aac47ada153adf22a7b66eb48c6ae64a3",
       "fillQuoteTransformer": "0x7e6e51b697c4e52f3eb40660b7b65d31184c8791",
-      "affiliateFeeTransformer": "0x56c04041bf2962ca9868e532fe5696dbc4ec4734"
+      "affiliateFeeTransformer": "0x56c04041bf2962ca9868e532fe5696dbc4ec4734",
+      "positiveSlippageFeeTransformer": "0x0000000000000000000000000000000000000000"
     }
   }
 }
