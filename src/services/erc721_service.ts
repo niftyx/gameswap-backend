@@ -290,7 +290,7 @@ export class ERC721Service {
     }
 
     logger.info("=== get MetaDataChanged events  ===");
-    filter = ens.filters.Transfer();
+    filter = ens.filters.MetaDataChanged();
     filter.fromBlock = this._blockNumber;
     filter.toBlock = "latest";
 
