@@ -1,0 +1,1 @@
+- src/custom/contract-addresses/src/addresses.json
