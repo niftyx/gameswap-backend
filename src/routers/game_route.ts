@@ -30,13 +30,6 @@ export function createGameRouter(
     );
 
   router
-    .route("/:id/collections")
-    .get(
-      validate(GameValidation.listCollectionRelated),
-      asyncHandler(handlers.listCollectionsRelated.bind(handlers))
-    );
-
-  router
     .route("/:id/assets")
     .get(
       validate(GameValidation.listAssetsRelated),

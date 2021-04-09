@@ -54,21 +54,6 @@ export class GameHandler {
     res.status(HttpStatus.OK).send(result);
   }
 
-  public async listCollectionsRelated(
-    req: express.Request,
-    res: express.Response
-  ): Promise<void> {
-    const id = req.params.id;
-    if (!isValidUUID(id)) {
-      res.status(HttpStatus.NOT_FOUND).send();
-      return;
-    }
-    const page = Number(req.query.page || 1);
-    const perPage = Number(req.query.perPage || 100);
-    const result = await this.gameService.list(page, perPage);
-    res.status(HttpStatus.OK).send(result);
-  }
-
   public async listAssetsRelated(
     req: express.Request,
     res: express.Response

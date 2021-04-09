@@ -29,5 +29,12 @@ export function createCollectionRouter(
       asyncHandler(handlers.get.bind(handlers))
     );
 
+  router
+    .route("/games/:id")
+    .get(
+      validate(CollectionValidation.listRelatedToGame),
+      asyncHandler(handlers.listRelatedToGame.bind(handlers))
+    );
+
   return router;
 }

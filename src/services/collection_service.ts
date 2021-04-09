@@ -2,8 +2,9 @@ import { PaginatedCollection } from "@0x/connect";
 import * as _ from "lodash";
 import { Connection } from "typeorm";
 
-import { CollectionEntity } from "../entities";
+import { AssetEntity, CollectionEntity } from "../entities";
 import { ICollection } from "../types";
+import { assetUtils } from "../utils/asset_utils";
 import { collectionUtils } from "../utils/collection_utils";
 import { paginationUtils } from "../utils/pagination_utils";
 
@@ -43,6 +44,34 @@ export class CollectionService {
     const collectionItems = collectionEntities.map(collectionUtils.deserialize);
     const paginatedCollections = paginationUtils.paginate(
       collectionItems,
+      page,
+      perPage
+    );
+    return paginatedCollections;
+  }
+
+  public async listRelatedToGame(
+    page: number,
+    perPage: number,
+    gameId: string
+  ): Promise<PaginatedCollection<ICollection>> {
+    const assetEntities = (await this._connection
+      .getRepository(AssetEntity)
+      .find({
+        where: { gameId },
+        relations: ["collection"],
+        order: { createTimeStamp: "DESC" },
+      })) as Required<AssetEntity>[];
+    const assetItems = assetEntities.map(assetUtils.deserialize);
+    const collectionItems = assetItems.map(
+      (asset) => asset.collection as Required<ICollection>
+    );
+    const collectionIds = collectionItems.map((collection) => collection.id);
+    const uniqueCollections = collectionItems.filter(
+      (collection, index) => index === collectionIds.indexOf(collection.id)
+    );
+    const paginatedCollections = paginationUtils.paginate(
+      uniqueCollections,
       page,
       perPage
     );
