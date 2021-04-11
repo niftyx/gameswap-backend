@@ -4,6 +4,7 @@ import * as _ from "lodash";
 import { Connection } from "typeorm";
 import { logger } from "../app";
 import { CHAIN_ID, defaultHttpServiceWithRateLimiterConfig } from "../config";
+import { LOG_PAGE_COUNT } from "../constants";
 import {
   AccountEntity,
   AssetEntity,
@@ -104,49 +105,66 @@ export class FactoryService {
     );
     const iface = new Interface(abi);
     const ens = new Contract(this._factoryAddress, iface, provider);
-    let filter: any = ens.filters.CollectionCreated();
-    filter.fromBlock = this._factoryBlockNumber;
-    filter.toBlock = "latest";
-
-    logger.info("==== ERC721 Factory Sync Start ===");
-
-    const logs = await provider.getLogs(filter);
 
     const erc721Contracts: IERC721ContractInfo[] = [];
 
-    for (let index = 0; index < logs.length; index++) {
-      const log = logs[index];
+    logger.info(
+      "======================= ERC721 Factory Sync Start ======================"
+    );
 
-      const blockNumber = log.blockNumber;
-      const block = await provider.getBlock(blockNumber);
-      const parsed = iface.parseLog(log);
+    const latestBlockNumber = await provider.getBlockNumber();
 
-      const collection: ICollection = {
-        id: String(parsed.args[0]).toLowerCase(),
-        block: log.blockNumber,
-        address: String(parsed.args[0]).toLowerCase(),
-        name: parsed.args[1],
-        symbol: parsed.args[2],
-        imageUrl: parsed.args[3],
-        description: parsed.args[4],
-        isPrivate: parsed.args[5],
-        owner: String(log.address).toLowerCase(),
-        totalSupply: ZERO_NUMBER,
-        totalMinted: ZERO_NUMBER,
-        totalBurned: ZERO_NUMBER,
-        createTimeStamp: block.timestamp,
-        updateTimeStamp: block.timestamp,
-      };
+    let currentScannedBlockNumber = this._factoryBlockNumber - 1;
 
-      await this._createCollections([collection]);
+    while (currentScannedBlockNumber < latestBlockNumber) {
+      let filter: any = ens.filters.CollectionCreated();
+      filter.fromBlock = currentScannedBlockNumber + 1;
+      filter.toBlock = currentScannedBlockNumber + LOG_PAGE_COUNT + 1;
+      filter.toBlock = Math.min(filter.toBlock, latestBlockNumber);
 
-      erc721Contracts.push({
-        address: collection.address,
-        block: collection.block,
-      });
+      const logs = await provider.getLogs(filter);
+
+      for (let index = 0; index < logs.length; index++) {
+        const log = logs[index];
+
+        const blockNumber = log.blockNumber;
+        const block = await provider.getBlock(blockNumber);
+        const parsed = iface.parseLog(log);
+
+        const collection: ICollection = {
+          id: String(parsed.args[0]).toLowerCase(),
+          block: log.blockNumber,
+          address: String(parsed.args[0]).toLowerCase(),
+          name: parsed.args[1],
+          symbol: parsed.args[2],
+          imageUrl: parsed.args[3],
+          description: parsed.args[4],
+          isPrivate: parsed.args[5],
+          owner: String(log.address).toLowerCase(),
+          totalSupply: ZERO_NUMBER,
+          totalMinted: ZERO_NUMBER,
+          totalBurned: ZERO_NUMBER,
+          createTimeStamp: block.timestamp,
+          updateTimeStamp: block.timestamp,
+        };
+
+        logger.info(`===collection=created=${collection.address}==`);
+
+        await this._createCollections([collection]);
+
+        erc721Contracts.push({
+          address: collection.address,
+          block: collection.block,
+        });
+      }
+
+      currentScannedBlockNumber =
+        currentScannedBlockNumber + 1 + LOG_PAGE_COUNT;
     }
 
-    logger.info("==== ERC721 Factory Sync End ===");
+    logger.info(
+      "======================= ERC721 Factory Sync End ========================="
+    );
 
     return erc721Contracts;
   }
