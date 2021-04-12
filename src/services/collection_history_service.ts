@@ -37,13 +37,53 @@ export class CollectionHistoryService {
     page: number,
     perPage: number
   ): Promise<PaginatedCollection<ICollectionHistory>> {
-    const collectionHistoryEntities = (await this._connection.manager.find(
-      CollectionHistoryEntity
-    )) as Required<CollectionHistoryEntity>[];
-    const history = collectionHistoryEntities.map(
+    const [entityCount, entities] = await Promise.all([
+      this._connection.manager.count(CollectionHistoryEntity),
+      this._connection.manager.find(CollectionHistoryEntity, {
+        ...paginationUtils.paginateDBFilters(page, perPage),
+        order: {
+          timestamp: "ASC",
+        },
+      }),
+    ]);
+    const history = (entities as Required<CollectionHistoryEntity>[]).map(
       collectionHistoryUtils.deserialize
     );
-    const paginatedHistory = paginationUtils.paginate(history, page, perPage);
+    const paginatedHistory = paginationUtils.paginateSerialize(
+      history,
+      entityCount,
+      page,
+      perPage
+    );
+    return paginatedHistory;
+  }
+
+  public async listByCollectionId(
+    collectionId: string,
+    page: number,
+    perPage: number
+  ): Promise<PaginatedCollection<ICollectionHistory>> {
+    const [entityCount, entities] = await Promise.all([
+      this._connection.manager.count(CollectionHistoryEntity, {
+        where: { id: collectionId },
+      }),
+      this._connection.manager.find(CollectionHistoryEntity, {
+        where: { id: collectionId },
+        ...paginationUtils.paginateDBFilters(page, perPage),
+        order: {
+          timestamp: "ASC",
+        },
+      }),
+    ]);
+    const history = (entities as Required<CollectionHistoryEntity>[]).map(
+      collectionHistoryUtils.deserialize
+    );
+    const paginatedHistory = paginationUtils.paginateSerialize(
+      history,
+      entityCount,
+      page,
+      perPage
+    );
     return paginatedHistory;
   }
 

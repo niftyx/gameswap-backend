@@ -37,11 +37,24 @@ export class GameService {
     page: number,
     perPage: number
   ): Promise<PaginatedCollection<IGame>> {
-    const gameEntities = (await this._connection.manager.find(
-      GameEntity
-    )) as Required<GameEntity>[];
-    const gameItems = gameEntities.map(gameUtils.deserialize);
-    const paginatedGames = paginationUtils.paginate(gameItems, page, perPage);
+    const [entityCount, entities] = await Promise.all([
+      this._connection.manager.count(GameEntity),
+      this._connection.manager.find(GameEntity, {
+        ...paginationUtils.paginateDBFilters(page, perPage),
+        order: {
+          createdAt: "ASC",
+        },
+      }),
+    ]);
+    const gameItems = (entities as Required<GameEntity>[]).map(
+      gameUtils.deserialize
+    );
+    const paginatedGames = paginationUtils.paginateSerialize(
+      gameItems,
+      entityCount,
+      page,
+      perPage
+    );
     return paginatedGames;
   }
 

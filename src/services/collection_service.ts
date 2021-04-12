@@ -38,12 +38,21 @@ export class CollectionService {
     page: number,
     perPage: number
   ): Promise<PaginatedCollection<ICollection>> {
-    const collectionEntities = (await this._connection.manager.find(
-      CollectionEntity
-    )) as Required<CollectionEntity>[];
-    const collectionItems = collectionEntities.map(collectionUtils.deserialize);
-    const paginatedCollections = paginationUtils.paginate(
+    const [entityCount, entities] = await Promise.all([
+      this._connection.manager.count(CollectionEntity),
+      this._connection.manager.find(CollectionEntity, {
+        ...paginationUtils.paginateDBFilters(page, perPage),
+        order: {
+          createTimeStamp: "ASC",
+        },
+      }),
+    ]);
+    const collectionItems = (entities as Required<CollectionEntity>[]).map(
+      collectionUtils.deserialize
+    );
+    const paginatedCollections = paginationUtils.paginateSerialize(
       collectionItems,
+      entityCount,
       page,
       perPage
     );

@@ -60,11 +60,24 @@ export class AssetHistoryService {
     page: number,
     perPage: number
   ): Promise<PaginatedCollection<IAssetHistory>> {
-    const assetHistoryEntities = (await this._connection.manager.find(
-      AssetHistoryEntity
-    )) as Required<AssetHistoryEntity>[];
-    const history = assetHistoryEntities.map(assetHistoryUtils.deserialize);
-    const paginatedHistory = paginationUtils.paginate(history, page, perPage);
+    const [entityCount, entities] = await Promise.all([
+      this._connection.manager.count(AssetHistoryEntity),
+      this._connection.manager.find(AssetHistoryEntity, {
+        ...paginationUtils.paginateDBFilters(page, perPage),
+        order: {
+          timestamp: "ASC",
+        },
+      }),
+    ]);
+    const history = (entities as Required<AssetHistoryEntity>[]).map(
+      assetHistoryUtils.deserialize
+    );
+    const paginatedHistory = paginationUtils.paginateSerialize(
+      history,
+      entityCount,
+      page,
+      perPage
+    );
     return paginatedHistory;
   }
 

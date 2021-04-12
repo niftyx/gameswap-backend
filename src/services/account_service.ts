@@ -79,16 +79,25 @@ export class AccountService {
     page: number,
     perPage: number
   ): Promise<PaginatedCollection<IAccount>> {
-    const accountEntities = (await this._connection.manager.find(
-      AccountEntity
-    )) as Required<AccountEntity>[];
-    const accountItems = accountEntities.map(accountUtils.deserialize);
-    const paginatedAccounts = paginationUtils.paginate(
-      accountItems,
+    const [entityCount, entities] = await Promise.all([
+      this._connection.manager.count(AccountEntity),
+      this._connection.manager.find(AccountEntity, {
+        ...paginationUtils.paginateDBFilters(page, perPage),
+        order: {
+          createTimeStamp: "ASC",
+        },
+      }),
+    ]);
+    const items = (entities as Required<AccountEntity>[]).map(
+      accountUtils.deserialize
+    );
+    const paginatedItems = paginationUtils.paginateSerialize(
+      items,
+      entityCount,
       page,
       perPage
     );
-    return paginatedAccounts;
+    return paginatedItems;
   }
 
   private async _addRecordsAsync(_accounts: IAccount[]): Promise<IAccount[]> {

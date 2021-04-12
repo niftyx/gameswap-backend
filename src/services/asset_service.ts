@@ -114,11 +114,24 @@ export class AssetService {
     page: number,
     perPage: number
   ): Promise<PaginatedCollection<IAsset>> {
-    const assetEntities = (await this._connection.manager.find(
-      AssetEntity
-    )) as Required<AssetEntity>[];
-    const assetItems = assetEntities.map(assetUtils.deserialize);
-    const paginatedAssets = paginationUtils.paginate(assetItems, page, perPage);
+    const [entityCount, entities] = await Promise.all([
+      this._connection.manager.count(AssetEntity),
+      this._connection.manager.find(AssetEntity, {
+        ...paginationUtils.paginateDBFilters(page, perPage),
+        order: {
+          createTimeStamp: "ASC",
+        },
+      }),
+    ]);
+    const assetItems = (entities as Required<AssetEntity>[]).map(
+      assetUtils.deserialize
+    );
+    const paginatedAssets = paginationUtils.paginateSerialize(
+      assetItems,
+      entityCount,
+      page,
+      perPage
+    );
     return paginatedAssets;
   }
 
@@ -127,17 +140,23 @@ export class AssetService {
     perPage: number,
     assetId: string
   ): Promise<PaginatedCollection<IAssetHistory>> {
-    const assetHistoryEntities = (await this._connection
-      .getRepository(AssetHistoryEntity)
-      .find({
+    const [entityCount, entities] = await Promise.all([
+      this._connection.getRepository(AssetHistoryEntity).count({
         where: { asset: { id: assetId } },
+      }),
+      this._connection.getRepository(AssetHistoryEntity).find({
+        where: { asset: { id: assetId } },
+        ...paginationUtils.paginateDBFilters(page, perPage),
         order: { timestamp: "DESC" },
-      })) as Required<AssetHistoryEntity>[];
-    const assetHistoryItems = assetHistoryEntities.map(
+      }),
+    ]);
+
+    const assetHistoryItems = (entities as Required<AssetHistoryEntity>[]).map(
       assetHistoryUtils.deserialize
     );
-    const paginatedHistoryAssets = paginationUtils.paginate(
+    const paginatedHistoryAssets = paginationUtils.paginateSerialize(
       assetHistoryItems,
+      entityCount,
       page,
       perPage
     );
@@ -149,14 +168,27 @@ export class AssetService {
     page: number,
     perPage: number
   ): Promise<PaginatedCollection<IAsset>> {
-    const assetEntities = (await this._connection
-      .getRepository(AssetEntity)
-      .find({
+    const [entityCount, entities] = await Promise.all([
+      this._connection.getRepository(AssetEntity).count({
+        relations: ["currentOwner"],
+        where: { currentOwner: { id: owner } },
+      }),
+      this._connection.getRepository(AssetEntity).find({
         relations: ["currentOwner", "collection"],
         where: { currentOwner: { id: owner } },
-      })) as Required<AssetEntity>[];
-    const assetItems = assetEntities.map(assetUtils.deserialize);
-    const paginatedAssets = paginationUtils.paginate(assetItems, page, perPage);
+        ...paginationUtils.paginateDBFilters(page, perPage),
+        order: { createTimeStamp: "DESC" },
+      }),
+    ]);
+    const assetItems = (entities as Required<AssetEntity>[]).map(
+      assetUtils.deserialize
+    );
+    const paginatedAssets = paginationUtils.paginateSerialize(
+      assetItems,
+      entityCount,
+      page,
+      perPage
+    );
     return paginatedAssets;
   }
 
@@ -165,14 +197,27 @@ export class AssetService {
     page: number,
     perPage: number
   ): Promise<PaginatedCollection<IAsset>> {
-    const assetEntities = (await this._connection
-      .getRepository(AssetEntity)
-      .find({
+    const [entityCount, entities] = await Promise.all([
+      this._connection.getRepository(AssetEntity).count({
+        relations: ["creator"],
+        where: { creator: { id: owner } },
+      }),
+      this._connection.getRepository(AssetEntity).find({
         relations: ["currentOwner", "collection", "creator"],
         where: { creator: { id: owner } },
-      })) as Required<AssetEntity>[];
-    const assetItems = assetEntities.map(assetUtils.deserialize);
-    const paginatedAssets = paginationUtils.paginate(assetItems, page, perPage);
+        ...paginationUtils.paginateDBFilters(page, perPage),
+        order: { createTimeStamp: "DESC" },
+      }),
+    ]);
+    const assetItems = (entities as Required<AssetEntity>[]).map(
+      assetUtils.deserialize
+    );
+    const paginatedAssets = paginationUtils.paginateSerialize(
+      assetItems,
+      entityCount,
+      page,
+      perPage
+    );
     return paginatedAssets;
   }
 
@@ -195,15 +240,27 @@ export class AssetService {
     perPage: number,
     gameId: string
   ): Promise<PaginatedCollection<IAsset>> {
-    const assetEntities = (await this._connection
-      .getRepository(AssetEntity)
-      .find({
+    const [entityCount, entities] = await Promise.all([
+      this._connection.getRepository(AssetEntity).count({
         where: { gameId },
-        order: { createTimeStamp: "DESC" },
+      }),
+      this._connection.getRepository(AssetEntity).find({
         relations: ["currentOwner", "collection"],
-      })) as Required<AssetEntity>[];
-    const assetItems = assetEntities.map(assetUtils.deserialize);
-    const paginatedAssets = paginationUtils.paginate(assetItems, page, perPage);
+        where: { gameId },
+        ...paginationUtils.paginateDBFilters(page, perPage),
+        order: { createTimeStamp: "DESC" },
+      }),
+    ]);
+
+    const assetItems = (entities as Required<AssetEntity>[]).map(
+      assetUtils.deserialize
+    );
+    const paginatedAssets = paginationUtils.paginateSerialize(
+      assetItems,
+      entityCount,
+      page,
+      perPage
+    );
     return paginatedAssets;
   }
 }
