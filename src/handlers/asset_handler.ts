@@ -5,10 +5,10 @@ import * as HttpStatus from "http-status-codes";
 import { AssetService } from "../services/asset_service";
 
 export class AssetHandler {
-  private readonly _assetService: AssetService;
+  private readonly assetService: AssetService;
 
   constructor(assetService: AssetService) {
-    this._assetService = assetService;
+    this.assetService = assetService;
   }
   public async create(
     _req: express.Request,
@@ -19,7 +19,7 @@ export class AssetHandler {
 
   public async get(req: express.Request, res: express.Response): Promise<void> {
     const { id } = req.params;
-    const asset = await this._assetService.getWithDetails(id);
+    const asset = await this.assetService.getWithDetails(id);
     res.status(HttpStatus.OK).send(asset);
   }
 
@@ -29,7 +29,7 @@ export class AssetHandler {
   ): Promise<void> {
     const page = Number(req.query.page || 1);
     const perPage = Number(req.query.perPage || 100);
-    const result = await this._assetService.list(page, perPage);
+    const result = await this.assetService.list(page, perPage);
     res.status(HttpStatus.OK).send(result);
   }
 
@@ -40,7 +40,7 @@ export class AssetHandler {
     const { id } = req.params;
     const page = Number(req.query.page || 1);
     const perPage = Number(req.query.perPage || 100);
-    const result = await this._assetService.getHistory(page, perPage, id);
+    const result = await this.assetService.getHistory(page, perPage, id);
     res.status(HttpStatus.OK).send(result);
   }
 
@@ -49,7 +49,7 @@ export class AssetHandler {
     res: express.Response
   ): Promise<void> {
     const { assetId, collectionId } = req.params;
-    const asset = await this._assetService.getFullDetailsByTokenIdAndCollectionId(
+    const asset = await this.assetService.getFullDetailsByTokenIdAndCollectionId(
       BigNumber.from(assetId),
       collectionId
     );
@@ -67,7 +67,26 @@ export class AssetHandler {
       res.status(HttpStatus.BAD_REQUEST).send();
       return;
     }
-    const result = await this._assetService.listByOwner(
+    const result = await this.assetService.listByOwner(
+      address.toLowerCase(),
+      page,
+      perPage
+    );
+    res.status(HttpStatus.OK).send(result);
+  }
+
+  public async listByCreator(
+    req: express.Request,
+    res: express.Response
+  ): Promise<void> {
+    const page = Number(req.query.page || 1);
+    const perPage = Number(req.query.perPage || 100);
+    const address = req.params.id;
+    if (!isAddress(address)) {
+      res.status(HttpStatus.BAD_REQUEST).send();
+      return;
+    }
+    const result = await this.assetService.listByCreator(
       address.toLowerCase(),
       page,
       perPage

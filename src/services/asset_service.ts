@@ -160,6 +160,22 @@ export class AssetService {
     return paginatedAssets;
   }
 
+  public async listByCreator(
+    owner: string,
+    page: number,
+    perPage: number
+  ): Promise<PaginatedCollection<IAsset>> {
+    const assetEntities = (await this._connection
+      .getRepository(AssetEntity)
+      .find({
+        relations: ["currentOwner", "collection", "creator"],
+        where: { creator: { id: owner } },
+      })) as Required<AssetEntity>[];
+    const assetItems = assetEntities.map(assetUtils.deserialize);
+    const paginatedAssets = paginationUtils.paginate(assetItems, page, perPage);
+    return paginatedAssets;
+  }
+
   public async update(asset: IAsset): Promise<IAsset> {
     const records = (await this._connection
       .getRepository(AssetEntity)
