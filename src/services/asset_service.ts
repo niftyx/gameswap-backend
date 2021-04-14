@@ -233,7 +233,7 @@ export class AssetService {
       }),
       this._connection.getRepository(AssetEntity).find({
         relations: ["currentOwner", "collection", "creator"],
-        where: { creator: { id: collectionId } },
+        where: { collection: { id: collectionId } },
         ...paginationUtils.paginateDBFilters(page, perPage),
         order: { createTimeStamp: "DESC" },
       }),
