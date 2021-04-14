@@ -94,6 +94,25 @@ export class AssetHandler {
     res.status(HttpStatus.OK).send(result);
   }
 
+  public async listByCollection(
+    req: express.Request,
+    res: express.Response
+  ): Promise<void> {
+    const page = Number(req.query.page || 1);
+    const perPage = Number(req.query.perPage || 100);
+    const address = req.params.id;
+    if (!isAddress(address)) {
+      res.status(HttpStatus.BAD_REQUEST).send();
+      return;
+    }
+    const result = await this.assetService.listByCollection(
+      address.toLowerCase(),
+      page,
+      perPage
+    );
+    res.status(HttpStatus.OK).send(result);
+  }
+
   public async root(
     _req: express.Request,
     res: express.Response

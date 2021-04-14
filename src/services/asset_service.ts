@@ -221,6 +221,35 @@ export class AssetService {
     return paginatedAssets;
   }
 
+  public async listByCollection(
+    collectionId: string,
+    page: number,
+    perPage: number
+  ): Promise<PaginatedCollection<IAsset>> {
+    const [entityCount, entities] = await Promise.all([
+      this._connection.getRepository(AssetEntity).count({
+        relations: ["collection"],
+        where: { collection: { id: collectionId } },
+      }),
+      this._connection.getRepository(AssetEntity).find({
+        relations: ["currentOwner", "collection", "creator"],
+        where: { creator: { id: collectionId } },
+        ...paginationUtils.paginateDBFilters(page, perPage),
+        order: { createTimeStamp: "DESC" },
+      }),
+    ]);
+    const assetItems = (entities as Required<AssetEntity>[]).map(
+      assetUtils.deserialize
+    );
+    const paginatedAssets = paginationUtils.paginateSerialize(
+      assetItems,
+      entityCount,
+      page,
+      perPage
+    );
+    return paginatedAssets;
+  }
+
   public async update(asset: IAsset): Promise<IAsset> {
     const records = (await this._connection
       .getRepository(AssetEntity)

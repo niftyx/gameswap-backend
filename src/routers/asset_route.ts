@@ -35,6 +35,13 @@ export function createAssetRouter(assetService: AssetService): express.Router {
     );
 
   router
+    .route("/collection/:id")
+    .get(
+      validate(AssetValidation.listByOwner),
+      asyncHandler(handlers.listByCollection.bind(handlers))
+    );
+
+  router
     .route("/collection/:collectionId/asset/:assetId")
     .get(
       validate(AssetValidation.getByCollectionIdAndAssetId),
