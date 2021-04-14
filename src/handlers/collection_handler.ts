@@ -1,9 +1,9 @@
 import * as express from "express";
 import * as HttpStatus from "http-status-codes";
 import { CollectionService } from "../services/collection_service";
-// import * as isValidUUID from "uuid-validate";
 import { v4 as uuidv4 } from "uuid";
 import * as isValidUUID from "uuid-validate";
+import { isAddress } from "ethers/lib/utils";
 
 export class CollectionHandler {
   private readonly collectionService: CollectionService;
@@ -25,7 +25,7 @@ export class CollectionHandler {
 
   public async get(req: express.Request, res: express.Response): Promise<void> {
     const id = req.params.id;
-    if (!isValidUUID(id)) {
+    if (!isAddress(id)) {
       res.status(HttpStatus.NOT_FOUND).send();
       return;
     }
