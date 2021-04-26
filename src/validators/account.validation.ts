@@ -15,6 +15,7 @@ const AccountValidation = {
     body: Joi.object({
       name: Joi.string().required(),
       customUrl: Joi.any(),
+      headerImageUrl: Joi.any(),
       bio: Joi.any(),
       twitterUsername: Joi.any(),
       personalSite: Joi.any(),

@@ -44,6 +44,7 @@ export class AccountHandler {
     account.bio = restInfo.bio;
     account.twitterUsername = restInfo.twitterUsername;
     account.personalSite = restInfo.personalSite;
+    account.headerImageUrl = restInfo.headerImageUrl;
 
     account = await this.accountService.update(account);
 
