@@ -636,6 +636,7 @@ export interface IAccount {
   name: string;
   customUrl: string;
   imageUrl: string;
+  headerImageUrl: string;
   bio: string;
   twitterUsername: string;
   personalSite: string;

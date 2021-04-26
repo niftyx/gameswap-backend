@@ -18,6 +18,9 @@ export class AccountEntity {
   @Column({ name: "image_url", type: "varchar" })
   public imageUrl?: string;
 
+  @Column({ name: "header_image_url", type: "varchar" })
+  public headerImageUrl?: string;
+
   @Column({ name: "bio", type: "varchar" })
   public bio?: string;
 
@@ -46,6 +49,7 @@ export class AccountEntity {
       name?: string;
       customUrl?: string;
       imageUrl?: string;
+      headerImageUrl?: string;
       bio?: string;
       twitterUsername?: string;
       personalSite?: string;
@@ -60,6 +64,7 @@ export class AccountEntity {
     this.name = opts.name;
     this.customUrl = opts.customUrl;
     this.imageUrl = opts.imageUrl;
+    this.headerImageUrl = opts.headerImageUrl;
     this.bio = opts.bio;
     this.twitterUsername = opts.twitterUsername;
     this.personalSite = opts.personalSite;

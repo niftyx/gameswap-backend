@@ -35,6 +35,7 @@ export class AccountService {
       name: "",
       twitterUsername: "",
       imageUrl: "",
+      headerImageUrl: "",
       customUrl: "",
       bio: "",
       personalSite: "",

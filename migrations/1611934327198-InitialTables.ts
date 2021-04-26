@@ -3,7 +3,7 @@ import { MigrationInterface, QueryRunner } from "typeorm";
 export class InitialTables1611934327198 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
-      `CREATE TABLE "accounts" ("id" character varying NOT NULL, "address" character varying NOT NULL,"name" character varying NOT NULL,"custom_url" character varying NOT NULL,"image_url" character varying NOT NULL, "bio" character varying NOT NULL, "twitter_username" character varying NOT NULL, "personal_site" character varying NOT NULL, "asset_count"  character varying NOT NULL, "create_time_stamp" integer NOT NULL, PRIMARY KEY ("id"))`
+      `CREATE TABLE "accounts" ("id" character varying NOT NULL, "address" character varying NOT NULL,"name" character varying NOT NULL,"custom_url" character varying NOT NULL,"image_url" character varying NOT NULL,"header_image_url" character varying NOT NULL, "bio" character varying NOT NULL, "twitter_username" character varying NOT NULL, "personal_site" character varying NOT NULL, "asset_count"  character varying NOT NULL, "create_time_stamp" integer NOT NULL, PRIMARY KEY ("id"))`
     );
     await queryRunner.query(
       `CREATE TABLE "assets" ("id" character varying NOT NULL, "asset_id"  character varying NOT NULL, "asset_url" character NOT NULL, "game_id" character varying NOT NULL, "category_id" character varying NOT NULL, "content_id" character varying NOT NULL, "create_time_stamp" integer NOT NULL, "update_time_stamp" integer NOT NULL, PRIMARY KEY ("id"))`
