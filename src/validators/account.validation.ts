@@ -18,6 +18,11 @@ const AccountValidation = {
       headerImageUrl: Joi.any(),
       bio: Joi.any(),
       twitterUsername: Joi.any(),
+      twitchUsername: Joi.any(),
+      facebookUsername: Joi.any(),
+      youtubeUsername: Joi.any(),
+      instagramUsername: Joi.any(),
+      tiktokUsername: Joi.any(),
       personalSite: Joi.any(),
       imageUrl: Joi.any(),
       signedMessage: Joi.string().required(),
@@ -28,6 +33,15 @@ const AccountValidation = {
     query: Joi.object({
       perPage: Joi.number().greater(0),
       page: Joi.number().min(1),
+    }),
+  },
+  // POST /accounts/:id/twitter/verify
+  verifyTwitter: {
+    params: Joi.object({
+      id: Joi.string().required(),
+    }),
+    body: Joi.object({
+      username: Joi.string().required(),
     }),
   },
 };

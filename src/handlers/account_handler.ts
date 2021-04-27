@@ -43,10 +43,40 @@ export class AccountHandler {
     account.customUrl = restInfo.customUrl;
     account.bio = restInfo.bio;
     account.twitterUsername = restInfo.twitterUsername;
+    account.twitchUsername = restInfo.twitchUsername;
+    account.facebookUsername = restInfo.facebookUsername;
+    account.youtubeUsername = restInfo.youtubeUsername;
+    account.instagramUsername = restInfo.instagramUsername;
+    account.tiktokUsername = restInfo.tiktokUsername;
     account.personalSite = restInfo.personalSite;
     account.headerImageUrl = restInfo.headerImageUrl;
 
     account = await this.accountService.update(account);
+
+    res.status(HttpStatus.OK).send(account);
+  }
+
+  public async verifyTwitter(
+    req: express.Request,
+    res: express.Response
+  ): Promise<void> {
+    const {
+      params: { id: address },
+      body: { username: twitterUsername },
+    } = req;
+
+    const accountId = address.toLowerCase();
+    if (!isAddress(accountId)) {
+      res.status(HttpStatus.BAD_REQUEST).send();
+      return;
+    }
+    const account = await this.accountService.getOrCreateAccount(
+      accountId,
+      Math.floor(Date.now() / 1000)
+    );
+
+    // verify twitter
+    logger.info(twitterUsername);
 
     res.status(HttpStatus.OK).send(account);
   }

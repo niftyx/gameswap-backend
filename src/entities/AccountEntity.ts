@@ -27,6 +27,24 @@ export class AccountEntity {
   @Column({ name: "twitter_username", type: "varchar" })
   public twitterUsername?: string;
 
+  @Column({ name: "twitter_verified", type: "boolean" })
+  public twitterVerified?: boolean;
+
+  @Column({ name: "twitch_username", type: "varchar" })
+  public twitchUsername?: string;
+
+  @Column({ name: "facebook_username", type: "varchar" })
+  public facebookUsername?: string;
+
+  @Column({ name: "youtube_username", type: "varchar" })
+  public youtubeUsername?: string;
+
+  @Column({ name: "instagram_username", type: "varchar" })
+  public instagramUsername?: string;
+
+  @Column({ name: "tiktok_username", type: "varchar" })
+  public tiktokUsername?: string;
+
   @Column({ name: "personal_site", type: "varchar" })
   public personalSite?: string;
 
@@ -52,6 +70,12 @@ export class AccountEntity {
       headerImageUrl?: string;
       bio?: string;
       twitterUsername?: string;
+      twitterVerified?: boolean;
+      twitchUsername?: string;
+      facebookUsername?: string;
+      youtubeUsername?: string;
+      instagramUsername?: string;
+      tiktokUsername?: string;
       personalSite?: string;
       assetCount?: string;
       createTimeStamp?: number;
@@ -67,6 +91,12 @@ export class AccountEntity {
     this.headerImageUrl = opts.headerImageUrl;
     this.bio = opts.bio;
     this.twitterUsername = opts.twitterUsername;
+    this.twitterVerified = opts.twitterVerified;
+    this.twitchUsername = opts.twitchUsername;
+    this.facebookUsername = opts.facebookUsername;
+    this.youtubeUsername = opts.youtubeUsername;
+    this.instagramUsername = opts.instagramUsername;
+    this.tiktokUsername = opts.tiktokUsername;
     this.personalSite = opts.personalSite;
     this.assetCount = opts.assetCount;
     this.createTimeStamp = opts.createTimeStamp;
