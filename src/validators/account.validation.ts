@@ -18,6 +18,7 @@ const AccountValidation = {
       headerImageUrl: Joi.any(),
       bio: Joi.any(),
       twitterUsername: Joi.any(),
+      twitterVerified: Joi.any(),
       twitchUsername: Joi.any(),
       facebookUsername: Joi.any(),
       youtubeUsername: Joi.any(),
