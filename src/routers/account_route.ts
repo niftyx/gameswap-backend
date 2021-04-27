@@ -23,6 +23,13 @@ export function createAccountRouter(
     );
 
   router
+    .route("/:id/twitter/verify")
+    .post(
+      validate(AccountValidation.verifyTwitter),
+      asyncHandler(handlers.update.bind(handlers))
+    );
+
+  router
     .route("/:id")
     .get(
       validate(AccountValidation.get),
