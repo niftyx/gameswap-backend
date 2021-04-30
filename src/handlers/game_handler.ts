@@ -44,6 +44,42 @@ export class GameHandler {
     res.status(HttpStatus.OK).send(game);
   }
 
+  public async update(
+    req: express.Request,
+    res: express.Response
+  ): Promise<void> {
+    const id = req.params.id;
+    if (!isValidUUID(id)) {
+      res.status(HttpStatus.NOT_FOUND).send();
+      return;
+    }
+    const { message, ...gameData } = req.body;
+
+    const msgHash = utils.hashMessage(gameData.name);
+    const msgHashBytes = utils.arrayify(msgHash);
+
+    const owner = utils.recoverAddress(msgHashBytes, message);
+
+    let game = await this.gameService.get(id);
+
+    if (owner.toLowerCase() !== game?.owner?.toLowerCase()) {
+      res.status(HttpStatus.UNAUTHORIZED).send();
+      return;
+    }
+
+    game.name = gameData.name;
+    game.version = gameData.version;
+    game.description = gameData.description;
+    game.categoryId = gameData.categoryId;
+    game.imageUrl = gameData.imageUrl;
+    game.headerImageUrl = gameData.headerImageUrl;
+    game.platform = gameData.platform;
+
+    game = await this.gameService.update(game);
+
+    res.status(HttpStatus.OK).send(game);
+  }
+
   public async list(
     req: express.Request,
     res: express.Response

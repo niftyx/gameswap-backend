@@ -40,8 +40,9 @@ export function createGameRouter(
     .route("/:id")
     .get(
       validate(GameValidation.get),
-      asyncHandler(handlers.get.bind(handlers))
-    );
+      asyncHandler(handlers.update.bind(handlers))
+    )
+    .post(validate(GameValidation.updateGame));
 
   return router;
 }

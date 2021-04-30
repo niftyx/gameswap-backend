@@ -7,6 +7,22 @@ const GameValidation = {
       id: Joi.string().required(),
     }),
   },
+  // POST /games/v1/:id
+  updateGame: {
+    params: Joi.object({
+      id: Joi.string().required(),
+    }),
+    body: Joi.object({
+      name: Joi.string().required(),
+      description: Joi.any(),
+      imageUrl: Joi.string().required(),
+      headerImageUrl: Joi.any(),
+      version: Joi.string().required(),
+      categoryId: Joi.string().required(),
+      platform: Joi.any(),
+      message: Joi.string().required(), // to validate and get address of creator
+    }),
+  },
   // GET /games/v1/all
   list: {
     query: Joi.object({

@@ -58,6 +58,13 @@ export class GameService {
     return paginatedGames;
   }
 
+  public async update(game: IGame): Promise<IGame> {
+    const records = (await this._connection
+      .getRepository(GameEntity)
+      .save([game].map(gameUtils.serialize))) as Required<GameEntity>[];
+    return gameUtils.deserialize(records[0]);
+  }
+
   private async _addRecordsAsnyc(games: IGame[]): Promise<IGame[]> {
     const records = await this._connection
       .getRepository(GameEntity)
