@@ -11,6 +11,7 @@ export class CommonService {
 
   public async checkCustomUrlUsable(url: string): Promise<boolean> {
     if (url === "") return true;
+    if (!url.match(/^[a-zA-Z0-9\-_]+$/)) return false;
     if (BANNED_CUSTOM_URLS.includes(url)) {
       return false;
     }
