@@ -51,6 +51,7 @@ export const GAME_PATH = "/games/v1";
 export const ACCOUNT_PATH = "/accounts/v1";
 export const COLLECTION_PATH = "/collections/v1";
 export const ASSET_PATH = "/assets/v1";
+export const COMMON_PATH = "/common/v1";
 
 export const HEALTHCHECK_PATH = "/healthz";
 
@@ -93,3 +94,15 @@ export const RPC_RATE_LIMIT = 10;
 
 export const ERC20_ASSET_PROXY_ID = "0xf47261b0";
 export const ERC721_ASSET_PROXY_ID = "0x02571792";
+
+export const BANNED_CUSTOM_URLS = [
+  "trade",
+  "assets",
+  "games",
+  "collections",
+  "browse",
+  "faq",
+  "create",
+  "users",
+  "settings",
+];

@@ -1,21 +1,22 @@
+import { CommonService } from "./../services/common_service";
 import { isAddress } from "ethers/lib/utils";
 import * as express from "express";
 import * as HttpStatus from "http-status-codes";
 import { AccountService } from "../services/account_service";
 import { utils } from "ethers";
-import { logger } from "../app";
 
 export class AccountHandler {
   private readonly accountService: AccountService;
-  constructor(accountService: AccountService) {
+  private readonly commonService: CommonService;
+  constructor(accountService: AccountService, commonService: CommonService) {
     this.accountService = accountService;
+    this.commonService = commonService;
   }
 
   public async update(
     req: express.Request,
     res: express.Response
   ): Promise<void> {
-    logger.info(req.body);
     const {
       body: { signedMessage, ...restInfo },
       params: { id: address },
@@ -31,6 +32,14 @@ export class AccountHandler {
 
     if (owner.toLowerCase() !== accountId) {
       res.status(HttpStatus.UNAUTHORIZED).send();
+      return;
+    }
+
+    const customUrlValid = await this.commonService.checkCustomUrlUsable(
+      restInfo.customUrl
+    );
+    if (!customUrlValid) {
+      res.status(HttpStatus.BAD_REQUEST).send();
       return;
     }
 
@@ -62,7 +71,7 @@ export class AccountHandler {
   ): Promise<void> {
     const {
       params: { id: address },
-      body: { username: twitterUsername },
+      // body: { username: twitterUsername },
     } = req;
 
     const accountId = address.toLowerCase();
@@ -76,7 +85,6 @@ export class AccountHandler {
     );
 
     // verify twitter
-    logger.info(twitterUsername);
 
     res.status(HttpStatus.OK).send(account);
   }
@@ -110,6 +118,6 @@ export class AccountHandler {
     _req: express.Request,
     res: express.Response
   ): Promise<void> {
-    res.status(HttpStatus.OK).send("Root of Collection Handler");
+    res.status(HttpStatus.OK).send("Root of Account Handler");
   }
 }

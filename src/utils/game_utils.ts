@@ -15,6 +15,7 @@ export const gameUtils = {
       platform: JSON.parse(gameEntity.platform) as IPlatform[],
       owner: gameEntity.owner,
       createdAt: gameEntity.createdAt,
+      customUrl: gameEntity.customUrl,
       assets: gameEntity.assets
         ? gameEntity.assets.map((assetEntity) =>
             assetUtils.deserialize(assetEntity as Required<AssetEntity>)
@@ -36,6 +37,7 @@ export const gameUtils = {
       platform: JSON.stringify(game.platform),
       owner: game.owner,
       createdAt: game.createdAt,
+      customUrl: game.customUrl,
       assets: game.assets ? game.assets.map(assetUtils.serialize) : undefined,
     });
     return gameEntity;

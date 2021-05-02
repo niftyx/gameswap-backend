@@ -5,18 +5,34 @@ import { v4 as uuidv4 } from "uuid";
 import * as isValidUUID from "uuid-validate";
 import { utils } from "ethers";
 import { AssetService } from "../services/asset_service";
+import { CommonService } from "../services/common_service";
 export class GameHandler {
   private readonly gameService: GameService;
   private readonly assetService: AssetService;
-  constructor(gameService: GameService, assetService: AssetService) {
+  private readonly commonService: CommonService;
+
+  constructor(
+    gameService: GameService,
+    assetService: AssetService,
+    commonService: CommonService
+  ) {
     this.gameService = gameService;
     this.assetService = assetService;
+    this.commonService = commonService;
   }
   public async create(
     req: express.Request,
     res: express.Response
   ): Promise<void> {
     const { message, ...gameData } = req.body;
+
+    const customUrlValid = await this.commonService.checkCustomUrlUsable(
+      gameData.customUrl
+    );
+    if (!customUrlValid) {
+      res.status(HttpStatus.BAD_REQUEST).send();
+      return;
+    }
 
     const msgHash = utils.hashMessage(gameData.name);
     const msgHashBytes = utils.arrayify(msgHash);
@@ -54,6 +70,14 @@ export class GameHandler {
       return;
     }
     const { message, ...gameData } = req.body;
+
+    const customUrlValid = await this.commonService.checkCustomUrlUsable(
+      gameData.customUrl
+    );
+    if (!customUrlValid) {
+      res.status(HttpStatus.BAD_REQUEST).send();
+      return;
+    }
 
     const msgHash = utils.hashMessage(gameData.name);
     const msgHashBytes = utils.arrayify(msgHash);

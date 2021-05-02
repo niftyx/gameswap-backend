@@ -25,6 +25,7 @@ import { AssetService } from "./services/asset_service";
 import { ERC721Service } from "./services/erc721_service";
 import { ExchangeService } from "./services/exchange_service";
 import { getContractAddressesForChainOrThrow } from "./custom/contract-addresses";
+import { CommonService } from "./services/common_service";
 
 export const logger = pino({
   level: LOG_LEVEL,
@@ -43,6 +44,7 @@ export interface AppDependencies {
   collectionHistoryService: CollectionHistoryService;
   gameService: GameService;
   exchangeService: ExchangeService;
+  commonService: CommonService;
 }
 
 /**
@@ -61,6 +63,7 @@ export async function getDefaultAppDependenciesAsync(
   const accountService = new AccountService(connection);
   const assetService = new AssetService(connection);
   const assetHistoryService = new AssetHistoryService(connection);
+  const commonService = new CommonService(connection);
 
   const contractAddresses = getContractAddressesForChainOrThrow(CHAIN_ID);
   const exchangeService = new ExchangeService(
@@ -95,6 +98,7 @@ export async function getDefaultAppDependenciesAsync(
     assetService,
     assetHistoryService,
     exchangeService,
+    commonService,
   };
 }
 /**

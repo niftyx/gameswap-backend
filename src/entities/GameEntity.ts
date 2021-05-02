@@ -9,6 +9,9 @@ export class GameEntity {
   @Column({ name: "name", type: "varchar" })
   public name?: string;
 
+  @Column({ name: "custom_url", type: "varchar" })
+  public customUrl?: string;
+
   @Column({ name: "version", type: "varchar" })
   public version?: string;
 
@@ -40,6 +43,7 @@ export class GameEntity {
     opts: {
       id?: string;
       name?: string;
+      customUrl?: string;
       description?: string;
       imageUrl?: string;
       headerImageUrl?: string;
@@ -53,6 +57,7 @@ export class GameEntity {
   ) {
     this.id = opts.id;
     this.name = opts.name;
+    this.customUrl = opts.customUrl;
     this.description = opts.description;
     this.imageUrl = opts.imageUrl;
     this.headerImageUrl = opts.headerImageUrl;

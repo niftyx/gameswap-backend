@@ -568,6 +568,7 @@ export interface IGame {
   name: string;
   version: string;
   imageUrl: string;
+  customUrl: string;
   headerImageUrl?: string;
   categoryId: string;
   description: string;

@@ -8,6 +8,7 @@ import {
   ACCOUNT_PATH,
   ASSET_PATH,
   COLLECTION_PATH,
+  COMMON_PATH,
   CRYPTO_CONTENT_PATH,
   GAME_PATH,
 } from "../constants";
@@ -18,6 +19,7 @@ import { errorHandler } from "../middleware/error_handling";
 import { createAccountRouter } from "../routers/account_route";
 import { createAssetRouter } from "../routers/asset_route";
 import { createCollectionRouter } from "../routers/collection_route";
+import { createCommonRouter } from "../routers/common_route";
 import { createCryptoContentRouter } from "../routers/crypto_content_route";
 import { createGameRouter } from "../routers/game_route";
 // import { createSRARouter } from "../routers/sra_router";
@@ -79,11 +81,18 @@ export async function runHttpServiceAsync(
   // GAME http service
   app.use(
     GAME_PATH,
-    createGameRouter(dependencies.gameService, dependencies.assetService)
+    createGameRouter(
+      dependencies.gameService,
+      dependencies.assetService,
+      dependencies.commonService
+    )
   );
 
   // ACCOUNT http service
-  app.use(ACCOUNT_PATH, createAccountRouter(dependencies.accountService));
+  app.use(
+    ACCOUNT_PATH,
+    createAccountRouter(dependencies.accountService, dependencies.commonService)
+  );
 
   // COLLECTION http service
   app.use(
@@ -93,6 +102,9 @@ export async function runHttpServiceAsync(
 
   // ASSET http service
   app.use(ASSET_PATH, createAssetRouter(dependencies.assetService));
+
+  // COMMON http service
+  app.use(COMMON_PATH, createCommonRouter(dependencies.commonService));
 
   app.use(errorHandler);
 

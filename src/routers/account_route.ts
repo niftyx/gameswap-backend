@@ -5,13 +5,15 @@ import * as asyncHandler from "express-async-handler";
 
 import AccountValidation from "../validators/account.validation";
 import { AccountService } from "../services/account_service";
+import { CommonService } from "../services/common_service";
 
 // tslint:disable-next-line:completed-docs
 export function createAccountRouter(
-  accountService: AccountService
+  accountService: AccountService,
+  commonService: CommonService
 ): express.Router {
   const router = express.Router();
-  const handlers = new AccountHandler(accountService);
+  const handlers = new AccountHandler(accountService, commonService);
 
   router.route("/").get(handlers.root);
 
