@@ -25,7 +25,7 @@ export function createCommonRouter(
     .route("/custom-url-info")
     .post(
       validate(CommonValidation.customUrlRequest),
-      asyncHandler(handlers.checkCustomUrlUsable.bind(handlers))
+      asyncHandler(handlers.getCustomUrlInfo.bind(handlers))
     );
 
   return router;
