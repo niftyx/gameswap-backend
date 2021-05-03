@@ -36,7 +36,7 @@ export class AccountHandler {
     }
 
     const customUrlValid = await this.commonService.checkCustomUrlUsable(
-      restInfo.customUrl
+      restInfo.customUrl.toLowerCase()
     );
     if (!customUrlValid) {
       res.status(HttpStatus.BAD_REQUEST).send();
@@ -49,7 +49,7 @@ export class AccountHandler {
     );
     account.name = restInfo.name;
     account.imageUrl = restInfo.imageUrl;
-    account.customUrl = restInfo.customUrl;
+    account.customUrl = restInfo.customUrl.toLowerCase();
     account.bio = restInfo.bio;
     account.twitterUsername = restInfo.twitterUsername;
     account.twitchUsername = restInfo.twitchUsername;

@@ -17,7 +17,14 @@ export function createCommonRouter(
   router
     .route("/check-custom-url-usable")
     .post(
-      validate(CommonValidation.checkCustomUrlUsable),
+      validate(CommonValidation.customUrlRequest),
+      asyncHandler(handlers.checkCustomUrlUsable.bind(handlers))
+    );
+
+  router
+    .route("/custom-url-info")
+    .post(
+      validate(CommonValidation.customUrlRequest),
       asyncHandler(handlers.checkCustomUrlUsable.bind(handlers))
     );
 

@@ -21,6 +21,19 @@ export class CommonHandler {
     res.status(HttpStatus.OK).send(usable);
   }
 
+  public async getCustomUrlInfo(
+    req: express.Request,
+    res: express.Response
+  ): Promise<void> {
+    const { url } = req.body;
+    const info = await this.commonService.getCustomUrlInfo(url.toLowerCase());
+    if (info === null) {
+      res.status(HttpStatus.NOT_FOUND).send();
+      return;
+    }
+    res.status(HttpStatus.OK).send(info);
+  }
+
   public async root(
     _req: express.Request,
     res: express.Response

@@ -27,7 +27,7 @@ export class GameHandler {
     const { message, ...gameData } = req.body;
 
     const customUrlValid = await this.commonService.checkCustomUrlUsable(
-      gameData.customUrl
+      gameData.customUrl.toLowerCase()
     );
     if (!customUrlValid) {
       res.status(HttpStatus.BAD_REQUEST).send();
@@ -42,6 +42,7 @@ export class GameHandler {
 
     const game = await this.gameService.add({
       ...gameData,
+      customUrl: gameData.customUrl.toLowerCase(),
       id: gameId,
       owner,
       createdAt: Math.floor(Date.now() / 1000),
@@ -72,7 +73,7 @@ export class GameHandler {
     const { message, ...gameData } = req.body;
 
     const customUrlValid = await this.commonService.checkCustomUrlUsable(
-      gameData.customUrl
+      gameData.customUrl.toLowerCase()
     );
     if (!customUrlValid) {
       res.status(HttpStatus.BAD_REQUEST).send();
@@ -98,6 +99,7 @@ export class GameHandler {
     game.imageUrl = gameData.imageUrl;
     game.headerImageUrl = gameData.headerImageUrl;
     game.platform = gameData.platform;
+    game.customUrl = gameData.customUrl.toLowerCase();
 
     game = await this.gameService.update(game);
 
