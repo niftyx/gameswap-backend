@@ -72,14 +72,6 @@ export class GameHandler {
     }
     const { message, ...gameData } = req.body;
 
-    const customUrlValid = await this.commonService.checkCustomUrlUsable(
-      gameData.customUrl.toLowerCase()
-    );
-    if (!customUrlValid) {
-      res.status(HttpStatus.BAD_REQUEST).send();
-      return;
-    }
-
     const msgHash = utils.hashMessage(gameData.name);
     const msgHashBytes = utils.arrayify(msgHash);
 
@@ -92,6 +84,16 @@ export class GameHandler {
       return;
     }
 
+    const newCustomUrl = gameData.customUrl.toLowerCase();
+
+    const customUrlValid = await this.commonService.checkCustomUrlUsable(
+      newCustomUrl
+    );
+    if (!customUrlValid && newCustomUrl !== game.customUrl) {
+      res.status(HttpStatus.BAD_REQUEST).send();
+      return;
+    }
+
     game.name = gameData.name;
     game.version = gameData.version;
     game.description = gameData.description;
@@ -99,7 +101,7 @@ export class GameHandler {
     game.imageUrl = gameData.imageUrl;
     game.headerImageUrl = gameData.headerImageUrl;
     game.platform = gameData.platform;
-    game.customUrl = gameData.customUrl.toLowerCase();
+    game.customUrl = newCustomUrl;
 
     game = await this.gameService.update(game);
 

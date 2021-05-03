@@ -35,18 +35,21 @@ export class AccountHandler {
       return;
     }
 
-    const customUrlValid = await this.commonService.checkCustomUrlUsable(
-      restInfo.customUrl.toLowerCase()
-    );
-    if (!customUrlValid) {
-      res.status(HttpStatus.BAD_REQUEST).send();
-      return;
-    }
-
     let account = await this.accountService.getOrCreateAccount(
       accountId,
       Math.floor(Date.now() / 1000)
     );
+
+    const newCustomUrl = restInfo.customUrl.toLowerCase();
+
+    const customUrlValid = await this.commonService.checkCustomUrlUsable(
+      newCustomUrl
+    );
+    if (!customUrlValid && account.customUrl !== newCustomUrl) {
+      res.status(HttpStatus.BAD_REQUEST).send();
+      return;
+    }
+
     account.name = restInfo.name;
     account.imageUrl = restInfo.imageUrl;
     account.customUrl = restInfo.customUrl.toLowerCase();
