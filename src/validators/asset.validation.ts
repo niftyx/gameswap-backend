@@ -19,6 +19,12 @@ const AssetValidation = {
     query: Joi.object({
       perPage: Joi.number().greater(0),
       page: Joi.number().min(1),
+      orderBy: Joi.string(),
+      orderDir: Joi.string(),
+      gameId: Joi.string(),
+      categoryId: Joi.string(),
+      ownerId: Joi.string(),
+      creatorId: Joi.string(),
     }),
   },
   listByOwner: {

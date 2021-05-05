@@ -112,14 +112,49 @@ export class AssetService {
 
   public async list(
     page: number,
-    perPage: number
+    perPage: number,
+    query?: any
   ): Promise<PaginatedCollection<IAsset>> {
+    const orderBy = query && query.orderBy ? query.orderBy : "createTimeStamp";
+    const orderDir = query && query.orderDir ? query.orderDir : "ASC";
+    const { collectionId, ownerId, creatorId, ...restQuery } = query || {};
+
+    const relations = [];
+    let whereSubClause = {};
+    if (collectionId) {
+      relations.push("collection");
+      whereSubClause = {
+        ...whereSubClause,
+        collection: { id: String(collectionId).toLowerCase() },
+      };
+    }
+    if (ownerId) {
+      relations.push("currentOwner");
+      whereSubClause = {
+        ...whereSubClause,
+        currentOwner: { id: String(ownerId).toLowerCase() },
+      };
+    }
+    if (creatorId) {
+      relations.push("creator");
+      whereSubClause = {
+        ...whereSubClause,
+        creator: { id: String(creatorId).toLowerCase() },
+      };
+    }
+
     const [entityCount, entities] = await Promise.all([
       this._connection.manager.count(AssetEntity),
       this._connection.manager.find(AssetEntity, {
+        ...(relations.length ? { relations: relations } : {}),
+        ...(relations.length
+          ? { where: { ...restQuery, ...whereSubClause } }
+          : restQuery
+          ? { where: query }
+          : {}),
         ...paginationUtils.paginateDBFilters(page, perPage),
         order: {
-          createTimeStamp: "ASC",
+          [orderBy]: orderDir,
         },
       }),
     ]);

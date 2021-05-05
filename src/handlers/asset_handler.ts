@@ -3,7 +3,6 @@ import { isAddress } from "ethers/lib/utils";
 import * as express from "express";
 import * as HttpStatus from "http-status-codes";
 import { AssetService } from "../services/asset_service";
-
 export class AssetHandler {
   private readonly assetService: AssetService;
 
@@ -29,7 +28,16 @@ export class AssetHandler {
   ): Promise<void> {
     const page = Number(req.query.page || 1);
     const perPage = Number(req.query.perPage || 100);
-    const result = await this.assetService.list(page, perPage);
+    const query = { ...req.query };
+
+    if (query.page) {
+      delete query.page;
+    }
+    if (query.perPage) {
+      delete query.perPage;
+    }
+
+    const result = await this.assetService.list(page, perPage, query);
     res.status(HttpStatus.OK).send(result);
   }
 
