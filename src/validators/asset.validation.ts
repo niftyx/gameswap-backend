@@ -21,6 +21,7 @@ const AssetValidation = {
       page: Joi.number().min(1),
       orderBy: Joi.string(),
       orderDir: Joi.string(),
+      collectionId: Joi.string(),
       gameId: Joi.string(),
       categoryId: Joi.string(),
       ownerId: Joi.string(),
