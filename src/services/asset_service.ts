@@ -119,17 +119,15 @@ export class AssetService {
     const orderDir = query && query.orderDir ? query.orderDir : "ASC";
     const { collectionId, ownerId, creatorId, ...restQuery } = query || {};
 
-    const relations = [];
+    const relations = ["currentOwner", "collection"];
     let whereSubClause = {};
     if (collectionId) {
-      relations.push("collection");
       whereSubClause = {
         ...whereSubClause,
         collection: { id: String(collectionId).toLowerCase() },
       };
     }
     if (ownerId) {
-      relations.push("currentOwner");
       whereSubClause = {
         ...whereSubClause,
         currentOwner: { id: String(ownerId).toLowerCase() },
@@ -146,8 +144,8 @@ export class AssetService {
     const [entityCount, entities] = await Promise.all([
       this._connection.manager.count(AssetEntity),
       this._connection.manager.find(AssetEntity, {
-        ...(relations.length ? { relations: relations } : {}),
-        ...(relations.length
+        relations,
+        ...(Object.keys(whereSubClause).length
           ? { where: { ...restQuery, ...whereSubClause } }
           : restQuery
           ? { where: query }
