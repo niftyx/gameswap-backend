@@ -146,6 +146,11 @@ export class FactoryService {
           totalBurned: ZERO_NUMBER,
           createTimeStamp: block.timestamp,
           updateTimeStamp: block.timestamp,
+          games: [],
+          gameIds: [],
+          isVerified: false,
+          isPremium: false,
+          isFeatured: false,
         };
 
         logger.info(`===collection=created=${collection.address}==`);
@@ -207,6 +212,11 @@ export class FactoryService {
           totalBurned: ZERO_NUMBER,
           createTimeStamp: block.timestamp,
           updateTimeStamp: block.timestamp,
+          isVerified: false,
+          isFeatured: false,
+          isPremium: false,
+          gameIds: [],
+          games: [],
         };
 
         await this._createCollections([collection]);

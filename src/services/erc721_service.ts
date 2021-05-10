@@ -181,6 +181,7 @@ export class ERC721Service {
             updateTimeStamp: block.timestamp,
             history: [],
             collection,
+            collectionId: collection.id,
           };
 
           if (assetDataLog) {
@@ -473,6 +474,7 @@ export class ERC721Service {
             updateTimeStamp: block.timestamp,
             history: [],
             collection,
+            collectionId: collection.id,
           };
 
           if (assetDataLog) {

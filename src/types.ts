@@ -576,6 +576,10 @@ export interface IGame {
   owner?: string;
   createdAt: number;
   assets?: IAsset[];
+  collections?: ICollection[];
+  isVerified: boolean;
+  isPremium: boolean;
+  isFeatured: boolean;
 }
 
 export interface IAsset {
@@ -583,6 +587,7 @@ export interface IAsset {
   assetId: BigNumber;
   assetURL: string;
   gameId: string;
+  collectionId: string;
   categoryId: string;
   contentId: string;
   currentOwner?: IAccount;
@@ -621,6 +626,11 @@ export interface ICollection {
   isPrivate: boolean;
   assets?: IAsset[];
   history?: ICollectionHistory[];
+  games?: IGame[];
+  gameIds: string[];
+  isVerified: boolean;
+  isPremium: boolean;
+  isFeatured: boolean;
 }
 
 export interface ICollectionHistory {

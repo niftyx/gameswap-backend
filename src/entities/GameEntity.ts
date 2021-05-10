@@ -1,5 +1,6 @@
-import { Column, Entity, OneToMany, PrimaryColumn } from "typeorm";
+import { Column, Entity, ManyToMany, OneToMany, PrimaryColumn } from "typeorm";
 import { AssetEntity } from "./AssetEntity";
+import { CollectionEntity } from "./CollectionEntity";
 
 @Entity({ name: "games" })
 export class GameEntity {
@@ -30,6 +31,15 @@ export class GameEntity {
   @Column({ name: "platform", type: "varchar" })
   public platform?: string;
 
+  @Column({ name: "is_verified", type: "boolean" })
+  public isVerified?: boolean;
+
+  @Column({ name: "is_premium", type: "boolean" })
+  public isPremium?: boolean;
+
+  @Column({ name: "is_featured", type: "boolean" })
+  public isFeatured?: boolean;
+
   @Column({ name: "owner", type: "varchar" })
   public owner?: string;
 
@@ -38,6 +48,12 @@ export class GameEntity {
 
   @OneToMany(() => AssetEntity, (asset) => asset.game)
   public assets?: AssetEntity[];
+
+  @ManyToMany(
+    () => CollectionEntity,
+    (collection: CollectionEntity) => collection.games
+  )
+  public collections?: CollectionEntity[];
 
   constructor(
     opts: {
@@ -53,6 +69,10 @@ export class GameEntity {
       owner?: string;
       assets?: AssetEntity[];
       createdAt?: number;
+      isVerified?: boolean;
+      isPremium?: boolean;
+      isFeatured?: boolean;
+      collections?: CollectionEntity[];
     } = {}
   ) {
     this.id = opts.id;
@@ -67,5 +87,9 @@ export class GameEntity {
     this.owner = opts.owner;
     this.assets = opts.assets;
     this.createdAt = opts.createdAt;
+    this.isVerified = opts.isVerified;
+    this.isPremium = opts.isPremium;
+    this.isFeatured = opts.isFeatured;
+    this.collections = opts.collections;
   }
 }

@@ -1,6 +1,7 @@
-import { AssetEntity, GameEntity } from "../entities";
+import { AssetEntity, CollectionEntity, GameEntity } from "../entities";
 import { IGame, IPlatform } from "../types";
 import { assetUtils } from "./asset_utils";
+import { collectionUtils } from "./collection_utils";
 
 export const gameUtils = {
   deserialize: (gameEntity: Required<GameEntity>): IGame => {
@@ -16,9 +17,19 @@ export const gameUtils = {
       owner: gameEntity.owner,
       createdAt: gameEntity.createdAt,
       customUrl: gameEntity.customUrl,
+      isVerified: gameEntity.isVerified,
+      isPremium: gameEntity.isPremium,
+      isFeatured: gameEntity.isFeatured,
       assets: gameEntity.assets
         ? gameEntity.assets.map((assetEntity) =>
             assetUtils.deserialize(assetEntity as Required<AssetEntity>)
+          )
+        : undefined,
+      collections: gameEntity.collections
+        ? gameEntity.collections.map((collectionEntity) =>
+            collectionUtils.deserialize(
+              collectionEntity as Required<CollectionEntity>
+            )
           )
         : undefined,
     };
@@ -36,9 +47,15 @@ export const gameUtils = {
       categoryId: game.categoryId,
       platform: JSON.stringify(game.platform),
       owner: game.owner,
+      isVerified: game.isVerified,
+      isPremium: game.isPremium,
+      isFeatured: game.isFeatured,
       createdAt: game.createdAt,
       customUrl: game.customUrl,
       assets: game.assets ? game.assets.map(assetUtils.serialize) : undefined,
+      collections: game.collections
+        ? game.collections.map(collectionUtils.serialize)
+        : undefined,
     });
     return gameEntity;
   },

@@ -32,6 +32,10 @@ export class AssetEntity {
   @Column({ name: "category_id", type: "varchar" })
   public categoryId?: string;
 
+  @Index("category_id_idx")
+  @Column({ name: "collection_id", type: "varchar" })
+  public collectionId?: string;
+
   @Column({ name: "content_id", type: "varchar" })
   public contentId?: string;
 
@@ -64,6 +68,7 @@ export class AssetEntity {
       gameId?: string;
       categoryId?: string;
       contentId?: string;
+      collectionId?: string;
       currentOwner?: AccountEntity;
       creator?: AccountEntity;
       createTimeStamp?: number;
@@ -77,6 +82,7 @@ export class AssetEntity {
     this.assetId = opts.assetId;
     this.assetURL = opts.assetURL;
     this.gameId = opts.gameId;
+    this.collectionId = opts.collectionId;
     this.categoryId = opts.categoryId;
     this.contentId = opts.contentId;
     this.currentOwner = opts.currentOwner;
