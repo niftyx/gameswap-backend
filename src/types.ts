@@ -588,7 +588,6 @@ export interface IAsset {
   assetURL: string;
   gameId: string;
   collectionId: string;
-  categoryId: string;
   contentId: string;
   currentOwner?: IAccount;
   creator?: IAccount;

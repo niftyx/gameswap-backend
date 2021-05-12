@@ -1,8 +1,9 @@
 import { assetDataUtils } from "@0x/order-utils";
 import { GameService } from "./game_service";
 import { BigNumber, Contract, ethers } from "ethers";
-import { id, Interface } from "ethers/lib/utils";
+import { Interface } from "ethers/lib/utils";
 import { Connection } from "typeorm";
+import * as isValidUUID from "uuid-validate";
 
 import { logger } from "../app";
 import { CHAIN_ID, defaultHttpServiceWithRateLimiterConfig } from "../config";
@@ -19,21 +20,18 @@ import {
   ERC721_ASSET_PROXY_ID,
   LOG_PAGE_COUNT,
 } from "../constants";
+import axios from "axios";
 
 const exchangeAbi = [
   "event Fill(address indexed,address indexed,bytes,bytes,bytes,bytes,bytes32 indexed,address,address,uint256,uint256,uint256,uint256,uint256)",
 ];
 
 const abi = [
-  "event SetTokenData(uint256,string,string,string,string)",
   "event Transfer(address indexed from,address indexed to,uint256 indexed tokenId)",
   "event MetaDataChanged(string,string,bool)",
   "event OwnershipTransferred(address indexed,address indexed)",
+  "function tokenURI(uint256 tokenId) public view returns (string memory)",
 ];
-
-const SET_TOKEN_DATA_ID = id(
-  "SetTokenData(uint256,string,string,string,string)"
-);
 
 export class ERC721Service {
   private readonly _address: string;
@@ -45,7 +43,7 @@ export class ERC721Service {
   private readonly _collectionHistoryService: CollectionHistoryService;
   private readonly _assetService: AssetService;
   private readonly _assetHistoryService: AssetHistoryService;
-  private readonly _gameService: GameService;
+  private readonly gameService: GameService;
 
   constructor(
     _address: string,
@@ -56,7 +54,7 @@ export class ERC721Service {
     _accountService: AccountService,
     _assetService: AssetService,
     _assetHistoryService: AssetHistoryService,
-    _gameService: GameService,
+    gameService: GameService,
     _exchangeAddress: string
   ) {
     //this._connection = _connection;
@@ -67,7 +65,7 @@ export class ERC721Service {
     this._accountService = _accountService;
     this._assetService = _assetService;
     this._assetHistoryService = _assetHistoryService;
-    this._gameService = _gameService;
+    this.gameService = gameService;
     this._exchangeAddress = _exchangeAddress;
   }
 
@@ -122,7 +120,7 @@ export class ERC721Service {
         await this._collectionHistoryService.add(collectionHistory);
       }
 
-      logger.info("=== get transfer & setTokenData events  ===");
+      logger.info("=== get transfer events  ===");
       filter = ens.filters.Transfer();
       filter.fromBlock = currentScannedBlockNumber + 1;
       filter.toBlock = currentScannedBlockNumber + LOG_PAGE_COUNT + 1;
@@ -144,13 +142,15 @@ export class ERC721Service {
         if (parsed.args[0] === ZERO_ADDRESS) {
           // minting asset
           logger.info("=====mint======");
-          const transaction = await provider.getTransactionReceipt(
-            log.transactionHash
-          );
 
-          const assetDataLog = transaction.logs.find((lg) =>
-            lg.topics.includes(SET_TOKEN_DATA_ID)
-          );
+          const tokenURI = await ens.tokenURI(parsed.args[2]);
+          let tokenInfo: any;
+
+          try {
+            tokenInfo = (await axios.get(tokenURI)).data || {};
+          } catch (error) {
+            tokenInfo = {};
+          }
 
           // increase totalSupply and totalMinted of collection
           collection.totalSupply = collection.totalSupply.add(ONE_NUMBER);
@@ -173,7 +173,6 @@ export class ERC721Service {
             assetId: parsed.args[2],
             assetURL: "",
             gameId: "",
-            categoryId: "",
             contentId: "",
             currentOwner: account,
             creator: account,
@@ -184,13 +183,11 @@ export class ERC721Service {
             collectionId: collection.id,
           };
 
-          if (assetDataLog) {
-            const parsedDataLog = iface.parseLog(assetDataLog);
-            asset.assetURL = parsedDataLog.args[1];
-            asset.gameId = parsedDataLog.args[2];
-            asset.categoryId = parsedDataLog.args[3];
-            asset.contentId = parsedDataLog.args[4];
-            const game = await this._gameService.get(asset.gameId);
+          if (tokenInfo) {
+            asset.assetURL = tokenURI;
+            asset.gameId = tokenInfo.gameId;
+            asset.contentId = tokenInfo.contentId;
+            const game = await this.gameService.get(asset.gameId);
             if (game) {
               asset.game = game;
             }
@@ -314,9 +311,26 @@ export class ERC721Service {
         const log = logs[index];
         const parsed = iface.parseLog(log);
 
-        collection.imageUrl = parsed.args[0];
-        collection.description = parsed.args[1];
-        collection.isPrivate = parsed.args[2];
+        const infoUrl = parsed.args[0];
+        let info: any;
+        try {
+          info = (await axios.get(infoUrl)).data || {};
+        } catch (error) {
+          info = {};
+        }
+
+        const gameIds = (Array.isArray(info.gameIds)
+          ? info.gameIds
+          : []
+        ).filter((id: string) => isValidUUID(id));
+        const games = await this.gameService.getMultipleGames(gameIds);
+
+        collection.imageUrl = info.imageUrl;
+        collection.description = info.description;
+        collection.gameIds = gameIds;
+        collection.games = games;
+
+        collection.isPrivate = parsed.args[1];
         collection = await this._collectionService.update(collection);
       }
 
@@ -387,20 +401,35 @@ export class ERC721Service {
     ens.on(
       "MetaDataChanged",
       async (
-        imageUrl: string,
-        description: string,
+        infoUrl: string,
         isPrivate: boolean,
         _log: ethers.providers.Log
       ) => {
         logger.info(
-          `=== collection MetaDataChanged ${this._address} ${imageUrl}=>${isPrivate} ===`
+          `=== collection MetaDataChanged ${this._address} ${infoUrl}=>${isPrivate} ===`
         );
         let collection = await this._collectionService.get(this._address);
 
         if (!collection) return;
 
-        collection.imageUrl = imageUrl;
-        collection.description = description;
+        let info: any;
+        try {
+          info = (await axios.get(infoUrl)).data || {};
+        } catch (error) {
+          info = {};
+        }
+
+        const gameIds = (Array.isArray(info.gameIds)
+          ? info.gameIds
+          : []
+        ).filter((id: string) => isValidUUID(id));
+        const games = await this.gameService.getMultipleGames(gameIds);
+
+        collection.imageUrl = info.imageUrl;
+        collection.description = info.description;
+        collection.gameIds = gameIds;
+        collection.games = games;
+
         collection.isPrivate = isPrivate;
         collection = await this._collectionService.update(collection);
       }
@@ -437,13 +466,14 @@ export class ERC721Service {
             return;
           }
 
-          const transaction = await provider.getTransactionReceipt(
-            log.transactionHash
-          );
+          const tokenURI = await ens.tokenURI(tokenId);
+          let tokenInfo: any;
 
-          const assetDataLog = transaction.logs.find((lg) =>
-            lg.topics.includes(SET_TOKEN_DATA_ID)
-          );
+          try {
+            tokenInfo = (await axios.get(tokenURI)).data || {};
+          } catch (error) {
+            tokenInfo = {};
+          }
 
           // increase totalSupply and totalMinted of collection
           collection.totalSupply = collection.totalSupply.add(ONE_NUMBER);
@@ -466,7 +496,6 @@ export class ERC721Service {
             assetId: tokenId,
             assetURL: "",
             gameId: "",
-            categoryId: "",
             contentId: "",
             currentOwner: account,
             creator: account,
@@ -477,13 +506,11 @@ export class ERC721Service {
             collectionId: collection.id,
           };
 
-          if (assetDataLog) {
-            const parsedDataLog = iface.parseLog(assetDataLog);
-            asset.assetURL = parsedDataLog.args[1];
-            asset.gameId = parsedDataLog.args[2];
-            asset.categoryId = parsedDataLog.args[3];
-            asset.contentId = parsedDataLog.args[4];
-            const game = await this._gameService.get(asset.gameId);
+          if (tokenInfo) {
+            asset.assetURL = tokenURI;
+            asset.gameId = tokenInfo.gameId;
+            asset.contentId = tokenInfo.contentId;
+            const game = await this.gameService.get(asset.gameId);
             if (game) {
               asset.game = game;
             }

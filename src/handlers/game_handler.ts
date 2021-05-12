@@ -46,6 +46,9 @@ export class GameHandler {
       id: gameId,
       owner,
       createdAt: Math.floor(Date.now() / 1000),
+      isVerified: false,
+      isPremium: false,
+      isFeatured: false,
     });
 
     res.status(HttpStatus.OK).send(game);
@@ -115,6 +118,15 @@ export class GameHandler {
     const page = Number(req.query.page || 1);
     const perPage = Number(req.query.perPage || 100);
     const result = await this.gameService.list(page, perPage);
+    res.status(HttpStatus.OK).send(result);
+  }
+
+  public async search(
+    req: express.Request,
+    res: express.Response
+  ): Promise<void> {
+    const keyword = String(req.query.keyword || "");
+    const result = await this.gameService.search(keyword);
     res.status(HttpStatus.OK).send(result);
   }
 

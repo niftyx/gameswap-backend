@@ -14,6 +14,12 @@ const CollectionValidation = {
       page: Joi.number().min(1),
     }),
   },
+  // GET /collections/v1/search
+  search: {
+    query: Joi.object({
+      keyword: Joi.any(),
+    }),
+  },
   // GET /collections/v1/games/:id
   listRelatedToGame: {
     params: Joi.object({

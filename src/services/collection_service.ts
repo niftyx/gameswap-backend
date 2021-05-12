@@ -1,6 +1,7 @@
 import { PaginatedCollection } from "@0x/connect";
 import * as _ from "lodash";
 import { Connection } from "typeorm";
+import { SEARCH_LIMIT } from "../constants";
 
 import { AssetEntity, CollectionEntity } from "../entities";
 import { ICollection } from "../types";
@@ -32,6 +33,22 @@ export class CollectionService {
     const collection = collectionUtils.deserialize(collectionEntity);
 
     return collection;
+  }
+
+  public async search(_keyword: string): Promise<ICollection[]> {
+    const [entities] = await Promise.all([
+      this._connection.manager.find(CollectionEntity, {
+        take: SEARCH_LIMIT,
+        order: {
+          createTimeStamp: "ASC",
+        },
+      }),
+    ]);
+    const collectionItems = (entities as Required<CollectionEntity>[]).map(
+      collectionUtils.deserialize
+    );
+
+    return collectionItems;
   }
 
   public async list(

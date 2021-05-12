@@ -1,6 +1,7 @@
 import { PaginatedCollection } from "@0x/connect";
 import * as _ from "lodash";
-import { Connection } from "typeorm";
+import { Connection, In } from "typeorm";
+import { SEARCH_LIMIT } from "../constants";
 
 import { GameEntity } from "../entities";
 import { IGame } from "../types";
@@ -33,6 +34,16 @@ export class GameService {
     return game;
   }
 
+  public async getMultipleGames(ids: string[]): Promise<IGame[]> {
+    const gameEntities = await this._connection.getRepository(GameEntity).find({
+      where: { id: In(ids) },
+    });
+    const games = gameEntities.map((entity) =>
+      gameUtils.deserialize(entity as Required<GameEntity>)
+    );
+    return games;
+  }
+
   public async list(
     page: number,
     perPage: number
@@ -56,6 +67,22 @@ export class GameService {
       perPage
     );
     return paginatedGames;
+  }
+
+  public async search(_keyword: string): Promise<IGame[]> {
+    const [entities] = await Promise.all([
+      this._connection.manager.find(GameEntity, {
+        take: SEARCH_LIMIT,
+        order: {
+          createdAt: "ASC",
+        },
+      }),
+    ]);
+    const gameItems = (entities as Required<GameEntity>[]).map(
+      gameUtils.deserialize
+    );
+
+    return gameItems;
   }
 
   public async update(game: IGame): Promise<IGame> {

@@ -106,3 +106,5 @@ export const BANNED_CUSTOM_URLS = [
   "users",
   "settings",
 ];
+
+export const SEARCH_LIMIT = 10;

@@ -6,7 +6,7 @@ export class InitialTables1611934327198 implements MigrationInterface {
       `CREATE TABLE "accounts" ("id" character varying NOT NULL, "address" character varying NOT NULL,"name" character varying NOT NULL,"custom_url" character varying NOT NULL,"image_url" character varying NOT NULL,"header_image_url" character varying NOT NULL, "bio" character varying NOT NULL, "twitter_username" character varying NOT NULL,"twitter_verified" boolean NOT NULL,"twitch_username" character varying NOT NULL,"facebook_username" character varying NOT NULL,"youtube_username" character varying NOT NULL,"instagram_username" character varying NOT NULL,"tiktok_username" character varying NOT NULL, "personal_site" character varying NOT NULL, "asset_count"  character varying NOT NULL, "create_time_stamp" integer NOT NULL, PRIMARY KEY ("id"))`
     );
     await queryRunner.query(
-      `CREATE TABLE "assets" ("id" character varying NOT NULL, "asset_id"  character varying NOT NULL, "asset_url" character NOT NULL, "game_id" character varying NOT NULL,"collection_id" character varying NOT NULL, "category_id" character varying NOT NULL, "content_id" character varying NOT NULL, "create_time_stamp" integer NOT NULL, "update_time_stamp" integer NOT NULL, PRIMARY KEY ("id"))`
+      `CREATE TABLE "assets" ("id" character varying NOT NULL, "asset_id"  character varying NOT NULL, "asset_url" character NOT NULL, "game_id" character varying NOT NULL,"collection_id" character varying NOT NULL, "content_id" character varying NOT NULL, "create_time_stamp" integer NOT NULL, "update_time_stamp" integer NOT NULL, PRIMARY KEY ("id"))`
     );
     await queryRunner.query(
       `CREATE TABLE "asset_histories" ("id" character varying NOT NULL, "owner" character varying NOT NULL, "tx_hash" character varying NOT NULL, "erc20" character NOT NULL, "erc20_amount"  character varying NOT NULL, "timestamp" integer NOT NULL, PRIMARY KEY ("id"))`
@@ -30,13 +30,7 @@ export class InitialTables1611934327198 implements MigrationInterface {
       `CREATE INDEX "game_id_idx" ON "assets" ("game_id") `
     );
     await queryRunner.query(
-      `CREATE INDEX "category_id_idx" ON "assets" ("category_id") `
-    );
-    await queryRunner.query(
       `CREATE INDEX "collection_id_idx" ON "assets" ("collection_id") `
-    );
-    await queryRunner.query(
-      `CREATE INDEX "asset_category_id_idx" ON "assets" ("asset_id", "category_id") `
     );
 
     // LINK
@@ -96,8 +90,6 @@ export class InitialTables1611934327198 implements MigrationInterface {
       `ALTER TABLE "assets" DROP COLUMN "currentOwnerId"`
     );
     // INDEX
-    await queryRunner.query(`DROP INDEX "asset_category_id_idx"`);
-    await queryRunner.query(`DROP INDEX "category_id_idx"`);
     await queryRunner.query(`DROP INDEX "game_id_idx"`);
     await queryRunner.query(`DROP INDEX "asset_id_idx"`);
     await queryRunner.query(`DROP INDEX "maker_taker_asset_data_idx"`);

@@ -23,6 +23,13 @@ export function createCollectionRouter(
     );
 
   router
+    .route("/search")
+    .get(
+      validate(CollectionValidation.search),
+      asyncHandler(handlers.search.bind(handlers))
+    );
+
+  router
     .route("/:id")
     .get(
       validate(CollectionValidation.get),

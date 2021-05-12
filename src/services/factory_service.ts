@@ -1,3 +1,4 @@
+import axios from "axios";
 import { Contract, ethers } from "ethers";
 import { Interface } from "ethers/lib/utils";
 import * as _ from "lodash";
@@ -22,9 +23,10 @@ import { CollectionHistoryService } from "./collection_history_service";
 import { CollectionService } from "./collection_service";
 import { ERC721Service } from "./erc721_service";
 import { GameService } from "./game_service";
+import * as isValidUUID from "uuid-validate";
 
 const abi = [
-  "event CollectionCreated(address indexed tokenAddress,string name,string symbol,string imageURL,string description,bool isPrivate)",
+  "event CollectionCreated(address indexed tokenAddress,string name,string symbol,string url,bool isPrivate)",
 ];
 
 export class FactoryService {
@@ -36,7 +38,7 @@ export class FactoryService {
   private readonly _collectionHistoryService: CollectionHistoryService;
   private readonly _assetService: AssetService;
   private readonly _assetHistoryService: AssetHistoryService;
-  private readonly _gameService: GameService;
+  private readonly gameService: GameService;
   private readonly _exchangeAddress: string;
 
   constructor(
@@ -48,7 +50,7 @@ export class FactoryService {
     _accountService: AccountService,
     _assetService: AssetService,
     _assetHistoryService: AssetHistoryService,
-    _gameService: GameService,
+    gameService: GameService,
     _exchangeAddress: string
   ) {
     this._connection = _connection;
@@ -59,7 +61,7 @@ export class FactoryService {
     this._accountService = _accountService;
     this._assetService = _assetService;
     this._assetHistoryService = _assetHistoryService;
-    this._gameService = _gameService;
+    this.gameService = gameService;
     this._exchangeAddress = _exchangeAddress;
   }
 
@@ -131,23 +133,36 @@ export class FactoryService {
         const block = await provider.getBlock(blockNumber);
         const parsed = iface.parseLog(log);
 
+        const infoUrl = parsed.args[3];
+        let info: any;
+        try {
+          info = (await axios.get(infoUrl)).data || {};
+        } catch (error) {
+          info = {};
+        }
+        const gameIds = (Array.isArray(info.gameIds)
+          ? info.gameIds
+          : []
+        ).filter((id: string) => isValidUUID(id));
+        const games = await this.gameService.getMultipleGames(gameIds);
+
         const collection: ICollection = {
           id: String(parsed.args[0]).toLowerCase(),
           block: log.blockNumber,
           address: String(parsed.args[0]).toLowerCase(),
           name: parsed.args[1],
           symbol: parsed.args[2],
-          imageUrl: parsed.args[3],
-          description: parsed.args[4],
-          isPrivate: parsed.args[5],
+          imageUrl: info.imageUrl || "",
+          description: info.description || "",
+          isPrivate: parsed.args[4],
           owner: String(log.address).toLowerCase(),
           totalSupply: ZERO_NUMBER,
           totalMinted: ZERO_NUMBER,
           totalBurned: ZERO_NUMBER,
           createTimeStamp: block.timestamp,
           updateTimeStamp: block.timestamp,
-          games: [],
-          gameIds: [],
+          games: games,
+          gameIds,
           isVerified: false,
           isPremium: false,
           isFeatured: false,
@@ -188,8 +203,7 @@ export class FactoryService {
         tokenAddress: string,
         name: string,
         symbol: string,
-        imageURL: string,
-        description: string,
+        infoUrl: string,
         isPrivate: boolean,
         log: ethers.providers.Log
       ) => {
@@ -197,14 +211,27 @@ export class FactoryService {
         const blockNumber = log.blockNumber;
         const block = await provider.getBlock(blockNumber);
 
+        let info: any;
+        try {
+          info = (await axios.get(infoUrl)).data || {};
+        } catch (error) {
+          info = {};
+        }
+
+        const gameIds = (Array.isArray(info.gameIds)
+          ? info.gameIds
+          : []
+        ).filter((id: string) => isValidUUID(id));
+        const games = await this.gameService.getMultipleGames(gameIds);
+
         const collection: ICollection = {
           id: String(tokenAddress).toLowerCase(),
           block: log.blockNumber,
           address: String(tokenAddress).toLowerCase(),
           name,
           symbol,
-          imageUrl: imageURL,
-          description,
+          imageUrl: info.imageUrl || "",
+          description: info.description || "",
           isPrivate,
           owner: String(log.address).toLowerCase(),
           totalSupply: ZERO_NUMBER,
@@ -215,8 +242,8 @@ export class FactoryService {
           isVerified: false,
           isFeatured: false,
           isPremium: false,
-          gameIds: [],
-          games: [],
+          games: games,
+          gameIds,
         };
 
         await this._createCollections([collection]);
@@ -230,7 +257,7 @@ export class FactoryService {
           this._accountService,
           this._assetService,
           this._assetHistoryService,
-          this._gameService,
+          this.gameService,
           this._exchangeAddress
         );
         await erc721Service.listenAssets();

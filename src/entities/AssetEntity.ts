@@ -12,7 +12,6 @@ import { AccountEntity } from "./AccountEntity";
 import { CollectionEntity } from "./CollectionEntity";
 
 @Entity({ name: "assets" })
-@Index("asset_category_id_idx", ["assetId", "categoryId"])
 export class AssetEntity {
   @PrimaryColumn({ name: "id", type: "varchar" })
   public id?: string;
@@ -27,10 +26,6 @@ export class AssetEntity {
   @Index("game_id_idx")
   @Column({ name: "game_id", type: "varchar" })
   public gameId?: string;
-
-  @Index("category_id_idx")
-  @Column({ name: "category_id", type: "varchar" })
-  public categoryId?: string;
 
   @Index("category_id_idx")
   @Column({ name: "collection_id", type: "varchar" })
@@ -66,7 +61,6 @@ export class AssetEntity {
       assetId?: string;
       assetURL?: string;
       gameId?: string;
-      categoryId?: string;
       contentId?: string;
       collectionId?: string;
       currentOwner?: AccountEntity;
@@ -83,7 +77,6 @@ export class AssetEntity {
     this.assetURL = opts.assetURL;
     this.gameId = opts.gameId;
     this.collectionId = opts.collectionId;
-    this.categoryId = opts.categoryId;
     this.contentId = opts.contentId;
     this.currentOwner = opts.currentOwner;
     this.createTimeStamp = opts.createTimeStamp;

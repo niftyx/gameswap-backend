@@ -30,6 +30,12 @@ const GameValidation = {
       page: Joi.number().min(1),
     }),
   },
+  // GET /games/v1/search
+  search: {
+    query: Joi.object({
+      keyword: Joi.any(),
+    }),
+  },
   // POST /games/v1/
   createGame: {
     body: Joi.object({
@@ -40,6 +46,7 @@ const GameValidation = {
       version: Joi.string().required(),
       categoryId: Joi.string().required(),
       platform: Joi.any(),
+      customUrl: Joi.any(),
       message: Joi.string().required(), // to validate and get address of creator
     }),
   },

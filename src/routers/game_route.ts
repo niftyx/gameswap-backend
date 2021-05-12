@@ -32,6 +32,13 @@ export function createGameRouter(
     );
 
   router
+    .route("/search")
+    .get(
+      validate(GameValidation.search),
+      asyncHandler(handlers.search.bind(handlers))
+    );
+
+  router
     .route("/:id/assets")
     .get(
       validate(GameValidation.listAssetsRelated),

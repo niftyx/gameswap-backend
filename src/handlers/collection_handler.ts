@@ -43,6 +43,15 @@ export class CollectionHandler {
     res.status(HttpStatus.OK).send(result);
   }
 
+  public async search(
+    req: express.Request,
+    res: express.Response
+  ): Promise<void> {
+    const keyword = String(req.query.keyword || "");
+    const result = await this.collectionService.search(keyword);
+    res.status(HttpStatus.OK).send(result);
+  }
+
   public async root(
     _req: express.Request,
     res: express.Response
