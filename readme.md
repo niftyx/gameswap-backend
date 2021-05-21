@@ -49,3 +49,22 @@ It provides APIS for:
   3. image
   4. attributes
   5. others ...
+
+# Runners
+
+1. http_service_runner: handle http services
+2. sync_assets_runner: scan events on Avalanche blocks and write assets/collections/exchange information to db
+
+# Services
+
+1. account_service: Handle database services related to accounts
+2. asset_history_service: Handle database services related to asset history
+3. asset_service: Handle database services related to assets
+4. collection_history_service: Handle database services related to collection history
+5. collection_service: Handle database services related to collections
+6. common_service: Handle content encryption/decryption
+7. erc721_service: Sync all assets of a certain ERC721 contract
+8. exchange_service: Sync all 0x exchange events on Avalanche Block and write data
+9. factory_service: Sync all collections on Avalanche
+10. game_service: Handle database services related to games
+11. healthcheck_service: To check if backend is healthy (not important here)
