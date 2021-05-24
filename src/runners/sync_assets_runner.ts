@@ -25,7 +25,8 @@ if (require.main === module) {
     try {
       const contractAddresses = getContractAddressesForChainOrThrow(CHAIN_ID);
       await dependencies.factoryService.resetRelatedTables();
-      const erc721Contracts = await dependencies.factoryService.syncERC721Contracts();
+      const erc721Contracts =
+        await dependencies.factoryService.syncERC721Contracts();
 
       for (let index = 0; index < erc721Contracts.length; index++) {
         const erc721 = erc721Contracts[index];
@@ -35,7 +36,7 @@ if (require.main === module) {
           dependencies.connection,
           dependencies.collectionService,
           dependencies.collectionHistoryService,
-          dependencies.accountService,
+          dependencies.userService,
           dependencies.assetService,
           dependencies.assetHistoryService,
           dependencies.gameService,

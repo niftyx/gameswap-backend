@@ -1,13 +1,13 @@
 import { BigNumber } from "ethers";
 import {
-  AccountEntity,
+  UserEntity,
   AssetEntity,
   AssetHistoryEntity,
   CollectionEntity,
   GameEntity,
 } from "../entities";
 import { IAsset } from "../types";
-import { accountUtils } from "./account_utils";
+import { userUtils } from "./user_utils";
 import { assetHistoryUtils } from "./asset_history_utils";
 import { collectionUtils } from "./collection_utils";
 import { gameUtils } from "./game_utils";
@@ -21,17 +21,18 @@ export const assetUtils = {
       gameId: assetEntity.gameId,
       collectionId: assetEntity.collectionId,
       contentId: assetEntity.contentId,
-      createTimeStamp: assetEntity.createTimeStamp,
-      updateTimeStamp: assetEntity.updateTimeStamp,
+      createTimestamp: assetEntity.createTimestamp,
+      updateTimestamp: assetEntity.updateTimestamp,
       currentOwner: assetEntity.currentOwner
-        ? accountUtils.deserialize(
-            assetEntity.currentOwner as Required<AccountEntity>
+        ? userUtils.deserialize(
+            assetEntity.currentOwner as Required<UserEntity>
           )
         : undefined,
       creator: assetEntity.creator
-        ? accountUtils.deserialize(
-            assetEntity.creator as Required<AccountEntity>
-          )
+        ? userUtils.deserialize(assetEntity.creator as Required<UserEntity>)
+        : undefined,
+      game: assetEntity.game
+        ? gameUtils.deserialize(assetEntity.game as Required<GameEntity>)
         : undefined,
       history: assetEntity.history
         ? assetEntity.history.map((historyEntity) =>
@@ -45,8 +46,10 @@ export const assetUtils = {
             assetEntity.collection as Required<CollectionEntity>
           )
         : undefined,
-      game: assetEntity.game
-        ? gameUtils.deserialize(assetEntity.game as Required<GameEntity>)
+      likers: assetEntity.likers
+        ? assetEntity.likers.map((userEntity) =>
+            userUtils.deserialize(userEntity as Required<UserEntity>)
+          )
         : undefined,
     };
     return asset;
@@ -60,22 +63,20 @@ export const assetUtils = {
       gameId: asset.gameId,
       collectionId: asset.collectionId,
       contentId: asset.contentId,
-      createTimeStamp: asset.createTimeStamp,
-      updateTimeStamp: asset.updateTimeStamp,
-
+      createTimestamp: asset.createTimestamp,
+      updateTimestamp: asset.updateTimestamp,
       currentOwner: asset.currentOwner
-        ? accountUtils.serialize(asset.currentOwner)
+        ? userUtils.serialize(asset.currentOwner)
         : undefined,
-      creator: asset.creator
-        ? accountUtils.serialize(asset.creator)
-        : undefined,
+      creator: asset.creator ? userUtils.serialize(asset.creator) : undefined,
+      game: asset.game ? gameUtils.serialize(asset.game) : undefined,
       history: asset.history
         ? asset.history.map(assetHistoryUtils.serialize)
         : undefined,
       collection: asset.collection
         ? collectionUtils.serialize(asset.collection)
         : undefined,
-      game: asset.game ? gameUtils.serialize(asset.game) : undefined,
+      likers: asset.likers ? asset.likers.map(userUtils.serialize) : undefined,
     });
     return assetEntity;
   },

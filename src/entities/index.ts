@@ -1,4 +1,4 @@
-export { AccountEntity } from "./AccountEntity";
+export { UserEntity } from "./UserEntity";
 export { AssetEntity } from "./AssetEntity";
 export { AssetHistoryEntity } from "./AssetHistoryEntity";
 export { CollectionEntity } from "./CollectionEntity";

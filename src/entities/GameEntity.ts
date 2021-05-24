@@ -1,6 +1,14 @@
-import { Column, Entity, ManyToMany, OneToMany, PrimaryColumn } from "typeorm";
+import {
+  Column,
+  Entity,
+  ManyToMany,
+  ManyToOne,
+  OneToMany,
+  PrimaryColumn,
+} from "typeorm";
 import { AssetEntity } from "./AssetEntity";
 import { CollectionEntity } from "./CollectionEntity";
+import { UserEntity } from "./UserEntity";
 
 @Entity({ name: "games" })
 export class GameEntity {
@@ -40,11 +48,14 @@ export class GameEntity {
   @Column({ name: "is_featured", type: "boolean" })
   public isFeatured?: boolean;
 
-  @Column({ name: "owner", type: "varchar" })
-  public owner?: string;
+  @Column({ name: "create_time_stamp", type: "int" })
+  public createTimestamp?: number;
 
-  @Column({ name: "created_at", type: "int" })
-  public createdAt?: number;
+  @Column({ name: "update_time_stamp", type: "int" })
+  public updateTimestamp?: number;
+
+  @ManyToOne(() => UserEntity, (user) => user.games)
+  public owner?: UserEntity;
 
   @OneToMany(() => AssetEntity, (asset) => asset.game)
   public assets?: AssetEntity[];
@@ -55,41 +66,48 @@ export class GameEntity {
   )
   public collections?: CollectionEntity[];
 
+  @ManyToMany(() => UserEntity, (user: UserEntity) => user.followingGames)
+  public followers?: UserEntity[];
+
   constructor(
     opts: {
       id?: string;
       name?: string;
       customUrl?: string;
-      description?: string;
+      version?: string;
       imageUrl?: string;
       headerImageUrl?: string;
       categoryId?: string;
-      version?: string;
+      description?: string;
       platform?: string;
-      owner?: string;
-      assets?: AssetEntity[];
-      createdAt?: number;
       isVerified?: boolean;
       isPremium?: boolean;
       isFeatured?: boolean;
+      createTimestamp?: number;
+      updateTimestamp?: number;
+      owner?: UserEntity;
+      assets?: AssetEntity[];
       collections?: CollectionEntity[];
+      followers?: UserEntity[];
     } = {}
   ) {
     this.id = opts.id;
     this.name = opts.name;
     this.customUrl = opts.customUrl;
-    this.description = opts.description;
+    this.version = opts.version;
     this.imageUrl = opts.imageUrl;
     this.headerImageUrl = opts.headerImageUrl;
     this.categoryId = opts.categoryId;
-    this.version = opts.version;
+    this.description = opts.description;
     this.platform = opts.platform;
-    this.owner = opts.owner;
-    this.assets = opts.assets;
-    this.createdAt = opts.createdAt;
     this.isVerified = opts.isVerified;
     this.isPremium = opts.isPremium;
     this.isFeatured = opts.isFeatured;
+    this.createTimestamp = opts.createTimestamp;
+    this.updateTimestamp = opts.updateTimestamp;
+    this.owner = opts.owner;
+    this.assets = opts.assets;
     this.collections = opts.collections;
+    this.followers = opts.followers;
   }
 }

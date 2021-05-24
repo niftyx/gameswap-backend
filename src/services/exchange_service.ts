@@ -19,22 +19,22 @@ const abi = [
 export class ExchangeService {
   private readonly _address: string;
   private readonly _blockNumber: number;
-  //private readonly _connection: Connection;
-  // private readonly _assetService: AssetService;
-  private readonly _assetHistoryService: AssetHistoryService;
+  //private readonly connection: Connection;
+  // private readonly assetService: AssetService;
+  private readonly assetHistoryService: AssetHistoryService;
 
   constructor(
     _address: string,
     _blockNumber: number,
     _connection: Connection,
     _assetService: AssetService,
-    _assetHistoryService: AssetHistoryService
+    assetHistoryService: AssetHistoryService
   ) {
-    //this._connection = _connection;
+    //this.connection = connection;
     this._address = _address;
     this._blockNumber = _blockNumber;
-    // this._assetService = _assetService;
-    this._assetHistoryService = _assetHistoryService;
+    // this.assetService = assetService;
+    this.assetHistoryService = assetHistoryService;
   }
 
   async syncExchanges() {
@@ -96,7 +96,7 @@ export class ExchangeService {
           makerAssetProxyId === ERC721_ASSET_PROXY_ID &&
           takerAssetProxyId === ERC20_ASSET_PROXY_ID
         ) {
-          let assetHistory = await this._assetHistoryService.getByTxId(txHash);
+          let assetHistory = await this.assetHistoryService.getByTxId(txHash);
 
           if (assetHistory) {
             assetHistory.erc20 = String(takerAsset.tokenAddress).toLowerCase();
@@ -106,13 +106,13 @@ export class ExchangeService {
               `====Order Filled ${assetHistory.erc20} ${assetHistory.erc20Amount}===`
             );
 
-            assetHistory = await this._assetHistoryService.update(assetHistory);
+            assetHistory = await this.assetHistoryService.update(assetHistory);
           }
         } else if (
           takerAssetProxyId === ERC721_ASSET_PROXY_ID &&
           makerAssetProxyId === ERC20_ASSET_PROXY_ID
         ) {
-          let assetHistory = await this._assetHistoryService.getByTxId(txHash);
+          let assetHistory = await this.assetHistoryService.getByTxId(txHash);
 
           if (assetHistory) {
             assetHistory.erc20 = String(makerAsset.tokenAddress).toLowerCase();
@@ -122,7 +122,7 @@ export class ExchangeService {
               `====Order Filled ${assetHistory.erc20} ${assetHistory.erc20Amount}===`
             );
 
-            assetHistory = await this._assetHistoryService.update(assetHistory);
+            assetHistory = await this.assetHistoryService.update(assetHistory);
           }
         }
       }

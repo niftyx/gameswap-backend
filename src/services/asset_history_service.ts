@@ -8,9 +8,9 @@ import { assetHistoryUtils } from "../utils/asset_history_utils";
 import { paginationUtils } from "../utils/pagination_utils";
 
 export class AssetHistoryService {
-  private readonly _connection: Connection;
+  private readonly connection: Connection;
   constructor(connection: Connection) {
-    this._connection = connection;
+    this.connection = connection;
   }
 
   public async add(history: IAssetHistory): Promise<IAssetHistory> {
@@ -19,7 +19,7 @@ export class AssetHistoryService {
   }
 
   public async getByTxId(txId: string): Promise<IAssetHistory | null> {
-    const assetHistoryEntity = (await this._connection
+    const assetHistoryEntity = (await this.connection
       .getRepository(AssetHistoryEntity)
       .findOne({ txHash: txId })) as Required<AssetHistoryEntity>;
 
@@ -33,7 +33,7 @@ export class AssetHistoryService {
   }
 
   public async get(id: string): Promise<IAssetHistory | null> {
-    const assetHistoryEntity = (await this._connection.manager.findOne(
+    const assetHistoryEntity = (await this.connection.manager.findOne(
       AssetHistoryEntity,
       id
     )) as Required<AssetHistoryEntity>;
@@ -48,7 +48,7 @@ export class AssetHistoryService {
   }
 
   public async update(history: IAssetHistory): Promise<IAssetHistory> {
-    const records = (await this._connection
+    const records = (await this.connection
       .getRepository(AssetHistoryEntity)
       .save(
         [history].map(assetHistoryUtils.serialize)
@@ -61,8 +61,8 @@ export class AssetHistoryService {
     perPage: number
   ): Promise<PaginatedCollection<IAssetHistory>> {
     const [entityCount, entities] = await Promise.all([
-      this._connection.manager.count(AssetHistoryEntity),
-      this._connection.manager.find(AssetHistoryEntity, {
+      this.connection.manager.count(AssetHistoryEntity),
+      this.connection.manager.find(AssetHistoryEntity, {
         ...paginationUtils.paginateDBFilters(page, perPage),
         order: {
           timestamp: "ASC",
@@ -84,7 +84,7 @@ export class AssetHistoryService {
   private async _addRecordsAsync(
     _history: IAssetHistory[]
   ): Promise<IAssetHistory[]> {
-    const records = await this._connection
+    const records = await this.connection
       .getRepository(AssetHistoryEntity)
       .save(_history.map(assetHistoryUtils.serialize));
     return (records as Required<AssetHistoryEntity>[]).map(

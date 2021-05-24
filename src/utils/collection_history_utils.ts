@@ -1,6 +1,11 @@
-import { CollectionEntity, CollectionHistoryEntity } from "../entities";
+import {
+  CollectionEntity,
+  CollectionHistoryEntity,
+  UserEntity,
+} from "../entities";
 import { ICollectionHistory } from "../types";
 import { collectionUtils } from "./collection_utils";
+import { userUtils } from "./user_utils";
 
 export const collectionHistoryUtils = {
   deserialize: (
@@ -8,7 +13,11 @@ export const collectionHistoryUtils = {
   ): ICollectionHistory => {
     const collectionHistory: ICollectionHistory = {
       id: collectionHistoryEntity.id,
-      owner: collectionHistoryEntity.owner,
+      owner: collectionHistoryEntity.owner
+        ? userUtils.deserialize(
+            collectionHistoryEntity.owner as Required<UserEntity>
+          )
+        : undefined,
       timestamp: collectionHistoryEntity.timestamp,
       txHash: collectionHistoryEntity.txHash,
       collection: collectionHistoryEntity.collection
@@ -25,7 +34,9 @@ export const collectionHistoryUtils = {
   ): CollectionHistoryEntity => {
     const collectionHistoryEntity = new CollectionHistoryEntity({
       id: collectionHistory.id,
-      owner: collectionHistory.owner,
+      owner: collectionHistory.owner
+        ? userUtils.serialize(collectionHistory.owner)
+        : undefined,
       timestamp: collectionHistory.timestamp,
       txHash: collectionHistory.txHash,
       collection: collectionHistory.collection

@@ -1,15 +1,15 @@
-import { CommonService } from "./../services/common_service";
+import { CommonService } from "../services/common_service";
 import { isAddress } from "ethers/lib/utils";
 import * as express from "express";
 import * as HttpStatus from "http-status-codes";
-import { AccountService } from "../services/account_service";
+import { UserService } from "../services/user_service";
 import { utils } from "ethers";
 
-export class AccountHandler {
-  private readonly accountService: AccountService;
+export class UserHandler {
+  private readonly userService: UserService;
   private readonly commonService: CommonService;
-  constructor(accountService: AccountService, commonService: CommonService) {
-    this.accountService = accountService;
+  constructor(userService: UserService, commonService: CommonService) {
+    this.userService = userService;
     this.commonService = commonService;
   }
 
@@ -21,8 +21,8 @@ export class AccountHandler {
       body: { signedMessage, ...restInfo },
       params: { id: address },
     } = req;
-    const accountId = address.toLowerCase();
-    if (!isAddress(accountId)) {
+    const userId = address.toLowerCase();
+    if (!isAddress(userId)) {
       res.status(HttpStatus.BAD_REQUEST).send();
       return;
     }
@@ -30,13 +30,13 @@ export class AccountHandler {
     const msgHashBytes = utils.arrayify(msgHash);
     const owner = utils.recoverAddress(msgHashBytes, signedMessage);
 
-    if (owner.toLowerCase() !== accountId) {
+    if (owner.toLowerCase() !== userId) {
       res.status(HttpStatus.UNAUTHORIZED).send();
       return;
     }
 
-    let account = await this.accountService.getOrCreateAccount(
-      accountId,
+    let user = await this.userService.getOrCreate(
+      userId,
       Math.floor(Date.now() / 1000)
     );
 
@@ -45,27 +45,27 @@ export class AccountHandler {
     const customUrlValid = await this.commonService.checkCustomUrlUsable(
       newCustomUrl
     );
-    if (!customUrlValid && account.customUrl !== newCustomUrl) {
+    if (!customUrlValid && user.customUrl !== newCustomUrl) {
       res.status(HttpStatus.BAD_REQUEST).send();
       return;
     }
 
-    account.name = restInfo.name;
-    account.imageUrl = restInfo.imageUrl;
-    account.customUrl = restInfo.customUrl.toLowerCase();
-    account.bio = restInfo.bio;
-    account.twitterUsername = restInfo.twitterUsername;
-    account.twitchUsername = restInfo.twitchUsername;
-    account.facebookUsername = restInfo.facebookUsername;
-    account.youtubeUsername = restInfo.youtubeUsername;
-    account.instagramUsername = restInfo.instagramUsername;
-    account.tiktokUsername = restInfo.tiktokUsername;
-    account.personalSite = restInfo.personalSite;
-    account.headerImageUrl = restInfo.headerImageUrl;
+    user.name = restInfo.name;
+    user.imageUrl = restInfo.imageUrl;
+    user.customUrl = restInfo.customUrl.toLowerCase();
+    user.bio = restInfo.bio;
+    user.twitterUsername = restInfo.twitterUsername;
+    user.twitchUsername = restInfo.twitchUsername;
+    user.facebookUsername = restInfo.facebookUsername;
+    user.youtubeUsername = restInfo.youtubeUsername;
+    user.instagramUsername = restInfo.instagramUsername;
+    user.tiktokUsername = restInfo.tiktokUsername;
+    user.personalSite = restInfo.personalSite;
+    user.headerImageUrl = restInfo.headerImageUrl;
 
-    account = await this.accountService.update(account);
+    user = await this.userService.update(user);
 
-    res.status(HttpStatus.OK).send(account);
+    res.status(HttpStatus.OK).send(user);
   }
 
   public async verifyTwitter(
@@ -77,36 +77,36 @@ export class AccountHandler {
       // body: { username: twitterUsername },
     } = req;
 
-    const accountId = address.toLowerCase();
-    if (!isAddress(accountId)) {
+    const userId = address.toLowerCase();
+    if (!isAddress(userId)) {
       res.status(HttpStatus.BAD_REQUEST).send();
       return;
     }
-    const account = await this.accountService.getOrCreateAccount(
-      accountId,
+    const user = await this.userService.getOrCreate(
+      userId,
       Math.floor(Date.now() / 1000)
     );
 
     // verify twitter
 
-    res.status(HttpStatus.OK).send(account);
+    res.status(HttpStatus.OK).send(user);
   }
 
   public async get(req: express.Request, res: express.Response): Promise<void> {
     const {
       params: { id: address },
     } = req;
-    const accountId = address.toLowerCase();
-    if (!isAddress(accountId)) {
+    const userId = address.toLowerCase();
+    if (!isAddress(userId)) {
       res.status(HttpStatus.BAD_REQUEST).send();
       return;
     }
-    const account = await this.accountService.getOrCreateAccount(
-      accountId,
+    const user = await this.userService.getOrCreate(
+      userId,
       Math.floor(Date.now() / 1000)
     );
 
-    res.status(HttpStatus.OK).send(account);
+    res.status(HttpStatus.OK).send(user);
   }
 
   public async list(
@@ -121,6 +121,6 @@ export class AccountHandler {
     _req: express.Request,
     res: express.Response
   ): Promise<void> {
-    res.status(HttpStatus.OK).send("Root of Account Handler");
+    res.status(HttpStatus.OK).send("Root of User Handler");
   }
 }

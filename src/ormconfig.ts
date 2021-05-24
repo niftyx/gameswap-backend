@@ -3,7 +3,7 @@ import { ConnectionOptions } from "typeorm";
 import { POSTGRES_READ_REPLICA_URIS, POSTGRES_URI } from "./config";
 import {
   AssetEntity,
-  AccountEntity,
+  UserEntity,
   AssetHistoryEntity,
   CollectionEntity,
   CollectionHistoryEntity,
@@ -12,7 +12,7 @@ import {
 
 const entities = [
   AssetEntity,
-  AccountEntity,
+  UserEntity,
   AssetHistoryEntity,
   CollectionEntity,
   CollectionHistoryEntity,

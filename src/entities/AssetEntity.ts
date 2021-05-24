@@ -6,9 +6,10 @@ import {
   OneToMany,
   ManyToOne,
   Index,
+  ManyToMany,
 } from "typeorm";
 import { AssetHistoryEntity } from "./AssetHistoryEntity";
-import { AccountEntity } from "./AccountEntity";
+import { UserEntity } from "./UserEntity";
 import { CollectionEntity } from "./CollectionEntity";
 
 @Entity({ name: "assets" })
@@ -34,17 +35,17 @@ export class AssetEntity {
   @Column({ name: "content_id", type: "varchar" })
   public contentId?: string;
 
-  @ManyToOne(() => AccountEntity, (account) => account.assets)
-  public currentOwner?: AccountEntity;
+  @Column({ name: "create_time_stamp", type: "int" })
+  public createTimestamp?: number;
 
-  @ManyToOne(() => AccountEntity, (account) => account.assets)
-  public creator?: AccountEntity;
+  @Column({ name: "update_time_stamp", type: "int" })
+  public updateTimestamp?: number;
 
-  @Column({ name: "created_time_stamp", type: "int" })
-  public createTimeStamp?: number;
+  @ManyToOne(() => UserEntity, (user) => user.assets)
+  public currentOwner?: UserEntity;
 
-  @Column({ name: "updated_time_stamp", type: "int" })
-  public updateTimeStamp?: number;
+  @ManyToOne(() => UserEntity, (user) => user.assets)
+  public creator?: UserEntity;
 
   @ManyToOne(() => GameEntity, (game) => game.assets)
   public game?: GameEntity;
@@ -55,21 +56,25 @@ export class AssetEntity {
   @ManyToOne(() => CollectionEntity, (collection) => collection.assets)
   public collection?: CollectionEntity;
 
+  @ManyToMany(() => UserEntity, (user: UserEntity) => user.likeAssets)
+  public likers?: UserEntity[];
+
   constructor(
     opts: {
       id?: string;
       assetId?: string;
       assetURL?: string;
       gameId?: string;
-      contentId?: string;
       collectionId?: string;
-      currentOwner?: AccountEntity;
-      creator?: AccountEntity;
-      createTimeStamp?: number;
-      updateTimeStamp?: number;
-      collection?: CollectionEntity;
-      history?: AssetHistoryEntity[];
+      contentId?: string;
+      createTimestamp?: number;
+      updateTimestamp?: number;
+      currentOwner?: UserEntity;
+      creator?: UserEntity;
       game?: GameEntity;
+      history?: AssetHistoryEntity[];
+      collection?: CollectionEntity;
+      likers?: UserEntity[];
     } = {}
   ) {
     this.id = opts.id;
@@ -78,13 +83,13 @@ export class AssetEntity {
     this.gameId = opts.gameId;
     this.collectionId = opts.collectionId;
     this.contentId = opts.contentId;
+    this.createTimestamp = opts.createTimestamp;
+    this.updateTimestamp = opts.updateTimestamp;
     this.currentOwner = opts.currentOwner;
-    this.createTimeStamp = opts.createTimeStamp;
-    this.createTimeStamp = opts.createTimeStamp;
-    this.updateTimeStamp = opts.updateTimeStamp;
-    this.collection = opts.collection;
-    this.history = opts.history;
-    this.game = opts.game;
     this.creator = opts.creator;
+    this.game = opts.game;
+    this.history = opts.history;
+    this.collection = opts.collection;
+    this.likers = opts.likers;
   }
 }

@@ -1,8 +1,9 @@
 import { BigNumber } from "ethers";
-import { AssetEntity, AssetHistoryEntity } from "../entities";
+import { AssetEntity, AssetHistoryEntity, UserEntity } from "../entities";
 import { IAssetHistory } from "../types";
 import { assetUtils } from "./asset_utils";
 import { ZERO_NUMBER } from "./number";
+import { userUtils } from "./user_utils";
 
 export const assetHistoryUtils = {
   deserialize: (
@@ -10,7 +11,11 @@ export const assetHistoryUtils = {
   ): IAssetHistory => {
     const assetHistory: IAssetHistory = {
       id: assetHistoryEntity.id,
-      owner: assetHistoryEntity.owner,
+      owner: assetHistoryEntity.owner
+        ? userUtils.deserialize(
+            assetHistoryEntity.owner as Required<UserEntity>
+          )
+        : undefined,
       timestamp: assetHistoryEntity.timestamp,
       txHash: assetHistoryEntity.txHash,
       asset: assetHistoryEntity.asset
@@ -29,7 +34,9 @@ export const assetHistoryUtils = {
   serialize: (assetHistory: IAssetHistory): AssetHistoryEntity => {
     const assetHistoryEntity = new AssetHistoryEntity({
       id: assetHistory.id,
-      owner: assetHistory.owner,
+      owner: assetHistory.owner
+        ? userUtils.serialize(assetHistory.owner)
+        : undefined,
       timestamp: assetHistory.timestamp,
       txHash: assetHistory.txHash,
       asset: assetHistory.asset

@@ -11,9 +11,9 @@ import { paginationUtils } from "../utils/pagination_utils";
 import { assetHistoryUtils } from "../utils/asset_history_utils";
 
 export class AssetService {
-  private readonly _connection: Connection;
+  private readonly connection: Connection;
   constructor(connection: Connection) {
-    this._connection = connection;
+    this.connection = connection;
   }
 
   public async add(asset: IAsset): Promise<IAsset> {
@@ -22,7 +22,7 @@ export class AssetService {
   }
 
   public async get(id: string): Promise<IAsset | null> {
-    const assetEntity = (await this._connection.manager.findOne(
+    const assetEntity = (await this.connection.manager.findOne(
       AssetEntity,
       id
     )) as Required<AssetEntity>;
@@ -36,7 +36,7 @@ export class AssetService {
   }
 
   public async getWithDetails(id: string): Promise<IAsset | null> {
-    const assetEntity = (await this._connection
+    const assetEntity = (await this.connection
       .getRepository(AssetEntity)
       .findOne({
         where: { id },
@@ -55,7 +55,7 @@ export class AssetService {
     contentId: string,
     owner: string
   ): Promise<IAsset | null> {
-    const assetEntity = (await this._connection
+    const assetEntity = (await this.connection
       .getRepository(AssetEntity)
       .findOne({
         where: { contentId, currentOwner: { id: owner } },
@@ -74,7 +74,7 @@ export class AssetService {
     tokenId: BigNumber,
     collectionId: string
   ): Promise<IAsset | null> {
-    const repository = this._connection.getRepository(AssetEntity);
+    const repository = this.connection.getRepository(AssetEntity);
     const assetEntity = (await repository.findOne({
       relations: ["collection", "currentOwner"],
       where: { collection: { id: collectionId }, assetId: tokenId.toString() },
@@ -92,7 +92,7 @@ export class AssetService {
     _tokenId: BigNumber,
     collectionId: string
   ): Promise<IAsset | null> {
-    const assetEntity = (await this._connection
+    const assetEntity = (await this.connection
       .getRepository(AssetEntity)
       .findOne({
         relations: ["currentOwner", "collection"],
@@ -115,7 +115,7 @@ export class AssetService {
     perPage: number,
     query?: any
   ): Promise<PaginatedCollection<IAsset>> {
-    const orderBy = query && query.orderBy ? query.orderBy : "createTimeStamp";
+    const orderBy = query && query.orderBy ? query.orderBy : "createTimestamp";
     const orderDir = query && query.orderDir ? query.orderDir : "ASC";
     const { collectionId, ownerId, creatorId, ...restQuery } = query || {};
 
@@ -142,8 +142,8 @@ export class AssetService {
     }
 
     const [entityCount, entities] = await Promise.all([
-      this._connection.manager.count(AssetEntity),
-      this._connection.manager.find(AssetEntity, {
+      this.connection.manager.count(AssetEntity),
+      this.connection.manager.find(AssetEntity, {
         relations,
         ...(Object.keys(whereSubClause).length
           ? { where: { ...restQuery, ...whereSubClause } }
@@ -174,10 +174,10 @@ export class AssetService {
     assetId: string
   ): Promise<PaginatedCollection<IAssetHistory>> {
     const [entityCount, entities] = await Promise.all([
-      this._connection.getRepository(AssetHistoryEntity).count({
+      this.connection.getRepository(AssetHistoryEntity).count({
         where: { asset: { id: assetId } },
       }),
-      this._connection.getRepository(AssetHistoryEntity).find({
+      this.connection.getRepository(AssetHistoryEntity).find({
         where: { asset: { id: assetId } },
         ...paginationUtils.paginateDBFilters(page, perPage),
         order: { timestamp: "DESC" },
@@ -202,15 +202,15 @@ export class AssetService {
     perPage: number
   ): Promise<PaginatedCollection<IAsset>> {
     const [entityCount, entities] = await Promise.all([
-      this._connection.getRepository(AssetEntity).count({
+      this.connection.getRepository(AssetEntity).count({
         relations: ["currentOwner"],
         where: { currentOwner: { id: owner } },
       }),
-      this._connection.getRepository(AssetEntity).find({
+      this.connection.getRepository(AssetEntity).find({
         relations: ["currentOwner", "collection"],
         where: { currentOwner: { id: owner } },
         ...paginationUtils.paginateDBFilters(page, perPage),
-        order: { createTimeStamp: "DESC" },
+        order: { createTimestamp: "DESC" },
       }),
     ]);
     const assetItems = (entities as Required<AssetEntity>[]).map(
@@ -231,15 +231,15 @@ export class AssetService {
     perPage: number
   ): Promise<PaginatedCollection<IAsset>> {
     const [entityCount, entities] = await Promise.all([
-      this._connection.getRepository(AssetEntity).count({
+      this.connection.getRepository(AssetEntity).count({
         relations: ["creator"],
         where: { creator: { id: owner } },
       }),
-      this._connection.getRepository(AssetEntity).find({
+      this.connection.getRepository(AssetEntity).find({
         relations: ["currentOwner", "collection", "creator"],
         where: { creator: { id: owner } },
         ...paginationUtils.paginateDBFilters(page, perPage),
-        order: { createTimeStamp: "DESC" },
+        order: { createTimestamp: "DESC" },
       }),
     ]);
     const assetItems = (entities as Required<AssetEntity>[]).map(
@@ -260,15 +260,15 @@ export class AssetService {
     perPage: number
   ): Promise<PaginatedCollection<IAsset>> {
     const [entityCount, entities] = await Promise.all([
-      this._connection.getRepository(AssetEntity).count({
+      this.connection.getRepository(AssetEntity).count({
         relations: ["collection"],
         where: { collection: { id: collectionId } },
       }),
-      this._connection.getRepository(AssetEntity).find({
+      this.connection.getRepository(AssetEntity).find({
         relations: ["currentOwner", "collection", "creator"],
         where: { collection: { id: collectionId } },
         ...paginationUtils.paginateDBFilters(page, perPage),
-        order: { createTimeStamp: "DESC" },
+        order: { createTimestamp: "DESC" },
       }),
     ]);
     const assetItems = (entities as Required<AssetEntity>[]).map(
@@ -284,14 +284,14 @@ export class AssetService {
   }
 
   public async update(asset: IAsset): Promise<IAsset> {
-    const records = (await this._connection
+    const records = (await this.connection
       .getRepository(AssetEntity)
       .save([asset].map(assetUtils.serialize))) as Required<AssetEntity>[];
     return assetUtils.deserialize(records[0]);
   }
 
   private async _addRecordsAsync(_assets: IAsset[]): Promise<IAsset[]> {
-    const records = await this._connection
+    const records = await this.connection
       .getRepository(AssetEntity)
       .save(_assets.map(assetUtils.serialize));
     return (records as Required<AssetEntity>[]).map(assetUtils.deserialize);
@@ -303,14 +303,14 @@ export class AssetService {
     gameId: string
   ): Promise<PaginatedCollection<IAsset>> {
     const [entityCount, entities] = await Promise.all([
-      this._connection.getRepository(AssetEntity).count({
+      this.connection.getRepository(AssetEntity).count({
         where: { gameId },
       }),
-      this._connection.getRepository(AssetEntity).find({
+      this.connection.getRepository(AssetEntity).find({
         relations: ["currentOwner", "collection"],
         where: { gameId },
         ...paginationUtils.paginateDBFilters(page, perPage),
-        order: { createTimeStamp: "DESC" },
+        order: { createTimestamp: "DESC" },
       }),
     ]);
 

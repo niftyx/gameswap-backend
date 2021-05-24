@@ -573,13 +573,15 @@ export interface IGame {
   categoryId: string;
   description: string;
   platform: IPlatform[];
-  owner?: string;
-  createdAt: number;
-  assets?: IAsset[];
-  collections?: ICollection[];
   isVerified: boolean;
   isPremium: boolean;
   isFeatured: boolean;
+  createTimestamp: number;
+  updateTimestamp: number;
+  owner?: IUser;
+  assets?: IAsset[];
+  collections?: ICollection[];
+  followers?: IUser[];
 }
 
 export interface IAsset {
@@ -589,18 +591,19 @@ export interface IAsset {
   gameId: string;
   collectionId: string;
   contentId: string;
-  currentOwner?: IAccount;
-  creator?: IAccount;
-  createTimeStamp: number;
-  updateTimeStamp: number;
+  createTimestamp: number;
+  updateTimestamp: number;
+  currentOwner?: IUser;
+  creator?: IUser;
+  game?: IGame;
   collection?: ICollection;
   history?: IAssetHistory[];
-  game?: IGame;
+  likers?: IUser[];
 }
 
 export interface IAssetHistory {
   id: string;
-  owner: string;
+  owner?: IUser;
   txHash: string;
   timestamp: number;
   asset?: IAsset;
@@ -610,37 +613,37 @@ export interface IAssetHistory {
 
 export interface ICollection {
   id: string;
-  block: number;
+
   address: string;
   name: string;
   symbol: string;
   imageUrl: string;
   description?: string;
-  owner: string;
   totalSupply: BigNumber;
   totalMinted: BigNumber;
   totalBurned: BigNumber;
-  createTimeStamp: number;
-  updateTimeStamp: number;
+  block: number;
   isPrivate: boolean;
-  assets?: IAsset[];
-  history?: ICollectionHistory[];
-  games?: IGame[];
-  gameIds: string[];
   isVerified: boolean;
   isPremium: boolean;
   isFeatured: boolean;
+  createTimestamp: number;
+  updateTimestamp: number;
+  assets?: IAsset[];
+  owner?: IUser;
+  history?: ICollectionHistory[];
+  games?: IGame[];
 }
 
 export interface ICollectionHistory {
   id: string;
-  owner: string;
+  owner?: IUser;
   timestamp: number;
   collection?: ICollection;
   txHash: string;
 }
 
-export interface IAccount {
+export interface IUser {
   id: string;
   address: string;
   name: string;
@@ -656,10 +659,16 @@ export interface IAccount {
   instagramUsername: string;
   tiktokUsername: string;
   personalSite: string;
-  assetCount: BigNumber;
-  createTimeStamp: number;
+  createTimestamp: number;
+  updateTimestamp: number;
   assets?: IAsset[];
+  games?: IGame[];
+  collections?: ICollection[];
   createdAssets?: IAsset[];
+  followingGames?: IGame[];
+  likeAssets?: IAsset[];
+  followings?: IUser[];
+  followers?: IUser[];
 }
 
 export enum ZeroXOrderType {

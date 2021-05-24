@@ -1,12 +1,12 @@
 import * as _ from "lodash";
 import { Connection } from "typeorm";
 import { BANNED_CUSTOM_URLS } from "../constants";
-import { AccountEntity, GameEntity } from "../entities";
+import { UserEntity, GameEntity } from "../entities";
 
 export class CommonService {
-  private readonly _connection: Connection;
+  private readonly connection: Connection;
   constructor(connection: Connection) {
-    this._connection = connection;
+    this.connection = connection;
   }
 
   public async checkCustomUrlUsable(url: string): Promise<boolean> {
@@ -15,13 +15,13 @@ export class CommonService {
     if (BANNED_CUSTOM_URLS.includes(url)) {
       return false;
     }
-    let isExist = await this._connection.getRepository(AccountEntity).findOne({
+    let isExist = await this.connection.getRepository(UserEntity).findOne({
       customUrl: url,
     });
     if (isExist) {
       return false;
     }
-    isExist = await this._connection.getRepository(GameEntity).findOne({
+    isExist = await this.connection.getRepository(GameEntity).findOne({
       customUrl: url,
     });
     if (isExist) {
@@ -38,13 +38,13 @@ export class CommonService {
     if (BANNED_CUSTOM_URLS.includes(url)) {
       return null;
     }
-    let isExist = await this._connection.getRepository(AccountEntity).findOne({
+    let isExist = await this.connection.getRepository(UserEntity).findOne({
       customUrl: url,
     });
     if (isExist) {
       return { isGame: false, isUser: true, customId: isExist.id || "" };
     }
-    isExist = await this._connection.getRepository(GameEntity).findOne({
+    isExist = await this.connection.getRepository(GameEntity).findOne({
       customUrl: url,
     });
     if (isExist) {

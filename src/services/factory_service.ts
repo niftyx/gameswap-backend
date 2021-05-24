@@ -7,7 +7,6 @@ import { logger } from "../app";
 import { CHAIN_ID, defaultHttpServiceWithRateLimiterConfig } from "../config";
 import { LOG_PAGE_COUNT } from "../constants";
 import {
-  AccountEntity,
   AssetEntity,
   AssetHistoryEntity,
   CollectionEntity,
@@ -16,7 +15,7 @@ import {
 import { ICollection, IERC721ContractInfo } from "../types";
 import { collectionUtils } from "../utils/collection_utils";
 import { ZERO_NUMBER } from "../utils/number";
-import { AccountService } from "./account_service";
+import { UserService } from "./user_service";
 import { AssetHistoryService } from "./asset_history_service";
 import { AssetService } from "./asset_service";
 import { CollectionHistoryService } from "./collection_history_service";
@@ -32,72 +31,65 @@ const abi = [
 export class FactoryService {
   private readonly _factoryAddress: string;
   private readonly _factoryBlockNumber: number;
-  private readonly _connection: Connection;
-  private readonly _collectionService: CollectionService;
-  private readonly _accountService: AccountService;
-  private readonly _collectionHistoryService: CollectionHistoryService;
-  private readonly _assetService: AssetService;
-  private readonly _assetHistoryService: AssetHistoryService;
+  private readonly connection: Connection;
+  private readonly collectionService: CollectionService;
+  private readonly userService: UserService;
+  private readonly collectionHistoryService: CollectionHistoryService;
+  private readonly assetService: AssetService;
+  private readonly assetHistoryService: AssetHistoryService;
   private readonly gameService: GameService;
-  private readonly _exchangeAddress: string;
+  private readonly exchangeAddress: string;
 
   constructor(
-    _connection: Connection,
+    connection: Connection,
     factoryAddress: string,
     _factoryBlockNumber: number,
-    _collectionService: CollectionService,
-    _collectionHistoryService: CollectionHistoryService,
-    _accountService: AccountService,
-    _assetService: AssetService,
-    _assetHistoryService: AssetHistoryService,
+    collectionService: CollectionService,
+    collectionHistoryService: CollectionHistoryService,
+    userService: UserService,
+    assetService: AssetService,
+    assetHistoryService: AssetHistoryService,
     gameService: GameService,
-    _exchangeAddress: string
+    exchangeAddress: string
   ) {
-    this._connection = _connection;
+    this.connection = connection;
     this._factoryAddress = factoryAddress;
     this._factoryBlockNumber = _factoryBlockNumber;
-    this._collectionService = _collectionService;
-    this._collectionHistoryService = _collectionHistoryService;
-    this._accountService = _accountService;
-    this._assetService = _assetService;
-    this._assetHistoryService = _assetHistoryService;
+    this.collectionService = collectionService;
+    this.collectionHistoryService = collectionHistoryService;
+    this.userService = userService;
+    this.assetService = assetService;
+    this.assetHistoryService = assetHistoryService;
     this.gameService = gameService;
-    this._exchangeAddress = _exchangeAddress;
+    this.exchangeAddress = exchangeAddress;
   }
 
   async resetRelatedTables() {
     logger.info("==== reset tables start ====");
-    await this._connection
+    await this.connection
       .createQueryBuilder()
       .delete()
       .from(AssetHistoryEntity)
       .execute();
     logger.info("====AssetHistoryEntity Removed====");
-    await this._connection
+    await this.connection
       .createQueryBuilder()
       .delete()
       .from(AssetEntity)
       .execute();
     logger.info("====AssetEntity Removed====");
-    await this._connection
+    await this.connection
       .createQueryBuilder()
       .delete()
       .from(CollectionHistoryEntity)
       .execute();
     logger.info("====CollectionHistoryEntity Removed====");
-    await this._connection
+    await this.connection
       .createQueryBuilder()
       .delete()
       .from(CollectionEntity)
       .execute();
     logger.info("====CollectionEntity Removed====");
-    await this._connection
-      .getRepository(AccountEntity)
-      .createQueryBuilder()
-      .update()
-      .set({ assetCount: "0" })
-      .execute();
-    logger.info("====AccountEntity assetCount Reset Done====");
   }
 
   async syncERC721Contracts(): Promise<IERC721ContractInfo[]> {
@@ -140,11 +132,14 @@ export class FactoryService {
         } catch (error) {
           info = {};
         }
-        const gameIds = (Array.isArray(info.gameIds)
-          ? info.gameIds
-          : []
+        const gameIds = (
+          Array.isArray(info.gameIds) ? info.gameIds : []
         ).filter((id: string) => isValidUUID(id));
         const games = await this.gameService.getMultipleGames(gameIds);
+        const owner = await this.userService.getOrCreate(
+          String(log.address).toLowerCase(),
+          block.timestamp
+        );
 
         const collection: ICollection = {
           id: String(parsed.args[0]).toLowerCase(),
@@ -155,14 +150,13 @@ export class FactoryService {
           imageUrl: info.imageUrl || "",
           description: info.description || "",
           isPrivate: parsed.args[4],
-          owner: String(log.address).toLowerCase(),
+          owner,
           totalSupply: ZERO_NUMBER,
           totalMinted: ZERO_NUMBER,
           totalBurned: ZERO_NUMBER,
-          createTimeStamp: block.timestamp,
-          updateTimeStamp: block.timestamp,
+          createTimestamp: block.timestamp,
+          updateTimestamp: block.timestamp,
           games: games,
-          gameIds,
           isVerified: false,
           isPremium: false,
           isFeatured: false,
@@ -218,11 +212,14 @@ export class FactoryService {
           info = {};
         }
 
-        const gameIds = (Array.isArray(info.gameIds)
-          ? info.gameIds
-          : []
+        const gameIds = (
+          Array.isArray(info.gameIds) ? info.gameIds : []
         ).filter((id: string) => isValidUUID(id));
         const games = await this.gameService.getMultipleGames(gameIds);
+        const owner = await this.userService.getOrCreate(
+          String(log.address).toLowerCase(),
+          block.timestamp
+        );
 
         const collection: ICollection = {
           id: String(tokenAddress).toLowerCase(),
@@ -233,17 +230,16 @@ export class FactoryService {
           imageUrl: info.imageUrl || "",
           description: info.description || "",
           isPrivate,
-          owner: String(log.address).toLowerCase(),
+          owner,
           totalSupply: ZERO_NUMBER,
           totalMinted: ZERO_NUMBER,
           totalBurned: ZERO_NUMBER,
-          createTimeStamp: block.timestamp,
-          updateTimeStamp: block.timestamp,
+          createTimestamp: block.timestamp,
+          updateTimestamp: block.timestamp,
           isVerified: false,
           isFeatured: false,
           isPremium: false,
           games: games,
-          gameIds,
         };
 
         await this._createCollections([collection]);
@@ -251,14 +247,14 @@ export class FactoryService {
         const erc721Service = new ERC721Service(
           collection.address,
           collection.block,
-          this._connection,
-          this._collectionService,
-          this._collectionHistoryService,
-          this._accountService,
-          this._assetService,
-          this._assetHistoryService,
+          this.connection,
+          this.collectionService,
+          this.collectionHistoryService,
+          this.userService,
+          this.assetService,
+          this.assetHistoryService,
           this.gameService,
-          this._exchangeAddress
+          this.exchangeAddress
         );
         await erc721Service.listenAssets();
       }
@@ -266,7 +262,7 @@ export class FactoryService {
   }
 
   private async _createCollections(collections: ICollection[]) {
-    const records = await this._connection
+    const records = await this.connection
       .getRepository(CollectionEntity)
       .save(collections.map(collectionUtils.serialize));
     return (records as Required<CollectionEntity>[]).map(

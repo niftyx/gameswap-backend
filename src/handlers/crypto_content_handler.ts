@@ -7,13 +7,13 @@ import { utils } from "ethers";
 import { AssetService } from "../services/asset_service";
 export class CryptoContentHandler {
   private readonly _cryptoContentService;
-  private readonly _assetService;
+  private readonly assetService;
   constructor(
     cryptoContentService: CryptoContentService,
     assetService: AssetService
   ) {
     this._cryptoContentService = cryptoContentService;
-    this._assetService = assetService;
+    this.assetService = assetService;
   }
   public async encryptData(
     req: express.Request,
@@ -52,7 +52,7 @@ export class CryptoContentHandler {
       signedContentStr
     );
 
-    const asset = await this._assetService.getForContentData(
+    const asset = await this.assetService.getForContentData(
       contentId,
       String(ownerAddressFromRequest).toLowerCase()
     );

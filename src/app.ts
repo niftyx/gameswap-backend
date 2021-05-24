@@ -18,7 +18,7 @@ import { CollectionService } from "./services/collection_service";
 import { CryptoContentService } from "./services/crypto_content_service";
 import { GameService } from "./services/game_service";
 import { FactoryService } from "./services/factory_service";
-import { AccountService } from "./services/account_service";
+import { UserService } from "./services/user_service";
 import { AssetHistoryService } from "./services/asset_history_service";
 import { CollectionHistoryService } from "./services/collection_history_service";
 import { AssetService } from "./services/asset_service";
@@ -37,7 +37,7 @@ export interface AppDependencies {
   connection: Connection;
   cryptoContentService: CryptoContentService;
   factoryService: FactoryService;
-  accountService: AccountService;
+  userService: UserService;
   assetService: AssetService;
   assetHistoryService: AssetHistoryService;
   collectionService: CollectionService;
@@ -49,7 +49,6 @@ export interface AppDependencies {
 
 /**
  * Instantiates dependencies required to run the app. Uses default settings based on config
- * @param _config should contain a URI for mesh to listen to, and the ethereum RPC URL
  */
 export async function getDefaultAppDependenciesAsync(
   _config: HttpServiceConfig
@@ -60,7 +59,7 @@ export async function getDefaultAppDependenciesAsync(
   const collectionHistoryService = new CollectionHistoryService(connection);
   const gameService = new GameService(connection);
   const cryptoContentService = new CryptoContentService(CONTENT_SECRET_KEY);
-  const accountService = new AccountService(connection);
+  const userService = new UserService(connection);
   const assetService = new AssetService(connection);
   const assetHistoryService = new AssetHistoryService(connection);
   const commonService = new CommonService(connection);
@@ -80,7 +79,7 @@ export async function getDefaultAppDependenciesAsync(
     _config.factoryBlockNumber,
     collectionService,
     collectionHistoryService,
-    accountService,
+    userService,
     assetService,
     assetHistoryService,
     gameService,
@@ -94,7 +93,7 @@ export async function getDefaultAppDependenciesAsync(
     cryptoContentService,
     gameService,
     factoryService,
-    accountService,
+    userService,
     assetService,
     assetHistoryService,
     exchangeService,
@@ -129,7 +128,7 @@ export async function getAppAsync(
         dependencies.connection,
         dependencies.collectionService,
         dependencies.collectionHistoryService,
-        dependencies.accountService,
+        dependencies.userService,
         dependencies.assetService,
         dependencies.assetHistoryService,
         dependencies.gameService,

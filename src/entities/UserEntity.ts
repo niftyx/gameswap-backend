@@ -1,8 +1,19 @@
-import { Column, Entity, PrimaryColumn, OneToMany } from "typeorm";
+import { CollectionEntity } from "./CollectionEntity";
+import {
+  Column,
+  Entity,
+  PrimaryColumn,
+  OneToMany,
+  ManyToMany,
+  JoinTable,
+} from "typeorm";
 import { AssetEntity } from "./AssetEntity";
+import { GameEntity } from "./GameEntity";
+import { CollectionHistoryEntity } from "./CollectionHistoryEntity";
+import { AssetHistoryEntity } from "./AssetHistoryEntity";
 
-@Entity({ name: "accounts" })
-export class AccountEntity {
+@Entity({ name: "users" })
+export class UserEntity {
   @PrimaryColumn({ name: "id", type: "varchar" })
   public id?: string;
 
@@ -48,17 +59,47 @@ export class AccountEntity {
   @Column({ name: "personal_site", type: "varchar" })
   public personalSite?: string;
 
-  @Column({ name: "asset_count", type: "varchar" })
-  public assetCount?: string;
-
   @Column({ name: "create_time_stamp", type: "int" })
-  public createTimeStamp?: number;
+  public createTimestamp?: number;
+
+  @Column({ name: "update_time_stamp", type: "int" })
+  public updateTimestamp?: number;
 
   @OneToMany(() => AssetEntity, (asset) => asset.currentOwner)
   public assets?: AssetEntity[];
 
+  @OneToMany(() => GameEntity, (game) => game.owner)
+  public games?: GameEntity[];
+
+  @OneToMany(() => CollectionEntity, (collection) => collection.owner)
+  public collections?: CollectionEntity[];
+
   @OneToMany(() => AssetEntity, (asset) => asset.creator)
   public createdAssets?: AssetEntity[];
+
+  @ManyToMany(() => GameEntity, (game: GameEntity) => game.followers)
+  @JoinTable()
+  public followingGames?: GameEntity[];
+
+  @ManyToMany(() => AssetEntity, (asset: AssetEntity) => asset.likers)
+  @JoinTable()
+  public likeAssets?: AssetEntity[];
+
+  @ManyToMany(() => UserEntity, (user: UserEntity) => user.followers)
+  public followings?: UserEntity[];
+
+  @ManyToMany(() => UserEntity, (user: UserEntity) => user.followings)
+  @JoinTable()
+  public followers?: UserEntity[];
+
+  @OneToMany(
+    () => CollectionHistoryEntity,
+    (collectionHistory) => collectionHistory.owner
+  )
+  public collectionHistory?: CollectionHistoryEntity[];
+
+  @OneToMany(() => AssetHistoryEntity, (assetHistory) => assetHistory.owner)
+  public assetHistory?: AssetHistoryEntity[];
 
   constructor(
     opts: {
@@ -77,10 +118,16 @@ export class AccountEntity {
       instagramUsername?: string;
       tiktokUsername?: string;
       personalSite?: string;
-      assetCount?: string;
-      createTimeStamp?: number;
+      createTimestamp?: number;
+      updateTimestamp?: number;
       assets?: AssetEntity[];
+      games?: GameEntity[];
+      collections?: CollectionEntity[];
       createdAssets?: AssetEntity[];
+      followingGames?: GameEntity[];
+      likeAssets?: AssetEntity[];
+      followings?: UserEntity[];
+      followers?: UserEntity[];
     } = {}
   ) {
     this.id = opts.id;
@@ -98,9 +145,14 @@ export class AccountEntity {
     this.instagramUsername = opts.instagramUsername;
     this.tiktokUsername = opts.tiktokUsername;
     this.personalSite = opts.personalSite;
-    this.assetCount = opts.assetCount;
-    this.createTimeStamp = opts.createTimeStamp;
+    this.createTimestamp = opts.createTimestamp;
+    this.updateTimestamp = opts.updateTimestamp;
     this.assets = opts.assets;
+    this.games = opts.games;
     this.createdAssets = opts.createdAssets;
+    this.followingGames = opts.followingGames;
+    this.likeAssets = opts.likeAssets;
+    this.followings = opts.followings;
+    this.followers = opts.followers;
   }
 }

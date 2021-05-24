@@ -6,10 +6,11 @@ import {
   OneToMany,
   ManyToMany,
   JoinTable,
+  ManyToOne,
 } from "typeorm";
 import { CollectionHistoryEntity } from "./CollectionHistoryEntity";
-import { AssetHistoryEntity } from "./AssetHistoryEntity";
 import { GameEntity } from "./GameEntity";
+import { UserEntity } from "./UserEntity";
 @Entity({ name: "collections" })
 export class CollectionEntity {
   @PrimaryColumn({ name: "id", type: "varchar" })
@@ -33,9 +34,6 @@ export class CollectionEntity {
   @Column({ name: "description", type: "varchar" })
   public description?: string;
 
-  @Column({ name: "owner", type: "varchar" })
-  public owner?: string;
-
   @Column({ name: "total_supply", type: "varchar" })
   public totalSupply?: string;
 
@@ -44,9 +42,6 @@ export class CollectionEntity {
 
   @Column({ name: "total_burned", type: "varchar" })
   public totalBurned?: string;
-
-  @Column({ name: "game_ids", type: "varchar" })
-  public gameIds?: string;
 
   @Column({ name: "is_private", type: "boolean" })
   public isPrivate?: boolean;
@@ -60,14 +55,17 @@ export class CollectionEntity {
   @Column({ name: "is_featured", type: "boolean" })
   public isFeatured?: boolean;
 
+  @Column({ name: "create_time_stamp", type: "int" })
+  public createTimestamp?: number;
+
+  @Column({ name: "update_time_stamp", type: "int" })
+  public updateTimestamp?: number;
+
+  @ManyToOne(() => UserEntity, (user) => user.collections)
+  public owner?: UserEntity;
+
   @OneToMany(() => AssetEntity, (asset) => asset.collection)
   public assets?: AssetEntity[];
-
-  @Column({ name: "created_time_stamp", type: "int" })
-  public createTimeStamp?: number;
-
-  @Column({ name: "updated_time_stamp", type: "int" })
-  public updateTimeStamp?: number;
 
   @OneToMany(() => CollectionHistoryEntity, (history) => history.collection)
   public history?: CollectionHistoryEntity[];
@@ -84,20 +82,19 @@ export class CollectionEntity {
       symbol?: string;
       imageUrl?: string;
       description?: string;
-      owner?: string;
       totalSupply?: string;
       totalMinted?: string;
       totalBurned?: string;
-      createTimeStamp?: number;
-      updateTimeStamp?: number;
       block?: number;
       isPrivate?: boolean;
-      assets?: AssetEntity[];
-      history?: AssetHistoryEntity[];
       isVerified?: boolean;
       isPremium?: boolean;
       isFeatured?: boolean;
-      gameIds?: string;
+      createTimestamp?: number;
+      updateTimestamp?: number;
+      owner?: UserEntity;
+      assets?: AssetEntity[];
+      history?: CollectionHistoryEntity[];
       games?: GameEntity[];
     } = {}
   ) {
@@ -107,20 +104,20 @@ export class CollectionEntity {
     this.symbol = opts.symbol;
     this.imageUrl = opts.imageUrl;
     this.description = opts.description;
-    this.owner = opts.owner;
     this.totalSupply = opts.totalSupply;
     this.totalMinted = opts.totalMinted;
     this.totalBurned = opts.totalBurned;
-    this.createTimeStamp = opts.createTimeStamp;
-    this.updateTimeStamp = opts.updateTimeStamp;
     this.block = opts.block;
     this.isPrivate = opts.isPrivate;
-    this.assets = opts.assets;
-    this.history = opts.history;
     this.isVerified = opts.isVerified;
     this.isPremium = opts.isPremium;
     this.isFeatured = opts.isFeatured;
-    this.gameIds = opts.gameIds;
+    this.createTimestamp = opts.createTimestamp;
+    this.updateTimestamp = opts.updateTimestamp;
+    this.owner = opts.owner;
+    this.assets = opts.assets;
+    this.history = opts.history;
+
     this.games = opts.games;
   }
 }

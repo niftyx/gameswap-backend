@@ -1,25 +1,35 @@
-import { AssetEntity, CollectionEntity, GameEntity } from "../entities";
+import {
+  AssetEntity,
+  CollectionEntity,
+  GameEntity,
+  UserEntity,
+} from "../entities";
 import { IGame, IPlatform } from "../types";
 import { assetUtils } from "./asset_utils";
 import { collectionUtils } from "./collection_utils";
+import { userUtils } from "./user_utils";
 
 export const gameUtils = {
   deserialize: (gameEntity: Required<GameEntity>): IGame => {
     const game: IGame = {
       id: gameEntity.id,
       name: gameEntity.name,
-      description: gameEntity.description,
+      customUrl: gameEntity.customUrl,
+      version: gameEntity.version,
       imageUrl: gameEntity.imageUrl,
       headerImageUrl: gameEntity.headerImageUrl,
-      version: gameEntity.version,
       categoryId: gameEntity.categoryId,
+      description: gameEntity.description,
       platform: JSON.parse(gameEntity.platform) as IPlatform[],
-      owner: gameEntity.owner,
-      createdAt: gameEntity.createdAt,
-      customUrl: gameEntity.customUrl,
       isVerified: gameEntity.isVerified,
       isPremium: gameEntity.isPremium,
       isFeatured: gameEntity.isFeatured,
+      createTimestamp: gameEntity.createTimestamp,
+      updateTimestamp: gameEntity.updateTimestamp,
+      owner: gameEntity.owner
+        ? userUtils.deserialize(gameEntity.owner as Required<UserEntity>)
+        : undefined,
+
       assets: gameEntity.assets
         ? gameEntity.assets.map((assetEntity) =>
             assetUtils.deserialize(assetEntity as Required<AssetEntity>)
@@ -32,6 +42,11 @@ export const gameUtils = {
             )
           )
         : undefined,
+      followers: gameEntity.followers
+        ? gameEntity.followers.map((userEntity) =>
+            userUtils.deserialize(userEntity as Required<UserEntity>)
+          )
+        : undefined,
     };
     return game;
   },
@@ -40,21 +55,25 @@ export const gameUtils = {
     const gameEntity = new GameEntity({
       id: game.id,
       name: game.name,
-      description: game.description,
+      customUrl: game.customUrl,
+      version: game.version,
       imageUrl: game.imageUrl,
       headerImageUrl: game.headerImageUrl,
-      version: game.version,
       categoryId: game.categoryId,
+      description: game.description,
       platform: JSON.stringify(game.platform),
-      owner: game.owner,
       isVerified: game.isVerified,
       isPremium: game.isPremium,
       isFeatured: game.isFeatured,
-      createdAt: game.createdAt,
-      customUrl: game.customUrl,
+      createTimestamp: game.createTimestamp,
+      updateTimestamp: game.updateTimestamp,
+      owner: game.owner ? userUtils.serialize(game.owner) : undefined,
       assets: game.assets ? game.assets.map(assetUtils.serialize) : undefined,
       collections: game.collections
         ? game.collections.map(collectionUtils.serialize)
+        : undefined,
+      followers: game.followers
+        ? game.followers.map(userUtils.serialize)
         : undefined,
     });
     return gameEntity;

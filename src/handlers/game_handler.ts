@@ -6,19 +6,23 @@ import * as isValidUUID from "uuid-validate";
 import { utils } from "ethers";
 import { AssetService } from "../services/asset_service";
 import { CommonService } from "../services/common_service";
+import { UserService } from "../services/user_service";
 export class GameHandler {
   private readonly gameService: GameService;
   private readonly assetService: AssetService;
   private readonly commonService: CommonService;
+  private readonly userService: UserService;
 
   constructor(
     gameService: GameService,
     assetService: AssetService,
-    commonService: CommonService
+    commonService: CommonService,
+    userService: UserService
   ) {
     this.gameService = gameService;
     this.assetService = assetService;
     this.commonService = commonService;
+    this.userService = userService;
   }
   public async create(
     req: express.Request,
@@ -40,12 +44,18 @@ export class GameHandler {
     const owner = utils.recoverAddress(msgHashBytes, message);
     const gameId = uuidv4();
 
+    const ownerObj = await this.userService.getOrCreate(
+      owner.toLowerCase(),
+      Math.floor(Date.now() / 1000)
+    );
+
     const game = await this.gameService.add({
       ...gameData,
       customUrl: gameData.customUrl.toLowerCase(),
       id: gameId,
-      owner,
-      createdAt: Math.floor(Date.now() / 1000),
+      owner: ownerObj,
+      createTimestamp: Math.floor(Date.now() / 1000),
+      updateTimestamp: Math.floor(Date.now() / 1000),
       isVerified: false,
       isPremium: false,
       isFeatured: false,
@@ -82,7 +92,7 @@ export class GameHandler {
 
     let game = await this.gameService.get(id);
 
-    if (owner.toLowerCase() !== game?.owner?.toLowerCase()) {
+    if (owner.toLowerCase() !== game?.owner?.id.toLowerCase()) {
       res.status(HttpStatus.UNAUTHORIZED).send();
       return;
     }
@@ -105,7 +115,7 @@ export class GameHandler {
     game.headerImageUrl = gameData.headerImageUrl;
     game.platform = gameData.platform;
     game.customUrl = newCustomUrl;
-
+    game.updateTimestamp = Math.floor(Date.now() / 1000);
     game = await this.gameService.update(game);
 
     res.status(HttpStatus.OK).send(game);

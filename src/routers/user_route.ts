@@ -1,44 +1,44 @@
-import { AccountHandler } from "../handlers/account_handler";
+import { UserHandler } from "../handlers/user_handler";
 import * as express from "express";
 import { validate } from "express-validation";
 import * as asyncHandler from "express-async-handler";
 
-import AccountValidation from "../validators/account.validation";
-import { AccountService } from "../services/account_service";
+import UserValidation from "../validators/user.validation";
+import { UserService } from "../services/user_service";
 import { CommonService } from "../services/common_service";
 
 // tslint:disable-next-line:completed-docs
-export function createAccountRouter(
-  accountService: AccountService,
+export function createUserRouter(
+  userService: UserService,
   commonService: CommonService
 ): express.Router {
   const router = express.Router();
-  const handlers = new AccountHandler(accountService, commonService);
+  const handlers = new UserHandler(userService, commonService);
 
   router.route("/").get(handlers.root);
 
   router
     .route("/all")
     .get(
-      validate(AccountValidation.list),
+      validate(UserValidation.list),
       asyncHandler(handlers.list.bind(handlers))
     );
 
   router
     .route("/:id/twitter/verify")
     .post(
-      validate(AccountValidation.verifyTwitter),
+      validate(UserValidation.verifyTwitter),
       asyncHandler(handlers.update.bind(handlers))
     );
 
   router
     .route("/:id")
     .get(
-      validate(AccountValidation.get),
+      validate(UserValidation.get),
       asyncHandler(handlers.get.bind(handlers))
     )
     .post(
-      validate(AccountValidation.update),
+      validate(UserValidation.update),
       asyncHandler(handlers.update.bind(handlers))
     );
 

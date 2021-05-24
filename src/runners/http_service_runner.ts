@@ -5,7 +5,7 @@ import { Server } from "http";
 
 import { AppDependencies } from "../app";
 import {
-  ACCOUNT_PATH,
+  USER_PATH,
   ASSET_PATH,
   COLLECTION_PATH,
   COMMON_PATH,
@@ -16,7 +16,7 @@ import { rootHandler } from "../handlers/root_handler";
 import { logger } from "../logger";
 import { addressNormalizer } from "../middleware/address_normalizer";
 import { errorHandler } from "../middleware/error_handling";
-import { createAccountRouter } from "../routers/account_route";
+import { createUserRouter } from "../routers/user_route";
 import { createAssetRouter } from "../routers/asset_route";
 import { createCollectionRouter } from "../routers/collection_route";
 import { createCommonRouter } from "../routers/common_route";
@@ -84,14 +84,15 @@ export async function runHttpServiceAsync(
     createGameRouter(
       dependencies.gameService,
       dependencies.assetService,
-      dependencies.commonService
+      dependencies.commonService,
+      dependencies.userService
     )
   );
 
-  // ACCOUNT http service
+  // USER http service
   app.use(
-    ACCOUNT_PATH,
-    createAccountRouter(dependencies.accountService, dependencies.commonService)
+    USER_PATH,
+    createUserRouter(dependencies.userService, dependencies.commonService)
   );
 
   // COLLECTION http service

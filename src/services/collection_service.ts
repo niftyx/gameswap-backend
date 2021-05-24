@@ -9,9 +9,9 @@ import { collectionUtils } from "../utils/collection_utils";
 import { paginationUtils } from "../utils/pagination_utils";
 
 export class CollectionService {
-  private readonly _connection: Connection;
+  private readonly connection: Connection;
   constructor(connection: Connection) {
-    this._connection = connection;
+    this.connection = connection;
   }
 
   public async add(collection: ICollection): Promise<ICollection> {
@@ -20,7 +20,7 @@ export class CollectionService {
   }
 
   public async get(id: string): Promise<ICollection | null> {
-    const collectionEntity = (await this._connection.manager.findOne(
+    const collectionEntity = (await this.connection.manager.findOne(
       CollectionEntity,
       id
     )) as Required<CollectionEntity>;
@@ -36,10 +36,10 @@ export class CollectionService {
 
   public async search(_keyword: string): Promise<ICollection[]> {
     const [entities] = await Promise.all([
-      this._connection.manager.find(CollectionEntity, {
+      this.connection.manager.find(CollectionEntity, {
         take: SEARCH_LIMIT,
         order: {
-          createTimeStamp: "ASC",
+          createTimestamp: "ASC",
         },
       }),
     ]);
@@ -55,11 +55,11 @@ export class CollectionService {
     perPage: number
   ): Promise<PaginatedCollection<ICollection>> {
     const [entityCount, entities] = await Promise.all([
-      this._connection.manager.count(CollectionEntity),
-      this._connection.manager.find(CollectionEntity, {
+      this.connection.manager.count(CollectionEntity),
+      this.connection.manager.find(CollectionEntity, {
         ...paginationUtils.paginateDBFilters(page, perPage),
         order: {
-          createTimeStamp: "ASC",
+          createTimestamp: "ASC",
         },
       }),
     ]);
@@ -80,7 +80,7 @@ export class CollectionService {
     perPage: number,
     gameId: string
   ): Promise<PaginatedCollection<ICollection>> {
-    const gameEntity = (await this._connection
+    const gameEntity = (await this.connection
       .getRepository(GameEntity)
       .findOne({
         where: { id: gameId },
@@ -98,7 +98,7 @@ export class CollectionService {
   }
 
   public async update(collection: ICollection): Promise<ICollection> {
-    const records = (await this._connection
+    const records = (await this.connection
       .getRepository(CollectionEntity)
       .save(
         [collection].map(collectionUtils.serialize)
@@ -109,7 +109,7 @@ export class CollectionService {
   private async _addRecordsAsnyc(
     _collections: ICollection[]
   ): Promise<ICollection[]> {
-    const records = await this._connection
+    const records = await this.connection
       .getRepository(CollectionEntity)
       .save(_collections.map(collectionUtils.serialize));
     return (records as Required<CollectionEntity>[]).map(

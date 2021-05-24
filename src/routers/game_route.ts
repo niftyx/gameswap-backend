@@ -6,15 +6,22 @@ import { validate } from "express-validation";
 import GameValidation from "../validators/game.validation";
 import { AssetService } from "../services/asset_service";
 import { CommonService } from "../services/common_service";
+import { UserService } from "../services/user_service";
 
 // tslint:disable-next-line:completed-docs
 export function createGameRouter(
   gameService: GameService,
   assetService: AssetService,
-  commonService: CommonService
+  commonService: CommonService,
+  userService: UserService
 ): express.Router {
   const router = express.Router();
-  const handlers = new GameHandler(gameService, assetService, commonService);
+  const handlers = new GameHandler(
+    gameService,
+    assetService,
+    commonService,
+    userService
+  );
 
   router
     .route("/")

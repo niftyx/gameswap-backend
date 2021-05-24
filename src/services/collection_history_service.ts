@@ -8,9 +8,9 @@ import { collectionHistoryUtils } from "../utils/collection_history_utils";
 import { paginationUtils } from "../utils/pagination_utils";
 
 export class CollectionHistoryService {
-  private readonly _connection: Connection;
+  private readonly connection: Connection;
   constructor(connection: Connection) {
-    this._connection = connection;
+    this.connection = connection;
   }
 
   public async add(history: ICollectionHistory): Promise<ICollectionHistory> {
@@ -19,7 +19,7 @@ export class CollectionHistoryService {
   }
 
   public async get(id: string): Promise<ICollectionHistory | null> {
-    const collectionHistoryEntity = (await this._connection.manager.findOne(
+    const collectionHistoryEntity = (await this.connection.manager.findOne(
       CollectionHistoryEntity,
       id
     )) as Required<CollectionHistoryEntity>;
@@ -38,8 +38,8 @@ export class CollectionHistoryService {
     perPage: number
   ): Promise<PaginatedCollection<ICollectionHistory>> {
     const [entityCount, entities] = await Promise.all([
-      this._connection.manager.count(CollectionHistoryEntity),
-      this._connection.manager.find(CollectionHistoryEntity, {
+      this.connection.manager.count(CollectionHistoryEntity),
+      this.connection.manager.find(CollectionHistoryEntity, {
         ...paginationUtils.paginateDBFilters(page, perPage),
         order: {
           timestamp: "ASC",
@@ -64,10 +64,10 @@ export class CollectionHistoryService {
     perPage: number
   ): Promise<PaginatedCollection<ICollectionHistory>> {
     const [entityCount, entities] = await Promise.all([
-      this._connection.manager.count(CollectionHistoryEntity, {
+      this.connection.manager.count(CollectionHistoryEntity, {
         where: { id: collectionId },
       }),
-      this._connection.manager.find(CollectionHistoryEntity, {
+      this.connection.manager.find(CollectionHistoryEntity, {
         where: { id: collectionId },
         ...paginationUtils.paginateDBFilters(page, perPage),
         order: {
@@ -90,7 +90,7 @@ export class CollectionHistoryService {
   private async _addRecordsAsync(
     _history: ICollectionHistory[]
   ): Promise<ICollectionHistory[]> {
-    const records = await this._connection
+    const records = await this.connection
       .getRepository(CollectionHistoryEntity)
       .save(_history.map(collectionHistoryUtils.serialize));
     return (records as Required<CollectionHistoryEntity>[]).map(

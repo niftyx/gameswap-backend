@@ -1,13 +1,13 @@
 import { Joi } from "express-validation";
 
-const AccountValidation = {
-  // GET /accounts/v1/:id
+const UserValidation = {
+  // GET /users/v1/:id
   get: {
     params: Joi.object({
       id: Joi.string().required(),
     }),
   },
-  // POST /accounts/v1/:id
+  // POST /users/v1/:id
   update: {
     params: Joi.object({
       id: Joi.string().required(),
@@ -29,14 +29,14 @@ const AccountValidation = {
       signedMessage: Joi.string().required(),
     }),
   },
-  // GET /accounts/v1/all
+  // GET /users/v1/all
   list: {
     query: Joi.object({
       perPage: Joi.number().greater(0),
       page: Joi.number().min(1),
     }),
   },
-  // POST /accounts/:id/twitter/verify
+  // POST /users/:id/twitter/verify
   verifyTwitter: {
     params: Joi.object({
       id: Joi.string().required(),
@@ -47,4 +47,4 @@ const AccountValidation = {
   },
 };
 
-export default AccountValidation;
+export default UserValidation;

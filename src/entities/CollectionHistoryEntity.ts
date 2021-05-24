@@ -1,13 +1,11 @@
 import { Column, Entity, PrimaryColumn, ManyToOne } from "typeorm";
 import { CollectionEntity } from "./CollectionEntity";
+import { UserEntity } from "./UserEntity";
 
 @Entity({ name: "collection_histories" })
 export class CollectionHistoryEntity {
   @PrimaryColumn({ name: "id", type: "varchar" })
   public id?: string;
-
-  @Column({ name: "owner", type: "varchar" })
-  public owner?: string;
 
   @Column({ name: "timestamp", type: "int" })
   public timestamp?: number;
@@ -18,13 +16,16 @@ export class CollectionHistoryEntity {
   @ManyToOne(() => CollectionEntity, (collection) => collection.history)
   public collection?: CollectionEntity;
 
+  @ManyToOne(() => UserEntity, (user) => user.collectionHistory)
+  public owner?: UserEntity;
+
   constructor(
     opts: {
       id?: string;
-      owner?: string;
       timestamp?: number;
-      collection?: CollectionEntity;
       txHash?: string;
+      collection?: CollectionEntity;
+      owner?: UserEntity;
     } = {}
   ) {
     this.id = opts.id;
