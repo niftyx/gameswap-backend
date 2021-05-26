@@ -6,6 +6,11 @@ import * as asyncHandler from "express-async-handler";
 
 import { CollectionService } from "../services/collection_service";
 
+/**
+ * Collections are created and transferred on blockchain network, so we have only "GET" APIs for that.
+ * We should remove all here
+ */
+
 // tslint:disable-next-line:completed-docs
 export function createCollectionRouter(
   collectionService: CollectionService

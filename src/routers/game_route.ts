@@ -8,6 +8,10 @@ import { AssetService } from "../services/asset_service";
 import { CommonService } from "../services/common_service";
 import { UserService } from "../services/user_service";
 
+/**
+ * This handles create/get/update GAME items
+ * We should remove all GET listeners
+ */
 // tslint:disable-next-line:completed-docs
 export function createGameRouter(
   gameService: GameService,

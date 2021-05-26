@@ -7,6 +7,11 @@ import UserValidation from "../validators/user.validation";
 import { UserService } from "../services/user_service";
 import { CommonService } from "../services/common_service";
 
+/**
+ * This handles get/update/create user data
+ * We should remove all GET listeners
+ */
+
 // tslint:disable-next-line:completed-docs
 export function createUserRouter(
   userService: UserService,

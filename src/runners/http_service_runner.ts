@@ -28,8 +28,7 @@ import { HttpServiceConfig } from "../types";
 import { createDefaultServer } from "./utils";
 
 /**
- * http_service_runner hosts endpoints for staking, sra, swap and meta-txns (minus the /submit endpoint)
- * and can be horizontally scaled as needed
+ * http_service_runner hosts endpoints for games/contents/collections/assets/users/
  */
 
 process.on("uncaughtException", (err) => {
@@ -49,9 +48,6 @@ export interface HttpServices {
 
 /**
  * This service handles the HTTP requests. This involves fetching from the database
- * as well as adding orders to mesh.
- * @param dependencies If no mesh client is supplied, the HTTP service will start without it.
- *                     It will provide defaults for other params.
  */
 export async function runHttpServiceAsync(
   dependencies: AppDependencies,
@@ -69,7 +65,7 @@ export async function runHttpServiceAsync(
   // transform all values of `req.query.[xx]Address` to lowercase
   app.use(addressNormalizer);
 
-  // staking http service
+  // crypto content http service: it will encrypt/decrypt signedContentData with crypto algorithem
   app.use(
     CRYPTO_CONTENT_PATH,
     createCryptoContentRouter(
@@ -104,7 +100,7 @@ export async function runHttpServiceAsync(
   // ASSET http service
   app.use(ASSET_PATH, createAssetRouter(dependencies.assetService));
 
-  // COMMON http service
+  // COMMON http service: this check if custom-url is not used on games or users before
   app.use(COMMON_PATH, createCommonRouter(dependencies.commonService));
 
   app.use(errorHandler);

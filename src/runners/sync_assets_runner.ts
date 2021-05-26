@@ -16,6 +16,10 @@ process.on("unhandledRejection", (err) => {
   }
 });
 
+/**
+ * * This runner will get past Events on AVAX Fuji Network (related to collections/assets/orders) and write data on db
+ */
+
 if (require.main === module) {
   (async () => {
     const dependencies = await getDefaultAppDependenciesAsync(

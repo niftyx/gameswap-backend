@@ -34,16 +34,16 @@ export const logger = pino({
 });
 
 export interface AppDependencies {
-  connection: Connection;
-  cryptoContentService: CryptoContentService;
-  factoryService: FactoryService;
+  connection: Connection; // db service
+  cryptoContentService: CryptoContentService; // encrypt/decrypt signedContentData with crypto algorithm
+  factoryService: FactoryService; // handles "CollectionCreation" or "CollectionOwnershipTransfer"
   userService: UserService;
   assetService: AssetService;
   assetHistoryService: AssetHistoryService;
   collectionService: CollectionService;
   collectionHistoryService: CollectionHistoryService;
   gameService: GameService;
-  exchangeService: ExchangeService;
+  exchangeService: ExchangeService; // handles "OrderFilled" or "OrderCancelled" events of 0x exchange contract
   commonService: CommonService;
 }
 
@@ -101,11 +101,7 @@ export async function getDefaultAppDependenciesAsync(
   };
 }
 /**
- * starts the app with dependencies injected. This entry-point is used when running a single instance 0x API
- * deployment and in tests. It is not used in production deployments where scaling is required.
- * @param dependencies  all values are optional and will be filled with reasonable defaults, with one
- *                      exception. if a `meshClient` is not provided, the API will start without a
- *                      connection to mesh.
+ * starts the app with dependencies injected.
  * @return the app object
  */
 export async function getAppAsync(
@@ -118,10 +114,11 @@ export async function getAppAsync(
   // list contracts
   try {
     const contractAddresses = getContractAddressesForChainOrThrow(CHAIN_ID);
-    await dependencies.factoryService.listenERC721Contracts();
+    await dependencies.factoryService.listenERC721Contracts(); // list collection creation
     const erc721Contracts = await dependencies.collectionService.list(1, 100);
     for (let index = 0; index < erc721Contracts.records.length; index++) {
       const element = erc721Contracts.records[index];
+      // listens to events of a certain collection (asset mint, transfer, burn and transferOwnership of collection)
       const erc721Service = new ERC721Service(
         element.address,
         element.block,
