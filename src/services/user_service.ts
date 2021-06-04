@@ -1,103 +1,86 @@
-import { PaginatedCollection } from "@0x/connect";
 import * as _ from "lodash";
-import { Connection } from "typeorm";
+import { selectAccountById } from "../shared/helpers";
+import { insertAccount, updateAccount, upsertAccount } from "../shared/queries";
+import { request } from "../shared/request";
+import { InsertAccountData } from "../shared/types";
 
-import { UserEntity } from "../entities";
 import { IUser } from "../types";
-import { userUtils } from "../utils/user_utils";
-import { paginationUtils } from "../utils/pagination_utils";
+
+export interface UpdateAccountData {
+  update_users: {
+    returning: IUser[];
+  };
+}
 
 export class UserService {
-  private readonly connection: Connection;
-  constructor(connection: Connection) {
-    this.connection = connection;
-  }
-
-  public async getOrCreate(id: string, timestamp: number): Promise<IUser> {
-    const userEntity = await this.connection.manager.findOne(UserEntity, id);
-    if (userEntity) {
-      const user = userUtils.deserialize(userEntity as Required<UserEntity>);
-
-      return user;
-    }
-    const user = await this.add({
-      id,
-      address: id,
-      name: "",
-      twitterUsername: "",
-      twitterVerified: false,
-      twitchUsername: "",
-      facebookUsername: "",
-      youtubeUsername: "",
-      instagramUsername: "",
-      tiktokUsername: "",
-      imageUrl: "",
-      headerImageUrl: "",
-      customUrl: "",
-      bio: "",
-      personalSite: "",
-      createTimestamp: timestamp,
-      updateTimestamp: timestamp,
+  public async upsert(id: string, timestamp: number) {
+    await request<InsertAccountData>(upsertAccount, {
+      user: {
+        id: id,
+        address: id,
+        name: "",
+        custom_url: "",
+        image_url: "",
+        header_image_url: "",
+        bio: "",
+        twitter_username: "",
+        twitter_verified: false,
+        twitch_username: "",
+        facebook_username: "",
+        youtube_username: "",
+        instagram_username: "",
+        tiktok_username: "",
+        personal_site: "",
+        create_time_stamp: timestamp,
+        update_time_stamp: timestamp,
+      },
     });
-    return user;
   }
 
-  public async add(user: IUser): Promise<IUser> {
-    const records = await this._addRecordsAsync([user]);
-    return records[0];
+  public async insert(id: string, timestamp: number): Promise<IUser> {
+    const response = await request<InsertAccountData>(insertAccount, {
+      user: {
+        id: id,
+        address: id,
+        name: "",
+        custom_url: "",
+        image_url: "",
+        header_image_url: "",
+        bio: "",
+        twitter_username: "",
+        twitter_verified: false,
+        twitch_username: "",
+        facebook_username: "",
+        youtube_username: "",
+        instagram_username: "",
+        tiktok_username: "",
+        personal_site: "",
+        create_time_stamp: timestamp,
+        update_time_stamp: timestamp,
+      },
+    });
+    return response.insert_users.returning[0];
   }
 
   public async update(user: IUser): Promise<IUser> {
-    const records = (await this.connection
-      .getRepository(UserEntity)
-      .save([user].map(userUtils.serialize))) as Required<UserEntity>[];
-    return userUtils.deserialize(records[0]);
+    const response = await request<UpdateAccountData>(updateAccount, {
+      id: user.id,
+      changes: user,
+    });
+    return response.update_users.returning[0];
+  }
+
+  public async getOrCreate(id: string, timestamp: number): Promise<IUser> {
+    const exist = await this.get(id);
+    if (exist) {
+      return exist;
+    }
+    const insertedItem = await this.insert(id, timestamp);
+    return insertedItem;
   }
 
   public async get(id: string): Promise<IUser | null> {
-    const userEntity = (await this.connection.manager.findOne(
-      UserEntity,
-      id
-    )) as Required<UserEntity>;
-
-    if (!userEntity) {
-      return null;
-    }
-
-    const user = userUtils.deserialize(userEntity);
-
-    return user;
-  }
-
-  public async list(
-    page: number,
-    perPage: number
-  ): Promise<PaginatedCollection<IUser>> {
-    const [entityCount, entities] = await Promise.all([
-      this.connection.manager.count(UserEntity),
-      this.connection.manager.find(UserEntity, {
-        ...paginationUtils.paginateDBFilters(page, perPage),
-        order: {
-          createTimestamp: "ASC",
-        },
-      }),
-    ]);
-    const items = (entities as Required<UserEntity>[]).map(
-      userUtils.deserialize
-    );
-    const paginatedItems = paginationUtils.paginateSerialize(
-      items,
-      entityCount,
-      page,
-      perPage
-    );
-    return paginatedItems;
-  }
-
-  private async _addRecordsAsync(users: IUser[]): Promise<IUser[]> {
-    const records = await this.connection
-      .getRepository(UserEntity)
-      .save(users.map(userUtils.serialize));
-    return (records as Required<UserEntity>[]).map(userUtils.deserialize);
+    const response = await selectAccountById(id);
+    return response;
   }
 }

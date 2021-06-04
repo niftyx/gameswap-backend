@@ -1,6 +1,5 @@
 import { BigNumber, Contract, ethers } from "ethers";
 import { Interface } from "ethers/lib/utils";
-import { Connection } from "typeorm";
 import { assetDataUtils } from "@0x/order-utils";
 import { logger } from "../app";
 import { CHAIN_ID, defaultHttpServiceWithRateLimiterConfig } from "../config";
@@ -19,18 +18,16 @@ const abi = [
 export class ExchangeService {
   private readonly _address: string;
   private readonly _blockNumber: number;
-  //private readonly connection: Connection;
+
   // private readonly assetService: AssetService;
   private readonly assetHistoryService: AssetHistoryService;
 
   constructor(
     _address: string,
     _blockNumber: number,
-    _connection: Connection,
     _assetService: AssetService,
     assetHistoryService: AssetHistoryService
   ) {
-    //this.connection = connection;
     this._address = _address;
     this._blockNumber = _blockNumber;
     // this.assetService = assetService;

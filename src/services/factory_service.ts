@@ -2,18 +2,10 @@ import axios from "axios";
 import { Contract, ethers } from "ethers";
 import { Interface } from "ethers/lib/utils";
 import * as _ from "lodash";
-import { Connection } from "typeorm";
 import { logger } from "../app";
 import { CHAIN_ID, defaultHttpServiceWithRateLimiterConfig } from "../config";
 import { LOG_PAGE_COUNT } from "../constants";
-import {
-  AssetEntity,
-  AssetHistoryEntity,
-  CollectionEntity,
-  CollectionHistoryEntity,
-} from "../entities";
 import { ICollection, IERC721ContractInfo } from "../types";
-import { collectionUtils } from "../utils/collection_utils";
 import { ZERO_NUMBER } from "../utils/number";
 import { UserService } from "./user_service";
 import { AssetHistoryService } from "./asset_history_service";
@@ -31,7 +23,6 @@ const abi = [
 export class FactoryService {
   private readonly _factoryAddress: string;
   private readonly _factoryBlockNumber: number;
-  private readonly connection: Connection;
   private readonly collectionService: CollectionService;
   private readonly userService: UserService;
   private readonly collectionHistoryService: CollectionHistoryService;
@@ -41,7 +32,6 @@ export class FactoryService {
   private readonly exchangeAddress: string;
 
   constructor(
-    connection: Connection,
     factoryAddress: string,
     _factoryBlockNumber: number,
     collectionService: CollectionService,
@@ -52,7 +42,6 @@ export class FactoryService {
     gameService: GameService,
     exchangeAddress: string
   ) {
-    this.connection = connection;
     this._factoryAddress = factoryAddress;
     this._factoryBlockNumber = _factoryBlockNumber;
     this.collectionService = collectionService;
@@ -66,29 +55,14 @@ export class FactoryService {
 
   async resetRelatedTables() {
     logger.info("==== reset tables start ====");
-    await this.connection
-      .createQueryBuilder()
-      .delete()
-      .from(AssetHistoryEntity)
-      .execute();
+    await this.assetHistoryService.deleteAll();
+
     logger.info("====AssetHistoryEntity Removed====");
-    await this.connection
-      .createQueryBuilder()
-      .delete()
-      .from(AssetEntity)
-      .execute();
+    await this.assetService.deleteAll();
     logger.info("====AssetEntity Removed====");
-    await this.connection
-      .createQueryBuilder()
-      .delete()
-      .from(CollectionHistoryEntity)
-      .execute();
+    await this.collectionHistoryService.deleteAll();
     logger.info("====CollectionHistoryEntity Removed====");
-    await this.connection
-      .createQueryBuilder()
-      .delete()
-      .from(CollectionEntity)
-      .execute();
+    await this.collectionService.deleteAll();
     logger.info("====CollectionEntity Removed====");
   }
 
@@ -135,11 +109,11 @@ export class FactoryService {
         const gameIds = (
           Array.isArray(info.gameIds) ? info.gameIds : []
         ).filter((id: string) => isValidUUID(id));
-        const games = await this.gameService.getMultipleGames(gameIds);
-        const owner = await this.userService.getOrCreate(
-          String(log.address).toLowerCase(),
-          block.timestamp
-        );
+        logger.info(JSON.stringify(gameIds));
+        const owner = String(log.address).toLowerCase();
+
+        // upsert user
+        await this.userService.upsert(owner, block.timestamp);
 
         const collection: ICollection = {
           id: String(parsed.args[0]).toLowerCase(),
@@ -147,24 +121,24 @@ export class FactoryService {
           address: String(parsed.args[0]).toLowerCase(),
           name: parsed.args[1],
           symbol: parsed.args[2],
-          imageUrl: info.imageUrl || "",
+          image_url: info.imageUrl || "",
           description: info.description || "",
-          isPrivate: parsed.args[4],
-          owner,
-          totalSupply: ZERO_NUMBER,
-          totalMinted: ZERO_NUMBER,
-          totalBurned: ZERO_NUMBER,
-          createTimestamp: block.timestamp,
-          updateTimestamp: block.timestamp,
-          games: games,
-          isVerified: false,
-          isPremium: false,
-          isFeatured: false,
+          is_private: parsed.args[4],
+          owner_id: owner,
+          total_supply: ZERO_NUMBER,
+          total_minted: ZERO_NUMBER,
+          total_burned: ZERO_NUMBER,
+          create_time_stamp: block.timestamp,
+          update_time_stamp: block.timestamp,
+          game_ids: info.gameIds,
+          is_verified: false,
+          is_premium: false,
+          is_featured: false,
         };
-
+        // collections <=> games many-to-many
         logger.info(`===collection=created=${collection.address}==`);
 
-        await this._createCollections([collection]);
+        await this.createCollection(collection);
 
         erc721Contracts.push({
           address: collection.address,
@@ -183,7 +157,7 @@ export class FactoryService {
     return erc721Contracts;
   }
 
-  async listenERC721Contracts() {
+  listenERC721Contracts() {
     const provider = new ethers.providers.JsonRpcProvider(
       defaultHttpServiceWithRateLimiterConfig.ethereumRpcUrl,
       CHAIN_ID
@@ -215,11 +189,8 @@ export class FactoryService {
         const gameIds = (
           Array.isArray(info.gameIds) ? info.gameIds : []
         ).filter((id: string) => isValidUUID(id));
-        const games = await this.gameService.getMultipleGames(gameIds);
-        const owner = await this.userService.getOrCreate(
-          String(log.address).toLowerCase(),
-          block.timestamp
-        );
+        // const games = await this.gameService.getMultipleGames(gameIds);
+        const owner = String(log.address).toLowerCase();
 
         const collection: ICollection = {
           id: String(tokenAddress).toLowerCase(),
@@ -227,27 +198,26 @@ export class FactoryService {
           address: String(tokenAddress).toLowerCase(),
           name,
           symbol,
-          imageUrl: info.imageUrl || "",
+          image_url: info.imageUrl || "",
           description: info.description || "",
-          isPrivate,
-          owner,
-          totalSupply: ZERO_NUMBER,
-          totalMinted: ZERO_NUMBER,
-          totalBurned: ZERO_NUMBER,
-          createTimestamp: block.timestamp,
-          updateTimestamp: block.timestamp,
-          isVerified: false,
-          isFeatured: false,
-          isPremium: false,
-          games: games,
+          is_private: isPrivate,
+          owner_id: owner,
+          total_supply: ZERO_NUMBER,
+          total_minted: ZERO_NUMBER,
+          total_burned: ZERO_NUMBER,
+          create_time_stamp: block.timestamp,
+          update_time_stamp: block.timestamp,
+          is_verified: false,
+          is_featured: false,
+          is_premium: false,
+          game_ids: gameIds,
         };
 
-        await this._createCollections([collection]);
+        await this.createCollection(collection);
 
         const erc721Service = new ERC721Service(
           collection.address,
           collection.block,
-          this.connection,
           this.collectionService,
           this.collectionHistoryService,
           this.userService,
@@ -261,12 +231,7 @@ export class FactoryService {
     );
   }
 
-  private async _createCollections(collections: ICollection[]) {
-    const records = await this.connection
-      .getRepository(CollectionEntity)
-      .save(collections.map(collectionUtils.serialize));
-    return (records as Required<CollectionEntity>[]).map(
-      collectionUtils.deserialize
-    );
+  private async createCollection(collection: ICollection) {
+    await this.collectionService.add(collection);
   }
 }

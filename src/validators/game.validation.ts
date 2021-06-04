@@ -1,12 +1,6 @@
 import { Joi } from "express-validation";
 
 const GameValidation = {
-  // GET /games/v1/:id
-  get: {
-    params: Joi.object({
-      id: Joi.string().required(),
-    }),
-  },
   // POST /games/v1/:id
   updateGame: {
     params: Joi.object({
@@ -23,19 +17,7 @@ const GameValidation = {
       message: Joi.string().required(), // to validate and get address of creator
     }),
   },
-  // GET /games/v1/all
-  list: {
-    query: Joi.object({
-      perPage: Joi.number().greater(0),
-      page: Joi.number().min(1),
-    }),
-  },
-  // GET /games/v1/search
-  search: {
-    query: Joi.object({
-      keyword: Joi.any(),
-    }),
-  },
+
   // POST /games/v1/
   createGame: {
     body: Joi.object({
@@ -48,17 +30,6 @@ const GameValidation = {
       platform: Joi.any(),
       customUrl: Joi.any(),
       message: Joi.string().required(), // to validate and get address of creator
-    }),
-  },
-
-  // GET /games/v1/:id/assets
-  listAssetsRelated: {
-    params: Joi.object({
-      id: Joi.string().required(),
-    }),
-    query: Joi.object({
-      perPage: Joi.number().greater(0),
-      page: Joi.number().min(1),
     }),
   },
 };

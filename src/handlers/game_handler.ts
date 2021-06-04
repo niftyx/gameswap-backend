@@ -4,23 +4,19 @@ import { GameService } from "../services/game_service";
 import { v4 as uuidv4 } from "uuid";
 import * as isValidUUID from "uuid-validate";
 import { utils } from "ethers";
-import { AssetService } from "../services/asset_service";
 import { CommonService } from "../services/common_service";
 import { UserService } from "../services/user_service";
 export class GameHandler {
   private readonly gameService: GameService;
-  private readonly assetService: AssetService;
   private readonly commonService: CommonService;
   private readonly userService: UserService;
 
   constructor(
     gameService: GameService,
-    assetService: AssetService,
     commonService: CommonService,
     userService: UserService
   ) {
     this.gameService = gameService;
-    this.assetService = assetService;
     this.commonService = commonService;
     this.userService = userService;
   }
@@ -64,16 +60,6 @@ export class GameHandler {
     res.status(HttpStatus.OK).send(game);
   }
 
-  public async get(req: express.Request, res: express.Response): Promise<void> {
-    const id = req.params.id;
-    if (!isValidUUID(id)) {
-      res.status(HttpStatus.NOT_FOUND).send();
-      return;
-    }
-    const game = await this.gameService.get(id);
-    res.status(HttpStatus.OK).send(game);
-  }
-
   public async update(
     req: express.Request,
     res: express.Response
@@ -92,7 +78,7 @@ export class GameHandler {
 
     let game = await this.gameService.get(id);
 
-    if (owner.toLowerCase() !== game?.owner?.id.toLowerCase()) {
+    if (owner.toLowerCase() !== game?.owner_id) {
       res.status(HttpStatus.UNAUTHORIZED).send();
       return;
     }
@@ -102,7 +88,7 @@ export class GameHandler {
     const customUrlValid = await this.commonService.checkCustomUrlUsable(
       newCustomUrl
     );
-    if (!customUrlValid && newCustomUrl !== game.customUrl) {
+    if (!customUrlValid && newCustomUrl !== game.custom_url) {
       res.status(HttpStatus.BAD_REQUEST).send();
       return;
     }
@@ -110,53 +96,15 @@ export class GameHandler {
     game.name = gameData.name;
     game.version = gameData.version;
     game.description = gameData.description;
-    game.categoryId = gameData.categoryId;
-    game.imageUrl = gameData.imageUrl;
-    game.headerImageUrl = gameData.headerImageUrl;
+    game.category_id = gameData.categoryId;
+    game.image_url = gameData.imageUrl;
+    game.header_image_url = gameData.headerImageUrl;
     game.platform = gameData.platform;
-    game.customUrl = newCustomUrl;
-    game.updateTimestamp = Math.floor(Date.now() / 1000);
+    game.custom_url = newCustomUrl;
+    game.update_time_stamp = Math.floor(Date.now() / 1000);
     game = await this.gameService.update(game);
 
     res.status(HttpStatus.OK).send(game);
-  }
-
-  public async list(
-    req: express.Request,
-    res: express.Response
-  ): Promise<void> {
-    const page = Number(req.query.page || 1);
-    const perPage = Number(req.query.perPage || 100);
-    const result = await this.gameService.list(page, perPage);
-    res.status(HttpStatus.OK).send(result);
-  }
-
-  public async search(
-    req: express.Request,
-    res: express.Response
-  ): Promise<void> {
-    const keyword = String(req.query.keyword || "");
-    const result = await this.gameService.search(keyword);
-    res.status(HttpStatus.OK).send(result);
-  }
-
-  public async listAssetsRelated(
-    req: express.Request,
-    res: express.Response
-  ): Promise<void> {
-    const id = req.params.id;
-    if (!isValidUUID(id)) {
-      res.status(HttpStatus.NOT_FOUND).send();
-      return;
-    }
-    const page = Number(req.query.page || 1);
-    const perPage = Number(req.query.perPage || 100);
-    const result = await this.assetService.listAssetsRelatedToGame(
-      page,
-      perPage,
-      id
-    );
-    res.status(HttpStatus.OK).send(result);
   }
 
   public async root(

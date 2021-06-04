@@ -23,13 +23,6 @@ export function createUserRouter(
   router.route("/").get(handlers.root);
 
   router
-    .route("/all")
-    .get(
-      validate(UserValidation.list),
-      asyncHandler(handlers.list.bind(handlers))
-    );
-
-  router
     .route("/:id/twitter/verify")
     .post(
       validate(UserValidation.verifyTwitter),
@@ -38,10 +31,6 @@ export function createUserRouter(
 
   router
     .route("/:id")
-    .get(
-      validate(UserValidation.get),
-      asyncHandler(handlers.get.bind(handlers))
-    )
     .post(
       validate(UserValidation.update),
       asyncHandler(handlers.update.bind(handlers))

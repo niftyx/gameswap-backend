@@ -6,8 +6,6 @@ import { Server } from "http";
 import { AppDependencies } from "../app";
 import {
   USER_PATH,
-  ASSET_PATH,
-  COLLECTION_PATH,
   COMMON_PATH,
   CRYPTO_CONTENT_PATH,
   GAME_PATH,
@@ -17,8 +15,6 @@ import { logger } from "../logger";
 import { addressNormalizer } from "../middleware/address_normalizer";
 import { errorHandler } from "../middleware/error_handling";
 import { createUserRouter } from "../routers/user_route";
-import { createAssetRouter } from "../routers/asset_route";
-import { createCollectionRouter } from "../routers/collection_route";
 import { createCommonRouter } from "../routers/common_route";
 import { createCryptoContentRouter } from "../routers/crypto_content_route";
 import { createGameRouter } from "../routers/game_route";
@@ -79,7 +75,6 @@ export async function runHttpServiceAsync(
     GAME_PATH,
     createGameRouter(
       dependencies.gameService,
-      dependencies.assetService,
       dependencies.commonService,
       dependencies.userService
     )
@@ -90,15 +85,6 @@ export async function runHttpServiceAsync(
     USER_PATH,
     createUserRouter(dependencies.userService, dependencies.commonService)
   );
-
-  // COLLECTION http service
-  app.use(
-    COLLECTION_PATH,
-    createCollectionRouter(dependencies.collectionService)
-  );
-
-  // ASSET http service
-  app.use(ASSET_PATH, createAssetRouter(dependencies.assetService));
 
   // COMMON http service: this check if custom-url is not used on games or users before
   app.use(COMMON_PATH, createCommonRouter(dependencies.commonService));

@@ -1,6 +1,8 @@
 import { getDefaultAppDependenciesAsync } from "../app";
-import { CHAIN_ID, defaultHttpServiceWithRateLimiterConfig } from "../config";
-import { getContractAddressesForChainOrThrow } from "../custom/contract-addresses";
+import {
+  defaultHttpServiceWithRateLimiterConfig,
+  EXCHANGE_CONTRACT,
+} from "../config";
 
 import { logger } from "../logger";
 import { ERC721Service } from "../services/erc721_service";
@@ -27,7 +29,6 @@ if (require.main === module) {
     );
     // sync
     try {
-      const contractAddresses = getContractAddressesForChainOrThrow(CHAIN_ID);
       await dependencies.factoryService.resetRelatedTables();
       const erc721Contracts =
         await dependencies.factoryService.syncERC721Contracts();
@@ -37,14 +38,13 @@ if (require.main === module) {
         const erc721Service = new ERC721Service(
           erc721.address,
           erc721.block,
-          dependencies.connection,
           dependencies.collectionService,
           dependencies.collectionHistoryService,
           dependencies.userService,
           dependencies.assetService,
           dependencies.assetHistoryService,
           dependencies.gameService,
-          contractAddresses.exchange
+          EXCHANGE_CONTRACT
         );
         await erc721Service.syncAssets();
       }

@@ -45,23 +45,23 @@ export class UserHandler {
     const customUrlValid = await this.commonService.checkCustomUrlUsable(
       newCustomUrl
     );
-    if (!customUrlValid && user.customUrl !== newCustomUrl) {
+    if (!customUrlValid && user.custom_url !== newCustomUrl) {
       res.status(HttpStatus.BAD_REQUEST).send();
       return;
     }
 
     user.name = restInfo.name;
-    user.imageUrl = restInfo.imageUrl;
-    user.customUrl = restInfo.customUrl.toLowerCase();
+    user.image_url = restInfo.imageUrl;
+    user.custom_url = restInfo.customUrl.toLowerCase();
     user.bio = restInfo.bio;
-    user.twitterUsername = restInfo.twitterUsername;
-    user.twitchUsername = restInfo.twitchUsername;
-    user.facebookUsername = restInfo.facebookUsername;
-    user.youtubeUsername = restInfo.youtubeUsername;
-    user.instagramUsername = restInfo.instagramUsername;
-    user.tiktokUsername = restInfo.tiktokUsername;
-    user.personalSite = restInfo.personalSite;
-    user.headerImageUrl = restInfo.headerImageUrl;
+    user.twitter_username = restInfo.twitterUsername;
+    user.twitch_username = restInfo.twitchUsername;
+    user.facebook_username = restInfo.facebookUsername;
+    user.youtube_username = restInfo.youtubeUsername;
+    user.instagram_username = restInfo.instagramUsername;
+    user.tiktok_username = restInfo.tiktokUsername;
+    user.personal_site = restInfo.personalSite;
+    user.header_image_url = restInfo.headerImageUrl;
 
     user = await this.userService.update(user);
 

@@ -29,15 +29,5 @@ export function createCommonRouter(
       asyncHandler(handlers.checkCustomUrlUsable.bind(handlers))
     );
 
-  /**
-   *  get game or user of a certain custom-url
-   */
-  router
-    .route("/custom-url-info")
-    .post(
-      validate(CommonValidation.customUrlRequest),
-      asyncHandler(handlers.getCustomUrlInfo.bind(handlers))
-    );
-
   return router;
 }

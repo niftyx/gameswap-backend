@@ -10,7 +10,6 @@ const CryptoContentValidation = {
   decrypt: {
     body: Joi.object({
       contentStr: Joi.string().required(),
-      signedContentStr: Joi.string().required(), // signed message Format
     }),
   },
 };

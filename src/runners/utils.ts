@@ -18,7 +18,7 @@ import { HttpServiceConfig } from "../types";
  * configured header timeouts and other sane defaults set.
  */
 export function createDefaultServer(
-  dependencies: AppDependencies,
+  _dependencies: AppDependencies,
   config: HttpServiceConfig,
   app: core.Express
 ): Server {
@@ -47,9 +47,6 @@ export function createDefaultServer(
       // if (dependencies.meshClient) {
       //     dependencies.meshClient.destroy();
       // }
-      if (dependencies.connection) {
-        await dependencies.connection.close();
-      }
       if (!server.listening) {
         process.exit(0);
       }

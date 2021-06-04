@@ -2,7 +2,6 @@ import { assetDataUtils } from "@0x/order-utils";
 import { GameService } from "./game_service";
 import { BigNumber, Contract, ethers } from "ethers";
 import { Interface } from "ethers/lib/utils";
-import { Connection } from "typeorm";
 import * as isValidUUID from "uuid-validate";
 
 import { logger } from "../app";
@@ -34,38 +33,35 @@ const abi = [
 ];
 
 export class ERC721Service {
-  private readonly _address: string;
-  private readonly _blockNumber: number;
+  private readonly address: string;
+  private readonly blockNumber: number;
   private readonly exchangeAddress: string;
-  //private readonly connection: Connection;
   private readonly collectionService: CollectionService;
   private readonly userService: UserService;
   private readonly collectionHistoryService: CollectionHistoryService;
   private readonly assetService: AssetService;
   private readonly assetHistoryService: AssetHistoryService;
-  private readonly gameService: GameService;
+  // private readonly gameService: GameService;
 
   constructor(
-    _address: string,
-    _blockNumber: number,
-    _connection: Connection,
+    address: string,
+    blockNumber: number,
     collectionService: CollectionService,
     collectionHistoryService: CollectionHistoryService,
     userService: UserService,
     assetService: AssetService,
     assetHistoryService: AssetHistoryService,
-    gameService: GameService,
+    _gameService: GameService,
     exchangeAddress: string
   ) {
-    //this.connection = connection;
-    this._address = _address;
-    this._blockNumber = _blockNumber;
+    this.address = address;
+    this.blockNumber = blockNumber;
     this.collectionService = collectionService;
     this.collectionHistoryService = collectionHistoryService;
     this.userService = userService;
     this.assetService = assetService;
     this.assetHistoryService = assetHistoryService;
-    this.gameService = gameService;
+    // this.gameService = gameService;
     this.exchangeAddress = exchangeAddress;
   }
 
@@ -75,18 +71,18 @@ export class ERC721Service {
       CHAIN_ID
     );
     const iface = new Interface(abi);
-    const ens = new Contract(this._address, iface, provider);
+    const ens = new Contract(this.address, iface, provider);
 
-    logger.info(`=== syncing asset start ${this._address}=====`);
+    logger.info(`=== syncing asset start ${this.address}=====`);
 
     logger.info("=== get Ownership transfer  ===");
 
-    let collection = await this.collectionService.get(this._address);
+    let collection = await this.collectionService.get(this.address);
 
     if (!collection) return;
 
     const latestBlockNumber = await provider.getBlockNumber();
-    let currentScannedBlockNumber = this._blockNumber - 1;
+    let currentScannedBlockNumber = this.blockNumber - 1;
 
     while (currentScannedBlockNumber < latestBlockNumber) {
       let filter: any = ens.filters.OwnershipTransferred();
@@ -103,21 +99,18 @@ export class ERC721Service {
         const parsed = iface.parseLog(log);
 
         const collectionTxHash = String(log.transactionHash).toLowerCase();
-        const newOwner = await this.userService.getOrCreate(
-          String(parsed.args[1]).toLowerCase(),
-          block.timestamp
-        );
+        const newOwner = String(parsed.args[1]).toLowerCase();
 
-        collection.owner = newOwner;
-        collection.updateTimestamp = block.timestamp;
+        collection.owner_id = newOwner;
+        collection.update_time_stamp = block.timestamp;
         collection = await this.collectionService.update(collection);
 
         const collectionHistory: ICollectionHistory = {
           id: `${collectionTxHash}${newOwner}`,
           timestamp: block.timestamp,
           txHash: collectionTxHash,
-          owner: newOwner,
-          collection,
+          owner_id: newOwner,
+          collection_id: collection.id,
         };
 
         await this.collectionHistoryService.add(collectionHistory);
@@ -139,7 +132,7 @@ export class ERC721Service {
         const parsed = iface.parseLog(log);
 
         logger.info(
-          `=====transfer=${this._address}==${parsed.args[0]} => ${parsed.args[1]}  ${parsed.args[2]}===`
+          `=====transfer=${this.address}==${parsed.args[0]} => ${parsed.args[1]}  ${parsed.args[2]}===`
         );
 
         if (parsed.args[0] === ZERO_ADDRESS) {
@@ -156,43 +149,31 @@ export class ERC721Service {
           }
 
           // increase totalSupply and totalMinted of collection
-          collection.totalSupply = collection.totalSupply.add(ONE_NUMBER);
-          collection.totalMinted = collection.totalMinted.add(ONE_NUMBER);
+          collection.total_supply = collection.total_supply.add(ONE_NUMBER);
+          collection.total_minted = collection.total_minted.add(ONE_NUMBER);
           collection = await this.collectionService.update(collection);
 
           // handle user
           const ownerAddress = String(parsed.args[1]).toLowerCase();
-          let user = await this.userService.getOrCreate(
-            ownerAddress,
-            block.timestamp
-          );
-
-          // increase assetCount and update
-          user = await this.userService.update(user);
+          await this.userService.upsert(ownerAddress, block.timestamp);
 
           let asset: IAsset = {
             id: log.transactionHash.toLowerCase(),
-            assetId: parsed.args[2],
-            assetURL: "",
-            gameId: "",
-            contentId: "",
-            currentOwner: user,
-            creator: user,
-            createTimestamp: block.timestamp,
-            updateTimestamp: block.timestamp,
-            history: [],
-            collection,
-            collectionId: collection.id,
+            asset_id: parsed.args[2],
+            asset_url: "",
+            game_id: "",
+            content_id: "",
+            owner_id: ownerAddress,
+            creator_id: ownerAddress,
+            create_time_stamp: block.timestamp,
+            update_time_stamp: block.timestamp,
+            collection_id: collection.id,
           };
 
           if (tokenInfo) {
-            asset.assetURL = tokenURI;
-            asset.gameId = tokenInfo.gameId;
-            asset.contentId = tokenInfo.contentId;
-            const game = await this.gameService.get(asset.gameId);
-            if (game) {
-              asset.game = game;
-            }
+            asset.asset_url = tokenURI;
+            asset.game_id = tokenInfo.gameId;
+            asset.content_id = tokenInfo.contentId;
           }
           asset = await this.assetService.add(asset);
 
@@ -200,10 +181,10 @@ export class ERC721Service {
 
           const assetHistory: IAssetHistory = {
             id: assetTxHash,
-            owner: user,
+            owner_id: ownerAddress,
             txHash: assetTxHash,
             timestamp: block.timestamp,
-            asset,
+            asset_id: asset.id,
           };
 
           await this.assetHistoryService.add(assetHistory);
@@ -213,21 +194,18 @@ export class ERC721Service {
           const previousOwner = String(parsed.args[0]).toLowerCase();
           const assetId = parsed.args[2] as BigNumber;
           let asset = await this.assetService.getByTokenIdAndCollectionId(
-            assetId,
+            assetId.toHexString(),
             collection.id
           );
           let previousUser = await this.userService.get(previousOwner);
           if (!previousUser) {
             return;
           }
-          let user = await this.userService.getOrCreate(
-            ZERO_ADDRESS,
-            block.timestamp
-          );
+          await this.userService.getOrCreate(ZERO_ADDRESS, block.timestamp);
 
           if (asset) {
             // change owner of asset
-            asset.currentOwner = user;
+            asset.owner_id = ZERO_ADDRESS;
             asset = await this.assetService.update(asset);
 
             // write asset history
@@ -236,13 +214,14 @@ export class ERC721Service {
               id: assetTxHash,
               txHash: assetTxHash,
               timestamp: block.timestamp,
-              asset,
+              asset_id: asset.id,
+              owner_id: ZERO_ADDRESS,
             };
             await this.assetHistoryService.add(assetHistory);
 
             // update totalBurn and totalSupply of collection
-            collection.totalSupply = collection.totalSupply.sub(ONE_NUMBER);
-            collection.totalBurned = collection.totalBurned.add(ONE_NUMBER);
+            collection.total_supply = collection.total_supply.sub(ONE_NUMBER);
+            collection.total_burned = collection.total_burned.add(ONE_NUMBER);
             collection = await this.collectionService.update(collection);
           }
         } else {
@@ -252,29 +231,26 @@ export class ERC721Service {
           const newOwner = String(parsed.args[1]).toLowerCase();
           const assetId = parsed.args[2] as BigNumber;
           let asset = await this.assetService.getByTokenIdAndCollectionId(
-            assetId,
+            assetId.toHexString(),
             collection.id
           );
 
           let previousUser = await this.userService.get(previousOwner);
           if (!previousUser) return;
-          let newUser = await this.userService.getOrCreate(
-            newOwner,
-            block.timestamp
-          );
+          await this.userService.getOrCreate(newOwner, block.timestamp);
 
           if (asset) {
             // update asset
-            asset.currentOwner = newUser;
+            asset.owner_id = newOwner;
             asset = await this.assetService.update(asset);
 
             const assetTxHash = String(log.transactionHash).toLowerCase();
             const assetHistory: IAssetHistory = {
               id: assetTxHash,
-              owner: newUser,
+              owner_id: newOwner,
               txHash: assetTxHash,
               timestamp: block.timestamp,
-              asset,
+              asset_id: asset.id,
             };
 
             await this.assetHistoryService.add(assetHistory);
@@ -305,13 +281,13 @@ export class ERC721Service {
         const gameIds = (
           Array.isArray(info.gameIds) ? info.gameIds : []
         ).filter((id: string) => isValidUUID(id));
-        const games = await this.gameService.getMultipleGames(gameIds);
+        // const games = await this.gameService.getMultipleGames(gameIds);
 
-        collection.imageUrl = info.imageUrl;
+        collection.image_url = info.imageUrl;
         collection.description = info.description;
-        collection.games = games;
+        collection.game_ids = gameIds;
 
-        collection.isPrivate = parsed.args[1];
+        collection.is_private = parsed.args[1];
         collection = await this.collectionService.update(collection);
       }
 
@@ -319,16 +295,16 @@ export class ERC721Service {
         currentScannedBlockNumber + 1 + LOG_PAGE_COUNT;
     }
 
-    logger.info(`=== syncing asset end ${this._address}=====`);
+    logger.info(`=== syncing asset end ${this.address}=====`);
   }
 
-  async listenAssets() {
+  listenAssets() {
     const provider = new ethers.providers.JsonRpcProvider(
       defaultHttpServiceWithRateLimiterConfig.ethereumRpcUrl,
       CHAIN_ID
     );
     const iface = new Interface(abi);
-    const ens = new Contract(this._address, iface, provider);
+    const ens = new Contract(this.address, iface, provider);
 
     const exchangeInterface = new Interface(exchangeAbi);
     const exchangeContract = new Contract(
@@ -340,16 +316,16 @@ export class ERC721Service {
     const exchangeFilter: any = exchangeContract.filters.Fill();
     const EXCHANGE_ORDER_FILLED_ID = exchangeFilter.topics[0];
 
-    logger.info(`=== listen asset ${this._address}=====`);
+    logger.info(`=== listen asset ${this.address}=====`);
 
     // collection ownership listen
     ens.on(
       "OwnershipTransferred",
       async (from: string, to: string, log: ethers.providers.Log) => {
         logger.info(
-          `=== collection ownership transferred ${this._address} ${from}=>${to} ===`
+          `=== collection ownership transferred ${this.address} ${from}=>${to} ===`
         );
-        let collection = await this.collectionService.get(this._address);
+        let collection = await this.collectionService.get(this.address);
 
         if (!collection) return;
 
@@ -362,20 +338,20 @@ export class ERC721Service {
           block.timestamp
         );
 
-        if (collection.owner?.id === newOwner.id) {
+        if (collection.owner_id === newOwner.id) {
           logger.info("===Already handled===");
           return;
         }
 
-        collection.owner = newOwner;
+        collection.owner_id = newOwner.id;
         collection = await this.collectionService.update(collection);
 
         const collectionHistory: ICollectionHistory = {
           id: `${collectionTxHash}${newOwner}`,
           timestamp: block.timestamp,
           txHash: collectionTxHash,
-          owner: newOwner,
-          collection,
+          owner_id: newOwner.id,
+          collection_id: collection.id,
         };
 
         await this.collectionHistoryService.add(collectionHistory);
@@ -390,9 +366,9 @@ export class ERC721Service {
         _log: ethers.providers.Log
       ) => {
         logger.info(
-          `=== collection MetaDataChanged ${this._address} ${infoUrl}=>${isPrivate} ===`
+          `=== collection MetaDataChanged ${this.address} ${infoUrl}=>${isPrivate} ===`
         );
-        let collection = await this.collectionService.get(this._address);
+        let collection = await this.collectionService.get(this.address);
 
         if (!collection) return;
 
@@ -406,13 +382,13 @@ export class ERC721Service {
         const gameIds = (
           Array.isArray(info.gameIds) ? info.gameIds : []
         ).filter((id: string) => isValidUUID(id));
-        const games = await this.gameService.getMultipleGames(gameIds);
+        //const games = await this.gameService.getMultipleGames(gameIds);
 
-        collection.imageUrl = info.imageUrl;
+        collection.image_url = info.imageUrl;
         collection.description = info.description;
-        collection.games = games;
+        collection.game_ids = gameIds;
 
-        collection.isPrivate = isPrivate;
+        collection.is_private = isPrivate;
         collection = await this.collectionService.update(collection);
       }
     );
@@ -427,26 +403,19 @@ export class ERC721Service {
       ) => {
         logger.info(
           `=== asset transfer ${
-            this._address
+            this.address
           } ${from}=>${to} ${tokenId.toHexString()}===`
         );
         const blockNumber = log.blockNumber;
         const block = await provider.getBlock(blockNumber);
         const assetTxHash = String(log.transactionHash).toLowerCase();
-        let collection = await this.collectionService.get(this._address);
+        let collection = await this.collectionService.get(this.address);
 
         if (!collection) return;
 
         if (from === ZERO_ADDRESS) {
           // mint
           logger.info("=====mint======");
-
-          // check if already minted
-          let prevAsset = await this.assetService.get(assetTxHash);
-          if (prevAsset) {
-            logger.info("===Already handled===");
-            return;
-          }
 
           const tokenURI = await ens.tokenURI(tokenId);
           let tokenInfo: any;
@@ -458,50 +427,41 @@ export class ERC721Service {
           }
 
           // increase totalSupply and totalMinted of collection
-          collection.totalSupply = collection.totalSupply.add(ONE_NUMBER);
-          collection.totalMinted = collection.totalMinted.add(ONE_NUMBER);
+          collection.total_supply = collection.total_supply.add(ONE_NUMBER);
+          collection.total_minted = collection.total_minted.add(ONE_NUMBER);
           collection = await this.collectionService.update(collection);
 
           // handle user
           const ownerAddress = to.toLowerCase();
-          let user = await this.userService.getOrCreate(
-            ownerAddress,
-            block.timestamp
-          );
+          await this.userService.upsert(ownerAddress, block.timestamp);
 
           let asset: IAsset = {
             id: log.transactionHash.toLowerCase(),
-            assetId: tokenId,
-            assetURL: "",
-            gameId: "",
-            contentId: "",
-            currentOwner: user,
-            creator: user,
-            createTimestamp: block.timestamp,
-            updateTimestamp: block.timestamp,
-            history: [],
-            collection,
-            collectionId: collection.id,
+            asset_id: tokenId,
+            asset_url: "",
+            game_id: "",
+            content_id: "",
+            owner_id: ownerAddress,
+            creator_id: ownerAddress,
+            create_time_stamp: block.timestamp,
+            update_time_stamp: block.timestamp,
+            collection_id: collection.id,
           };
 
           if (tokenInfo) {
-            asset.assetURL = tokenURI;
-            asset.gameId = tokenInfo.gameId;
-            asset.contentId = tokenInfo.contentId;
-            const game = await this.gameService.get(asset.gameId);
-            if (game) {
-              asset.game = game;
-            }
+            asset.asset_url = tokenURI;
+            asset.game_id = tokenInfo.gameId;
+            asset.content_id = tokenInfo.contentId;
           }
 
           asset = await this.assetService.add(asset);
 
           const assetHistory: IAssetHistory = {
             id: assetTxHash,
-            owner: user,
+            owner_id: ownerAddress,
             txHash: assetTxHash,
             timestamp: block.timestamp,
-            asset,
+            asset_id: asset.id,
           };
 
           await this.assetHistoryService.add(assetHistory);
@@ -510,7 +470,7 @@ export class ERC721Service {
 
           const previousOwner = from.toLowerCase();
           let asset = await this.assetService.getByTokenIdAndCollectionId(
-            tokenId,
+            tokenId.toHexString(),
             collection.id
           );
           let previousUser = await this.userService.get(previousOwner);
@@ -522,13 +482,13 @@ export class ERC721Service {
           logger.info("=====burn======");
           if (asset) {
             // check if already burnt
-            if (asset.currentOwner && asset.currentOwner.id === user.id) {
+            if (asset.owner_id && asset.owner_id === user.id) {
               logger.info("===Already handled===");
               return;
             }
 
             // change owner of asset
-            asset.currentOwner = user;
+            asset.owner_id = user.id;
             asset = await this.assetService.update(asset);
 
             // write asset history
@@ -537,13 +497,14 @@ export class ERC721Service {
               id: assetTxHash,
               txHash: assetTxHash,
               timestamp: block.timestamp,
-              asset,
+              asset_id: asset.id,
+              owner_id: user.id,
             };
             await this.assetHistoryService.add(assetHistory);
 
             // update totalBurn and totalSupply of collection
-            collection.totalSupply = collection.totalSupply.sub(ONE_NUMBER);
-            collection.totalBurned = collection.totalBurned.add(ONE_NUMBER);
+            collection.total_supply = collection.total_supply.sub(ONE_NUMBER);
+            collection.total_burned = collection.total_burned.add(ONE_NUMBER);
             collection = await this.collectionService.update(collection);
           }
         } else {
@@ -560,7 +521,7 @@ export class ERC721Service {
           const previousOwner = from.toLowerCase();
           const newOwner = to.toLowerCase();
           let asset = await this.assetService.getByTokenIdAndCollectionId(
-            tokenId,
+            tokenId.toHexString(),
             collection.id
           );
           let previousUser = await this.userService.get(previousOwner);
@@ -574,22 +535,22 @@ export class ERC721Service {
 
           if (asset) {
             //
-            if (asset.currentOwner && asset.currentOwner.id === newUser.id) {
+            if (asset.owner_id && asset.owner_id === newUser.id) {
               logger.info("===Already handled===");
               return;
             }
 
             // update asset
-            asset.currentOwner = newUser;
+            asset.owner_id = newUser.id;
             await this.assetService.update(asset);
 
             const assetTxHash = String(log.transactionHash).toLowerCase();
             const assetHistory: IAssetHistory = {
               id: assetTxHash,
-              owner: newUser,
+              owner_id: newUser.id,
               txHash: assetTxHash,
               timestamp: block.timestamp,
-              asset,
+              asset_id: asset.id,
             };
 
             if (orderFillLog) {

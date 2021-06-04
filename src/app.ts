@@ -1,15 +1,13 @@
 import * as express from "express";
 import { Server } from "http";
-import { Connection } from "typeorm";
 
 import {
-  CHAIN_ID,
   CONTENT_SECRET_KEY,
+  EXCHANGE_CONTRACT,
   EXCHANGE_CONTRACT_BLOCK,
   LOGGER_INCLUDE_TIMESTAMP,
   LOG_LEVEL,
 } from "./config";
-import { getDBConnectionAsync } from "./db_connection";
 
 import { runHttpServiceAsync } from "./runners/http_service_runner";
 import { HttpServiceConfig } from "./types";
@@ -24,7 +22,6 @@ import { CollectionHistoryService } from "./services/collection_history_service"
 import { AssetService } from "./services/asset_service";
 import { ERC721Service } from "./services/erc721_service";
 import { ExchangeService } from "./services/exchange_service";
-import { getContractAddressesForChainOrThrow } from "./custom/contract-addresses";
 import { CommonService } from "./services/common_service";
 
 export const logger = pino({
@@ -34,7 +31,6 @@ export const logger = pino({
 });
 
 export interface AppDependencies {
-  connection: Connection; // db service
   cryptoContentService: CryptoContentService; // encrypt/decrypt signedContentData with crypto algorithm
   factoryService: FactoryService; // handles "CollectionCreation" or "CollectionOwnershipTransfer"
   userService: UserService;
@@ -53,28 +49,23 @@ export interface AppDependencies {
 export async function getDefaultAppDependenciesAsync(
   _config: HttpServiceConfig
 ): Promise<AppDependencies> {
-  const connection = await getDBConnectionAsync();
-
-  const collectionService = new CollectionService(connection);
-  const collectionHistoryService = new CollectionHistoryService(connection);
-  const gameService = new GameService(connection);
+  const collectionService = new CollectionService();
+  const collectionHistoryService = new CollectionHistoryService();
+  const gameService = new GameService();
   const cryptoContentService = new CryptoContentService(CONTENT_SECRET_KEY);
-  const userService = new UserService(connection);
-  const assetService = new AssetService(connection);
-  const assetHistoryService = new AssetHistoryService(connection);
-  const commonService = new CommonService(connection);
+  const userService = new UserService();
+  const assetService = new AssetService();
+  const assetHistoryService = new AssetHistoryService();
+  const commonService = new CommonService();
 
-  const contractAddresses = getContractAddressesForChainOrThrow(CHAIN_ID);
   const exchangeService = new ExchangeService(
-    contractAddresses.exchange,
+    EXCHANGE_CONTRACT,
     EXCHANGE_CONTRACT_BLOCK,
-    connection,
     assetService,
     assetHistoryService
   );
 
   const factoryService = new FactoryService(
-    connection,
     _config.factoryContractAddress,
     _config.factoryBlockNumber,
     collectionService,
@@ -83,11 +74,10 @@ export async function getDefaultAppDependenciesAsync(
     assetService,
     assetHistoryService,
     gameService,
-    contractAddresses.exchange
+    EXCHANGE_CONTRACT
   );
 
   return {
-    connection,
     collectionService,
     collectionHistoryService,
     cryptoContentService,
@@ -113,25 +103,36 @@ export async function getAppAsync(
 
   // list contracts
   try {
-    const contractAddresses = getContractAddressesForChainOrThrow(CHAIN_ID);
-    await dependencies.factoryService.listenERC721Contracts(); // list collection creation
-    const erc721Contracts = await dependencies.collectionService.list(1, 100);
-    for (let index = 0; index < erc721Contracts.records.length; index++) {
-      const element = erc721Contracts.records[index];
-      // listens to events of a certain collection (asset mint, transfer, burn and transferOwnership of collection)
-      const erc721Service = new ERC721Service(
-        element.address,
-        element.block,
-        dependencies.connection,
-        dependencies.collectionService,
-        dependencies.collectionHistoryService,
-        dependencies.userService,
-        dependencies.assetService,
-        dependencies.assetHistoryService,
-        dependencies.gameService,
-        contractAddresses.exchange
+    dependencies.factoryService.listenERC721Contracts(); // list collection creation
+    let allSet = false;
+    let totalCount = 0;
+    let limit = 100;
+
+    while (!allSet) {
+      const erc721Contracts = await dependencies.collectionService.listForSync(
+        totalCount,
+        limit
       );
-      await erc721Service.listenAssets();
+      totalCount = totalCount + erc721Contracts.length;
+      if (erc721Contracts.length < limit) {
+        allSet = true;
+      }
+      for (let index = 0; index < erc721Contracts.length; index++) {
+        const element = erc721Contracts[index];
+        // listens to events of a certain collection (asset mint, transfer, burn and transferOwnership of collection)
+        const erc721Service = new ERC721Service(
+          element.address,
+          element.block,
+          dependencies.collectionService,
+          dependencies.collectionHistoryService,
+          dependencies.userService,
+          dependencies.assetService,
+          dependencies.assetHistoryService,
+          dependencies.gameService,
+          EXCHANGE_CONTRACT
+        );
+        erc721Service.listenAssets();
+      }
     }
   } catch (e) {
     logger.error(

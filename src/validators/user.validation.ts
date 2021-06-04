@@ -1,12 +1,6 @@
 import { Joi } from "express-validation";
 
 const UserValidation = {
-  // GET /users/v1/:id
-  get: {
-    params: Joi.object({
-      id: Joi.string().required(),
-    }),
-  },
   // POST /users/v1/:id
   update: {
     params: Joi.object({
@@ -29,13 +23,7 @@ const UserValidation = {
       signedMessage: Joi.string().required(),
     }),
   },
-  // GET /users/v1/all
-  list: {
-    query: Joi.object({
-      perPage: Joi.number().greater(0),
-      page: Joi.number().min(1),
-    }),
-  },
+
   // POST /users/:id/twitter/verify
   verifyTwitter: {
     params: Joi.object({

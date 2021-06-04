@@ -3,16 +3,16 @@ import * as HttpStatus from "http-status-codes";
 import { CryptoContentService } from "../services/crypto_content_service";
 import { v4 as uuidv4 } from "uuid";
 import * as isValidUUID from "uuid-validate";
-import { utils } from "ethers";
 import { AssetService } from "../services/asset_service";
 export class CryptoContentHandler {
-  private readonly _cryptoContentService;
-  private readonly assetService;
+  private readonly cryptoContentService: CryptoContentService;
+  private readonly assetService: AssetService;
+
   constructor(
     cryptoContentService: CryptoContentService,
     assetService: AssetService
   ) {
-    this._cryptoContentService = cryptoContentService;
+    this.cryptoContentService = cryptoContentService;
     this.assetService = assetService;
   }
   public async encryptData(
@@ -26,7 +26,7 @@ export class CryptoContentHandler {
       content: contentStr,
       contentId,
     });
-    const lockedData = this._cryptoContentService.encryptContent(str);
+    const lockedData = this.cryptoContentService.encryptContent(str);
     res.status(HttpStatus.OK).send({ lockedData, contentId });
   }
 
@@ -34,9 +34,9 @@ export class CryptoContentHandler {
     req: express.Request,
     res: express.Response
   ): Promise<void> {
-    const { contentStr, signedContentStr } = req.body;
+    const { contentStr } = req.body;
 
-    const decryptedData = this._cryptoContentService.decryptContent(contentStr);
+    const decryptedData = this.cryptoContentService.decryptContent(contentStr);
     const { content, contentId } = JSON.parse(decryptedData);
 
     if (!isValidUUID(contentId)) {
@@ -44,17 +44,11 @@ export class CryptoContentHandler {
       return;
     }
 
-    const msgHash = utils.hashMessage(contentStr);
-    const msgHashBytes = utils.arrayify(msgHash);
-
-    const ownerAddressFromRequest = utils.recoverAddress(
-      msgHashBytes,
-      signedContentStr
-    );
+    const ownerAddress = "";
 
     const asset = await this.assetService.getForContentData(
       contentId,
-      String(ownerAddressFromRequest).toLowerCase()
+      String(ownerAddress).toLowerCase()
     );
 
     if (asset) {
