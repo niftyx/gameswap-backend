@@ -17,6 +17,9 @@ export class InitialTables1611934327198 implements MigrationInterface {
     await queryRunner.query(
       `CREATE TABLE "games" ("id" character varying NOT NULL, "name" character varying NOT NULL, "description" character, "image_url" character varying NOT NULL, "header_image_url" character, "custom_url" character, "category_id" character varying NOT NULL, "version" character, "platform" character varying NOT NULL,"is_verified" boolean NOT NULL,"is_premium" boolean NOT NULL,"is_featured" boolean NOT NULL,"create_time_stamp" integer NOT NULL,"update_time_stamp" integer NOT NULL, PRIMARY KEY ("id"))`
     );
+    await queryRunner.query(
+      `CREATE TABLE "users" ("id" character varying NOT NULL, "address" character varying NOT NULL, "name" character varying NOT NULL, "custom_url" character varying NOT NULL, "image_url" character varying NOT NULL, "header_image_url" character varying NOT NULL, "bio" character varying NOT NULL, "twitter_username" character varying NOT NULL, "twitter_verified" boolean NOT NULL, "twitch_username" character varying NOT NULL, "facebook_username" character varying NOT NULL, "youtube_username" character varying NOT NULL, "instagram_username" character varying NOT NULL, "tiktok_username" character varying NOT NULL,"personal_site" character varying NOT NULL,"create_time_stamp" integer NOT NULL,"update_time_stamp" integer NOT NULL,PRIMARY KEY ("id"))`
+    );
     // tables for many-to-many relationship
     // game===collections
     await queryRunner.query(
@@ -30,35 +33,70 @@ export class InitialTables1611934327198 implements MigrationInterface {
     );
     // game==users
     await queryRunner.query(
-      `CREATE TABLE "games_followers" ("game_id"  character varying NOT NULL, "user_id"  character varying NOT NULL, PRIMARY KEY ("game_id", "user_id"))`
+      `CREATE TABLE "games_followers" ("game_id"  character varying NOT NULL, "user_id"  text NOT NULL, PRIMARY KEY ("game_id", "user_id"))`
     );
     await queryRunner.query(
       `ALTER TABLE "games_followers" ADD FOREIGN KEY ("game_id") REFERENCES "games"("id")`
     );
+    await queryRunner.query(
+      `ALTER TABLE "games_followers" ADD FOREIGN KEY ("user_id") REFERENCES "users"("id")`
+    );
     // assets==users
     await queryRunner.query(
-      `CREATE TABLE "assets_likers" ("asset_id"  character varying NOT NULL, "user_id"  character varying NOT NULL, PRIMARY KEY ("asset_id", "user_id"))`
+      `CREATE TABLE "assets_likers" ("asset_id"  character varying NOT NULL, "user_id"  text NOT NULL, PRIMARY KEY ("asset_id", "user_id"))`
     );
     await queryRunner.query(
       `ALTER TABLE "assets_likers" ADD FOREIGN KEY ("asset_id") REFERENCES "assets"("id")`
     );
+    await queryRunner.query(
+      `ALTER TABLE "assets_likers" ADD FOREIGN KEY ("user_id") REFERENCES "users"("id")`
+    );
     // users===users
     await queryRunner.query(
-      `CREATE TABLE "users_follow" ("follower_id"  character varying NOT NULL, "following_id"  character varying NOT NULL, PRIMARY KEY ("follower_id", "following_id"))`
+      `CREATE TABLE "users_follow" ("follower_id"  text NOT NULL, "following_id" text NOT NULL, PRIMARY KEY ("follower_id", "following_id"))`
+    );
+    await queryRunner.query(
+      `ALTER TABLE "users_follow" ADD FOREIGN KEY ("follower_id") REFERENCES "users"("id")`
+    );
+    await queryRunner.query(
+      `ALTER TABLE "users_follow" ADD FOREIGN KEY ("following_id") REFERENCES "users"("id")`
     );
 
-    await queryRunner.query(`ALTER TABLE "assets" ADD "owner_id" character`);
-    await queryRunner.query(`ALTER TABLE "assets" ADD "creator_id" character`);
+    // assets(owner) <=> users
     await queryRunner.query(
-      `ALTER TABLE "asset_histories" ADD "owner_id" character`
+      `ALTER TABLE "assets" ADD "owner_id" text NOT NULL`
     );
     await queryRunner.query(
-      `ALTER TABLE "collections" ADD "owner_id" character`
+      `ALTER TABLE "assets" ADD FOREIGN KEY ("owner_id") REFERENCES "users"("id")`
     );
-    await queryRunner.query(`ALTER TABLE "games" ADD "owner_id" character`);
+    // assets(creator) <=> users
+    await queryRunner.query(
+      `ALTER TABLE "assets" ADD "creator_id" text NOT NULL`
+    );
+    await queryRunner.query(
+      `ALTER TABLE "assets" ADD FOREIGN KEY ("creator_id") REFERENCES "users"("id")`
+    );
+    // asset_histories(owner) <=> users
+    await queryRunner.query(
+      `ALTER TABLE "asset_histories" ADD "owner_id" text NOT NULL`
+    );
+    await queryRunner.query(
+      `ALTER TABLE "asset_histories" ADD FOREIGN KEY ("owner_id") REFERENCES "users"("id")`
+    );
+    // collections(owner) <=> users
+    await queryRunner.query(
+      `ALTER TABLE "collections" ADD "owner_id" text NOT NULL`
+    );
+    await queryRunner.query(
+      `ALTER TABLE "collections" ADD FOREIGN KEY ("owner_id") REFERENCES "users"("id")`
+    );
+    // games(owner) <=> users
+    await queryRunner.query(`ALTER TABLE "games" ADD "owner_id" text NOT NULL`);
+    await queryRunner.query(
+      `ALTER TABLE "games" ADD FOREIGN KEY ("owner_id") REFERENCES "users"("id")`
+    );
 
     // collections <= assets
-
     await queryRunner.query(
       `ALTER TABLE "assets" ADD FOREIGN KEY ("collection_id") REFERENCES "collections"("id")`
     );
@@ -83,7 +121,10 @@ export class InitialTables1611934327198 implements MigrationInterface {
 
     // user <= collection_histories
     await queryRunner.query(
-      `ALTER TABLE "collection_histories" ADD "owner_id" character`
+      `ALTER TABLE "collection_histories" ADD "owner_id" text NOT NULL`
+    );
+    await queryRunner.query(
+      `ALTER TABLE "collection_histories" ADD FOREIGN KEY ("owner_id") REFERENCES "users"("id")`
     );
 
     // create indexes
@@ -107,37 +148,33 @@ export class InitialTables1611934327198 implements MigrationInterface {
     await queryRunner.query(
       `CREATE INDEX "games_custom_url_idx" ON "games"("custom_url")`
     );
+    // users
+    await queryRunner.query(
+      `CREATE INDEX IF NOT EXISTS "users_custom_url_idx" ON "users"("custom_url")`
+    );
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    // LINK
-    await queryRunner.query(`ALTER TABLE "assets" DROP COLUMN "game_id"`);
-
-    await queryRunner.query(
-      `ALTER TABLE "collection_histories" DROP COLUMN "collection_id"`
-    );
-    await queryRunner.query(
-      `ALTER TABLE "asset_histories" DROP COLUMN "asset_id"`
-    );
-    await queryRunner.query(`ALTER TABLE "assets" DROP COLUMN "collection_id"`);
-
-    await queryRunner.query(`ALTER TABLE "assets" DROP COLUMN "owner_id"`);
-    await queryRunner.query(`ALTER TABLE "assets" DROP COLUMN "creator_id"`);
-    await queryRunner.query(
-      `ALTER TABLE "asset_histories" DROP COLUMN "owner_id"`
-    );
-    await queryRunner.query(`ALTER TABLE "collections" DROP COLUMN "owner_id"`);
-    await queryRunner.query(`ALTER TABLE "games" DROP COLUMN "owner_id"`);
+    // DROP INDEX
+    await queryRunner.query(`DROP INDEX "users_custom_url_idx"`);
+    await queryRunner.query(`DROP INDEX "games_custom_url_idx"`);
+    await queryRunner.query(`DROP INDEX "games_category_idx"`);
+    await queryRunner.query(`DROP INDEX "assets_content_idx"`);
+    await queryRunner.query(`DROP INDEX "assets_collection_idx"`);
+    await queryRunner.query(`DROP INDEX "assets_game_idx"`);
+    await queryRunner.query(`DROP INDEX "assets_asset_idx"`);
 
     // table
-    await queryRunner.query(`DROP TABLE "games_collections_relations"`);
-    await queryRunner.query(`DROP TABLE "games_followers"`);
-    await queryRunner.query(`DROP TABLE "assets_likers"`);
     await queryRunner.query(`DROP TABLE "users_follow"`);
+    await queryRunner.query(`DROP TABLE "assets_likers"`);
+    await queryRunner.query(`DROP TABLE "games_followers"`);
+    await queryRunner.query(`DROP TABLE "games_collections_relations"`);
+
     await queryRunner.query(`DROP TABLE "asset_histories"`);
-    await queryRunner.query(`DROP TABLE "games"`);
-    await queryRunner.query(`DROP TABLE "assets"`);
     await queryRunner.query(`DROP TABLE "collection_histories"`);
+    await queryRunner.query(`DROP TABLE "assets"`);
     await queryRunner.query(`DROP TABLE "collections"`);
+    await queryRunner.query(`DROP TABLE "games"`);
+    await queryRunner.query(`DROP TABLE "users"`);
   }
 }
