@@ -9,7 +9,7 @@ export class InitialTables1611934327198 implements MigrationInterface {
       `CREATE TABLE "asset_histories" ("id" character varying NOT NULL, "tx_hash" character varying NOT NULL, "erc20" character NOT NULL, "erc20_amount"  character varying NOT NULL, "timestamp" integer NOT NULL, PRIMARY KEY ("id"))`
     );
     await queryRunner.query(
-      `CREATE TABLE "collections" ("id" character varying NOT NULL, "address" character varying NOT NULL, "name" character varying NOT NULL, "symbol" character varying NOT NULL, "image_url" character varying NOT NULL, "description" character, "total_supply"  character varying NOT NULL, "total_minted"  character varying NOT NULL, "total_burned"  character varying NOT NULL, "block" integer NOT NULL, "is_private" boolean NOT NULL,"is_verified" boolean NOT NULL,"is_premium" boolean NOT NULL,"is_featured" boolean NOT NULL,"game_ids" character varying NOT NULL , "create_time_stamp" integer NOT NULL, "update_time_stamp" integer NOT NULL, PRIMARY KEY ("id"))`
+      `CREATE TABLE "collections" ("id" character varying NOT NULL, "address" character varying NOT NULL UNIQUE, "name" character varying NOT NULL, "symbol" character varying NOT NULL, "image_url" character varying NOT NULL, "description" character, "total_supply"  character varying NOT NULL, "total_minted"  character varying NOT NULL, "total_burned"  character varying NOT NULL, "block" integer NOT NULL, "is_private" boolean NOT NULL,"is_verified" boolean NOT NULL,"is_premium" boolean NOT NULL,"is_featured" boolean NOT NULL,"game_ids" character varying NOT NULL , "create_time_stamp" integer NOT NULL, "update_time_stamp" integer NOT NULL, PRIMARY KEY ("id"))`
     );
     await queryRunner.query(
       `CREATE TABLE "collection_histories" ("id" character varying NOT NULL, "timestamp" integer NOT NULL,"tx_hash" character varying NOT NULL, PRIMARY KEY ("id"))`
@@ -18,8 +18,47 @@ export class InitialTables1611934327198 implements MigrationInterface {
       `CREATE TABLE "games" ("id" character varying NOT NULL, "name" character varying NOT NULL, "description" character, "image_url" character varying NOT NULL, "header_image_url" character, "custom_url" character, "category_id" character varying NOT NULL, "version" character, "platform" character varying NOT NULL,"is_verified" boolean NOT NULL,"is_premium" boolean NOT NULL,"is_featured" boolean NOT NULL,"create_time_stamp" integer NOT NULL,"update_time_stamp" integer NOT NULL, PRIMARY KEY ("id"))`
     );
     await queryRunner.query(
-      `CREATE TABLE "users" ("id" character varying NOT NULL, "address" character varying NOT NULL, "name" character varying NOT NULL, "custom_url" character varying NOT NULL, "image_url" character varying NOT NULL, "header_image_url" character varying NOT NULL, "bio" character varying NOT NULL, "twitter_username" character varying NOT NULL, "twitter_verified" boolean NOT NULL, "twitch_username" character varying NOT NULL, "facebook_username" character varying NOT NULL, "youtube_username" character varying NOT NULL, "instagram_username" character varying NOT NULL, "tiktok_username" character varying NOT NULL,"personal_site" character varying NOT NULL,"create_time_stamp" integer NOT NULL,"update_time_stamp" integer NOT NULL,PRIMARY KEY ("id"))`
+      `CREATE TABLE "users" ("id" character varying NOT NULL, "address" character varying NOT NULL UNIQUE, "name" character varying NOT NULL, "custom_url" character varying NOT NULL, "image_url" character varying NOT NULL, "header_image_url" character varying NOT NULL, "bio" character varying NOT NULL, "twitter_username" character varying NOT NULL, "twitter_verified" boolean NOT NULL, "twitch_username" character varying NOT NULL, "facebook_username" character varying NOT NULL, "youtube_username" character varying NOT NULL, "instagram_username" character varying NOT NULL, "tiktok_username" character varying NOT NULL,"personal_site" character varying NOT NULL,"create_time_stamp" integer NOT NULL,"update_time_stamp" integer NOT NULL,PRIMARY KEY ("id"))`
     );
+
+    // verbs
+    await queryRunner.query(
+      `CREATE TABLE "verbs" ("id" SERIAL, "name" character varying NOT NULL UNIQUE, PRIMARY KEY ("id"))`
+    );
+    await queryRunner.query(
+      `INSERT INTO "verbs"("name") VALUES('FOLLOW'), ('LIKE'), ('CREATE') ON CONFLICT DO NOTHING`
+    );
+
+    // objects
+    await queryRunner.query(
+      `CREATE TABLE "objects" ("id" SERIAL, "user_id" character varying,"game_id" character varying,"collection_id" character varying,"asset_id" character varying, PRIMARY KEY ("id"))`
+    );
+    await queryRunner.query(
+      `ALTER TABLE "objects" ADD FOREIGN KEY ("user_id") REFERENCES "users"("id")`
+    );
+    await queryRunner.query(
+      `ALTER TABLE "objects" ADD FOREIGN KEY ("game_id") REFERENCES "games"("id")`
+    );
+    await queryRunner.query(
+      `ALTER TABLE "objects" ADD FOREIGN KEY ("collection_id") REFERENCES "collections"("id")`
+    );
+    await queryRunner.query(
+      `ALTER TABLE "objects" ADD FOREIGN KEY ("asset_id") REFERENCES "assets"("id")`
+    );
+    // activities
+    await queryRunner.query(
+      `CREATE TABLE "activities" ("id" SERIAL, "user_id" character varying NOT NULL,"verb_id" integer NOT NULL,"object_id" integer NOT NULL,"timestamp" integer NOT NULL, PRIMARY KEY ("id"))`
+    );
+    await queryRunner.query(
+      `ALTER TABLE "activities" ADD FOREIGN KEY ("user_id") REFERENCES "users"("id")`
+    );
+    await queryRunner.query(
+      `ALTER TABLE "activities" ADD FOREIGN KEY ("verb_id") REFERENCES "verbs"("id")`
+    );
+    await queryRunner.query(
+      `ALTER TABLE "activities" ADD FOREIGN KEY ("object_id") REFERENCES "objects"("id")`
+    );
+
     // tables for many-to-many relationship
     // game===collections
     await queryRunner.query(
@@ -165,6 +204,9 @@ export class InitialTables1611934327198 implements MigrationInterface {
     await queryRunner.query(`DROP INDEX "assets_asset_idx"`);
 
     // table
+    await queryRunner.query(`DROP TABLE "activities"`);
+    await queryRunner.query(`DROP TABLE "objects"`);
+    await queryRunner.query(`DROP TABLE "verbs"`);
     await queryRunner.query(`DROP TABLE "users_follow"`);
     await queryRunner.query(`DROP TABLE "assets_likers"`);
     await queryRunner.query(`DROP TABLE "games_followers"`);
