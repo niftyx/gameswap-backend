@@ -124,9 +124,6 @@ export const JWT_CLAIMS_NAMESPACE: string =
 export const JWT_EXPIRES_IN: number = Number(
   process.env.JWT_EXPIRES_IN || "15"
 );
-export const JWT_REFRESH_EXPIRES_IN: number = Number(
-  process.env.JWT_REFRESH_EXPIRES_IN || "60"
-);
 
 export const MAX_REQUESTS: number = Number(process.env.MAX_REQUESTS || "100");
 export const TIME_FRAME: number = Number(process.env.TIME_FRAME || "900000");

@@ -89,15 +89,20 @@ const assetFragment = gql`
 const gameFragment = gql`
   fragment gameFragment on games {
     id
-    asset_id
-    asset_url
-    game_id
-    collection_id
-    content_id
+    name
+    version
+    image_url
+    custom_url
+    header_image_url
+    category_id
+    description
+    platform
+    is_verified
+    is_premium
+    is_featured
     create_time_stamp
     update_time_stamp
     owner_id
-    creator_id
   }
 `;
 
@@ -144,84 +149,6 @@ export const selectAccountByUserId = gql`
     }
   }
   ${userFragment}
-`;
-
-export const insertRefreshToken = gql`
-  mutation ($refresh_token_data: refresh_tokens_insert_input!) {
-    insert_refresh_tokens_one(object: $refresh_token_data) {
-      user {
-        ...userFragment
-      }
-    }
-  }
-  ${userFragment}
-`;
-
-export const selectRefreshToken = gql`
-  query ($refresh_token: uuid!, $current_timestamp: timestamptz!) {
-    auth_refresh_tokens(
-      where: {
-        _and: [
-          { refresh_token: { _eq: $refresh_token } }
-          { expires_at: { _gte: $current_timestamp } }
-        ]
-      }
-    ) {
-      account {
-        ...userFragment
-      }
-    }
-  }
-  ${userFragment}
-`;
-
-export const accountOfRefreshToken = gql`
-  query ($refresh_token: uuid!) {
-    auth_refresh_tokens(
-      where: { _and: [{ refresh_token: { _eq: $refresh_token } }] }
-    ) {
-      account {
-        ...userFragment
-      }
-    }
-  }
-  ${userFragment}
-`;
-
-export const updateRefreshToken = gql`
-  mutation (
-    $old_refresh_token: uuid!
-    $new_refresh_token_data: auth_refresh_tokens_insert_input!
-  ) {
-    delete_auth_refresh_tokens(
-      where: { refresh_token: { _eq: $old_refresh_token } }
-    ) {
-      affected_rows
-    }
-    insert_auth_refresh_tokens(objects: [$new_refresh_token_data]) {
-      affected_rows
-    }
-  }
-`;
-
-export const deleteAllAccountRefreshTokens = gql`
-  mutation ($user_id: uuid!) {
-    delete_auth_refresh_tokens(
-      where: { account: { user: { id: { _eq: $user_id } } } }
-    ) {
-      affected_rows
-    }
-  }
-`;
-
-export const deleteRefreshToken = gql`
-  mutation ($refresh_token: uuid!) {
-    delete_auth_refresh_tokens(
-      where: { refresh_token: { _eq: $refresh_token } }
-    ) {
-      affected_rows
-    }
-  }
 `;
 
 // asset_history
@@ -342,7 +269,7 @@ export const insertCollectionHistories = gql`
 
 // collection
 export const selectCollectionsForSync = gql`
-  query ($limit: Number!, $offset: Number!) {
+  query ($limit: Int!, $offset: Int!) {
     collections(offset: $offset, limit: $limit) {
       address
       block
@@ -397,10 +324,12 @@ export const deleteAllGames = gql`
 `;
 
 export const insertGames = gql`
-  mutation ($games_data: [game_insert_input!]!) {
-    insert_games(object: $games_data) {
-      ...gameFragment
+  mutation ($games_data: [games_insert_input!]!) {
+    insert_games(objects: $games_data) {
       affected_rows
+      returning {
+        ...gameFragment
+      }
     }
   }
   ${gameFragment}

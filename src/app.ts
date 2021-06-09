@@ -5,13 +5,10 @@ import {
   CONTENT_SECRET_KEY,
   EXCHANGE_CONTRACT,
   EXCHANGE_CONTRACT_BLOCK,
-  LOGGER_INCLUDE_TIMESTAMP,
-  LOG_LEVEL,
 } from "./config";
 
 import { runHttpServiceAsync } from "./runners/http_service_runner";
 import { HttpServiceConfig } from "./types";
-import * as pino from "pino";
 import { CollectionService } from "./services/collection_service";
 import { CryptoContentService } from "./services/crypto_content_service";
 import { GameService } from "./services/game_service";
@@ -23,12 +20,7 @@ import { AssetService } from "./services/asset_service";
 import { ERC721Service } from "./services/erc721_service";
 import { ExchangeService } from "./services/exchange_service";
 import { CommonService } from "./services/common_service";
-
-export const logger = pino({
-  level: LOG_LEVEL,
-  useLevelLabels: true,
-  timestamp: LOGGER_INCLUDE_TIMESTAMP,
-});
+import { logger } from "./logger";
 
 export interface AppDependencies {
   cryptoContentService: CryptoContentService; // encrypt/decrypt signedContentData with crypto algorithm

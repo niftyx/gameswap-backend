@@ -2,7 +2,7 @@ import axios from "axios";
 import { Contract, ethers } from "ethers";
 import { Interface } from "ethers/lib/utils";
 import * as _ from "lodash";
-import { logger } from "../app";
+import { logger } from "../logger";
 import { CHAIN_ID, defaultHttpServiceWithRateLimiterConfig } from "../config";
 import { LOG_PAGE_COUNT } from "../constants";
 import { ICollection, IERC721ContractInfo } from "../types";

@@ -16,11 +16,6 @@ export interface HttpServiceConfig {
 }
 // Collection
 
-export interface IPlatform {
-  os: string;
-  version: string;
-}
-
 export interface IGame {
   id: string;
   name: string;
@@ -30,7 +25,7 @@ export interface IGame {
   header_image_url?: string;
   category_id: string;
   description: string;
-  platform: IPlatform[];
+  platform: string;
   is_verified: boolean;
   is_premium: boolean;
   is_featured: boolean;

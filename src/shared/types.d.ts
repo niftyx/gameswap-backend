@@ -47,7 +47,6 @@ export type Token = {
 export interface Session {
   jwt_token: string | null;
   jwt_expires_in: number | null;
-  refresh_token?: string;
 }
 
 export interface UserData {
@@ -94,12 +93,6 @@ export interface UpdateAccountData {
   };
 }
 
-export interface RefreshTokenMiddleware {
-  value: string | null;
-  type: "query" | "cookie" | null;
-}
-
 export interface RequestExtended extends Request {
-  refresh_token?: RefreshTokenMiddleware;
   permission_variables?: PermissionVariables;
 }

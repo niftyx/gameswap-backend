@@ -4,7 +4,7 @@ import { BigNumber, Contract, ethers } from "ethers";
 import { Interface } from "ethers/lib/utils";
 import * as isValidUUID from "uuid-validate";
 
-import { logger } from "../app";
+import { logger } from "../logger";
 import { CHAIN_ID, defaultHttpServiceWithRateLimiterConfig } from "../config";
 import { IAsset, IAssetHistory, ICollectionHistory } from "../types";
 import { ZERO_ADDRESS } from "../utils/token";

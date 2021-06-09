@@ -1,7 +1,7 @@
 import { BigNumber, Contract, ethers } from "ethers";
 import { Interface } from "ethers/lib/utils";
 import { assetDataUtils } from "@0x/order-utils";
-import { logger } from "../app";
+import { logger } from "../logger";
 import { CHAIN_ID, defaultHttpServiceWithRateLimiterConfig } from "../config";
 import { AssetService } from "./asset_service";
 import { AssetHistoryService } from "./asset_history_service";

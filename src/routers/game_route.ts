@@ -2,10 +2,9 @@ import { GameHandler } from "../handlers/game_handler";
 import * as express from "express";
 import { GameService } from "../services/game_service";
 import * as asyncHandler from "express-async-handler";
-import { validate } from "express-validation";
-import GameValidation from "../validators/game.validation";
 import { CommonService } from "../services/common_service";
 import { UserService } from "../services/user_service";
+import { authMiddleware } from "../middleware/auth";
 
 /**
  * This handles create/get/update GAME items
@@ -23,17 +22,11 @@ export function createGameRouter(
   router
     .route("/")
     .get(handlers.root)
-    .post(
-      validate(GameValidation.createGame),
-      asyncHandler(handlers.create.bind(handlers))
-    );
+    .post(authMiddleware, asyncHandler(handlers.create.bind(handlers)));
 
   router
-    .route("/:id")
-    .post(
-      validate(GameValidation.updateGame),
-      asyncHandler(handlers.update.bind(handlers))
-    );
+    .route("/update")
+    .post(authMiddleware, asyncHandler(handlers.update.bind(handlers)));
 
   return router;
 }
