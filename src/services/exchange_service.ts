@@ -97,10 +97,10 @@ export class ExchangeService {
 
           if (assetHistory) {
             assetHistory.erc20 = String(takerAsset.tokenAddress).toLowerCase();
-            assetHistory.erc20Amount = orderFillInfo.takerAssetFilledAmount;
+            assetHistory.erc20_amount = orderFillInfo.takerAssetFilledAmount;
 
             logger.info(
-              `====Order Filled ${assetHistory.erc20} ${assetHistory.erc20Amount}===`
+              `====Order Filled ${assetHistory.erc20} ${assetHistory.erc20_amount}===`
             );
 
             assetHistory = await this.assetHistoryService.update(assetHistory);
@@ -113,10 +113,10 @@ export class ExchangeService {
 
           if (assetHistory) {
             assetHistory.erc20 = String(makerAsset.tokenAddress).toLowerCase();
-            assetHistory.erc20Amount = orderFillInfo.makerAssetFilledAmount;
+            assetHistory.erc20_amount = orderFillInfo.makerAssetFilledAmount;
 
             logger.info(
-              `====Order Filled ${assetHistory.erc20} ${assetHistory.erc20Amount}===`
+              `====Order Filled ${assetHistory.erc20} ${assetHistory.erc20_amount}===`
             );
 
             assetHistory = await this.assetHistoryService.update(assetHistory);

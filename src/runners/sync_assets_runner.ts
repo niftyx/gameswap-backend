@@ -32,6 +32,10 @@ if (require.main === module) {
       await dependencies.factoryService.resetRelatedTables();
       const erc721Contracts =
         await dependencies.factoryService.syncERC721Contracts();
+      // const erc721Contracts = await dependencies.collectionService.listForSync(
+      //   0,
+      //   10
+      // );
 
       for (let index = 0; index < erc721Contracts.length; index++) {
         const erc721 = erc721Contracts[index];

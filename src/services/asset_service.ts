@@ -9,6 +9,7 @@ import {
   updateAssetByAssetId,
   queryAssetsByContentIdAndOwnerId,
 } from "../shared/queries";
+import { assetUtils } from "../utils/assetUtils";
 
 export interface QueryAssetData {
   assets: IAsset[];
@@ -35,7 +36,7 @@ export class AssetService {
   public async getByTokenIdAndCollectionId(
     assetId: string,
     collectionId: string
-  ): Promise<IAsset> {
+  ): Promise<IAsset | null> {
     const response = await request<QueryAssetData>(
       queryAssetsByAssetIdAndCollectionId,
       {
@@ -43,15 +44,16 @@ export class AssetService {
         collection_id: collectionId,
       }
     );
-    return response.assets[0];
+    if (!response.assets[0]) return null;
+    return assetUtils.toBNObj(response.assets[0]);
   }
 
   public async update(asset: IAsset): Promise<IAsset> {
     const response = await request<UpdateAssetData>(updateAssetByAssetId, {
       id: asset.id,
-      changes: asset,
+      changes: assetUtils.toStrObj(asset),
     });
-    return response.update_assets.returning[0];
+    return assetUtils.toBNObj(response.update_assets.returning[0]);
   }
 
   public async deleteAll() {
@@ -74,8 +76,10 @@ export class AssetService {
 
   private async _addRecordsAsync(assets: IAsset[]): Promise<IAsset[]> {
     const response = await request<InsertAssetData>(insertAssets, {
-      assets_data: assets,
+      assets_data: assets.map((asset: IAsset) => assetUtils.toStrObj(asset)),
     });
-    return response.insert_assets.returning;
+    return response.insert_assets.returning.map((asset) =>
+      assetUtils.toBNObj(asset)
+    );
   }
 }

@@ -8,6 +8,7 @@ import {
   queryAssetHistoryByHash,
   updateAssetHistoryById,
 } from "../shared/queries";
+import { assetHistoryUtils } from "../utils/assetHistoryUtils";
 
 export interface InsertAssetHistoriesData {
   insert_asset_histories: {
@@ -28,7 +29,7 @@ export interface UpdateAssetHistoryData {
 export class AssetHistoryService {
   public async add(history: IAssetHistory): Promise<IAssetHistory> {
     const records = await this._addRecordsAsync([history]);
-    return records[0];
+    return assetHistoryUtils.toBNObj(records[0]);
   }
 
   public async deleteAll() {
@@ -43,15 +44,19 @@ export class AssetHistoryService {
         changes: history,
       }
     );
-    return response.update_asset_histories.returning[0];
+    return assetHistoryUtils.toBNObj(
+      response.update_asset_histories.returning[0]
+    );
   }
 
-  public async getByTxId(txHash: string): Promise<IAssetHistory> {
+  public async getByTxId(txHash: string): Promise<IAssetHistory | null> {
     const response = await request<QueryAssetHistoryData>(
       queryAssetHistoryByHash,
       { tx_hash: txHash }
     );
-    return response.asset_histories[0];
+    if (response.asset_histories[0])
+      return assetHistoryUtils.toBNObj(response.asset_histories[0]);
+    return null;
   }
 
   private async _addRecordsAsync(
@@ -60,9 +65,13 @@ export class AssetHistoryService {
     const response = await request<InsertAssetHistoriesData>(
       insertAssetHistories,
       {
-        asset_histories_data: history,
+        asset_histories_data: history.map((history) =>
+          assetHistoryUtils.toStrObj(history)
+        ),
       }
     );
-    return response.insert_asset_histories.returning;
+    return response.insert_asset_histories.returning.map((e) =>
+      assetHistoryUtils.toBNObj(e)
+    );
   }
 }

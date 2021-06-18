@@ -38,6 +38,7 @@ const collectionFragment = gql`
     is_premium
     is_featured
     owner_id
+    game_id
     description
     create_time_stamp
     update_time_stamp
@@ -69,17 +70,11 @@ const collectionHistoryFragment = gql`
 const assetFragment = gql`
   fragment assetFragment on assets {
     id
-    name
-    version
-    image_url
-    custom_url
-    header_image_url
-    category_id
-    description
-    platform
-    is_verified
-    is_premium
-    is_featured
+    asset_id
+    asset_url
+    collection_id
+    content_id
+    creator_id
     create_time_stamp
     update_time_stamp
     owner_id
@@ -120,7 +115,7 @@ export const insertAccount = gql`
 
 export const upsertAccount = gql`
   mutation ($user: users_insert_input!) {
-    insert_users(objects: [$user], on_conflict: { constraint: id }) {
+    insert_users(objects: [$user], on_conflict: { constraint: users_pkey }) {
       affected_rows
       returning {
         ...userFragment
@@ -182,8 +177,10 @@ export const deleteAllAssetHistory = gql`
 
 export const insertAssetHistories = gql`
   mutation ($asset_histories_data: [asset_histories_insert_input!]!) {
-    insert_asset_histories(object: $asset_histories_data) {
-      ...assetHistoryFragment
+    insert_asset_histories(objects: $asset_histories_data) {
+      returning {
+        ...assetHistoryFragment
+      }
       affected_rows
     }
   }
@@ -201,8 +198,10 @@ export const deleteAllAssets = gql`
 
 export const insertAssets = gql`
   mutation ($assets_data: [assets_insert_input!]!) {
-    insert_assets(object: $assets_data) {
-      ...assetFragment
+    insert_assets(objects: $assets_data) {
+      returning {
+        ...assetFragment
+      }
       affected_rows
     }
   }
@@ -212,7 +211,9 @@ export const insertAssets = gql`
 export const updateAssetByAssetId = gql`
   mutation ($changes: assets_set_input!, $id: String!) {
     update_assets(where: { id: { _eq: $id } }, _set: $changes) {
-      ...assetFragment
+      returning {
+        ...assetFragment
+      }
       affected_rows
     }
   }
@@ -259,8 +260,10 @@ export const deleteAllCollectionHistory = gql`
 
 export const insertCollectionHistories = gql`
   mutation ($collection_histories_data: [collection_histories_insert_input!]!) {
-    insert_collection_histories(object: $collection_histories_data) {
-      ...collectionHistoryFragment
+    insert_collection_histories(objects: $collection_histories_data) {
+      returning {
+        ...collectionHistoryFragment
+      }
       affected_rows
     }
   }
@@ -287,9 +290,11 @@ export const deleteAllCollections = gql`
 
 export const insertCollections = gql`
   mutation ($collections_data: [collections_insert_input!]!) {
-    insert_collections(object: $collections_data) {
-      ...collectionFragment
+    insert_collections(objects: $collections_data) {
       affected_rows
+      returning {
+        ...collectionFragment
+      }
     }
   }
   ${collectionFragment}
@@ -307,8 +312,10 @@ export const selectCollectionByCollectionId = gql`
 export const updateCollectionByCollectionId = gql`
   mutation ($changes: collections_set_input!, $id: String!) {
     update_collections(where: { id: { _eq: $id } }, _set: $changes) {
-      ...collectionFragment
       affected_rows
+      returning {
+        ...collectionFragment
+      }
     }
   }
   ${collectionFragment}
@@ -362,6 +369,14 @@ export const queryUsersAndGamesByCustomUrl = gql`
     }
     games(where: { custom_url: { _eq: $url } }) {
       id
+    }
+  }
+`;
+
+export const deleteAllGamesCollectionsRelations = gql`
+  mutation {
+    delete_games_collections_relations(where: {}) {
+      affected_rows
     }
   }
 `;

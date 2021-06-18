@@ -38,7 +38,6 @@ export interface IAsset {
   id: string;
   asset_id: BigNumber;
   asset_url: string;
-  game_id: string;
   collection_id: string;
   content_id: string;
   create_time_stamp: number;
@@ -50,11 +49,11 @@ export interface IAsset {
 export interface IAssetHistory {
   id: string;
   owner_id: string;
-  txHash: string;
+  tx_hash: string;
   timestamp: number;
   asset_id: string;
   erc20?: string;
-  erc20Amount?: BigNumber;
+  erc20_amount?: BigNumber;
 }
 
 export interface ICollection {
@@ -75,7 +74,7 @@ export interface ICollection {
   create_time_stamp: number;
   update_time_stamp: number;
   owner_id: string;
-  game_ids: string;
+  game_id: string;
 }
 
 export interface ICollectionHistory {
@@ -83,7 +82,7 @@ export interface ICollectionHistory {
   owner_id: string;
   timestamp: number;
   collection_id: string;
-  txHash: string;
+  tx_hash: string;
 }
 
 export interface IUser {

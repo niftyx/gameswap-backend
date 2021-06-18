@@ -2,7 +2,6 @@ import { assetDataUtils } from "@0x/order-utils";
 import { GameService } from "./game_service";
 import { BigNumber, Contract, ethers } from "ethers";
 import { Interface } from "ethers/lib/utils";
-import * as isValidUUID from "uuid-validate";
 
 import { logger } from "../logger";
 import { CHAIN_ID, defaultHttpServiceWithRateLimiterConfig } from "../config";
@@ -27,7 +26,7 @@ const exchangeAbi = [
 
 const abi = [
   "event Transfer(address indexed from,address indexed to,uint256 indexed tokenId)",
-  "event MetaDataChanged(string,string,bool)",
+  "event VisibilityChanged(bool)",
   "event OwnershipTransferred(address indexed,address indexed)",
   "function tokenURI(uint256 tokenId) public view returns (string memory)",
 ];
@@ -54,7 +53,7 @@ export class ERC721Service {
     _gameService: GameService,
     exchangeAddress: string
   ) {
-    this.address = address;
+    this.address = address.toLowerCase();
     this.blockNumber = blockNumber;
     this.collectionService = collectionService;
     this.collectionHistoryService = collectionHistoryService;
@@ -103,16 +102,16 @@ export class ERC721Service {
 
         collection.owner_id = newOwner;
         collection.update_time_stamp = block.timestamp;
+
         collection = await this.collectionService.update(collection);
 
         const collectionHistory: ICollectionHistory = {
           id: `${collectionTxHash}${newOwner}`,
           timestamp: block.timestamp,
-          txHash: collectionTxHash,
+          tx_hash: collectionTxHash,
           owner_id: newOwner,
           collection_id: collection.id,
         };
-
         await this.collectionHistoryService.add(collectionHistory);
       }
 
@@ -161,7 +160,6 @@ export class ERC721Service {
             id: log.transactionHash.toLowerCase(),
             asset_id: parsed.args[2],
             asset_url: "",
-            game_id: "",
             content_id: "",
             owner_id: ownerAddress,
             creator_id: ownerAddress,
@@ -172,7 +170,6 @@ export class ERC721Service {
 
           if (tokenInfo) {
             asset.asset_url = tokenURI;
-            asset.game_id = tokenInfo.gameId;
             asset.content_id = tokenInfo.contentId;
           }
           asset = await this.assetService.add(asset);
@@ -182,7 +179,7 @@ export class ERC721Service {
           const assetHistory: IAssetHistory = {
             id: assetTxHash,
             owner_id: ownerAddress,
-            txHash: assetTxHash,
+            tx_hash: assetTxHash,
             timestamp: block.timestamp,
             asset_id: asset.id,
           };
@@ -212,7 +209,7 @@ export class ERC721Service {
             const assetTxHash = String(log.transactionHash).toLowerCase();
             const assetHistory: IAssetHistory = {
               id: assetTxHash,
-              txHash: assetTxHash,
+              tx_hash: assetTxHash,
               timestamp: block.timestamp,
               asset_id: asset.id,
               owner_id: ZERO_ADDRESS,
@@ -248,7 +245,7 @@ export class ERC721Service {
             const assetHistory: IAssetHistory = {
               id: assetTxHash,
               owner_id: newOwner,
-              txHash: assetTxHash,
+              tx_hash: assetTxHash,
               timestamp: block.timestamp,
               asset_id: asset.id,
             };
@@ -258,8 +255,8 @@ export class ERC721Service {
         }
       }
 
-      logger.info("=== get MetaDataChanged events  ===");
-      filter = ens.filters.MetaDataChanged();
+      logger.info("=== get VisibilityChanged events  ===");
+      filter = ens.filters.VisibilityChanged();
       filter.fromBlock = currentScannedBlockNumber + 1;
       filter.toBlock = currentScannedBlockNumber + LOG_PAGE_COUNT + 1;
       filter.toBlock = Math.min(filter.toBlock, latestBlockNumber);
@@ -270,24 +267,7 @@ export class ERC721Service {
         const log = logs[index];
         const parsed = iface.parseLog(log);
 
-        const infoUrl = parsed.args[0];
-        let info: any;
-        try {
-          info = (await axios.get(infoUrl)).data || {};
-        } catch (error) {
-          info = {};
-        }
-
-        const gameIds = (
-          Array.isArray(info.gameIds) ? info.gameIds : []
-        ).filter((id: string) => isValidUUID(id));
-        // const games = await this.gameService.getMultipleGames(gameIds);
-
-        collection.image_url = info.imageUrl;
-        collection.description = info.description;
-        collection.game_ids = gameIds;
-
-        collection.is_private = parsed.args[1];
+        collection.is_private = parsed.args[0];
         collection = await this.collectionService.update(collection);
       }
 
@@ -349,7 +329,7 @@ export class ERC721Service {
         const collectionHistory: ICollectionHistory = {
           id: `${collectionTxHash}${newOwner}`,
           timestamp: block.timestamp,
-          txHash: collectionTxHash,
+          tx_hash: collectionTxHash,
           owner_id: newOwner.id,
           collection_id: collection.id,
         };
@@ -359,34 +339,14 @@ export class ERC721Service {
     );
 
     ens.on(
-      "MetaDataChanged",
-      async (
-        infoUrl: string,
-        isPrivate: boolean,
-        _log: ethers.providers.Log
-      ) => {
+      "VisibilityChanged",
+      async (isPrivate: boolean, _log: ethers.providers.Log) => {
         logger.info(
-          `=== collection MetaDataChanged ${this.address} ${infoUrl}=>${isPrivate} ===`
+          `=== collection VisibilityChanged ${this.address} ${isPrivate} ===`
         );
         let collection = await this.collectionService.get(this.address);
 
         if (!collection) return;
-
-        let info: any;
-        try {
-          info = (await axios.get(infoUrl)).data || {};
-        } catch (error) {
-          info = {};
-        }
-
-        const gameIds = (
-          Array.isArray(info.gameIds) ? info.gameIds : []
-        ).filter((id: string) => isValidUUID(id));
-        //const games = await this.gameService.getMultipleGames(gameIds);
-
-        collection.image_url = info.imageUrl;
-        collection.description = info.description;
-        collection.game_ids = gameIds;
 
         collection.is_private = isPrivate;
         collection = await this.collectionService.update(collection);
@@ -439,7 +399,6 @@ export class ERC721Service {
             id: log.transactionHash.toLowerCase(),
             asset_id: tokenId,
             asset_url: "",
-            game_id: "",
             content_id: "",
             owner_id: ownerAddress,
             creator_id: ownerAddress,
@@ -450,7 +409,6 @@ export class ERC721Service {
 
           if (tokenInfo) {
             asset.asset_url = tokenURI;
-            asset.game_id = tokenInfo.gameId;
             asset.content_id = tokenInfo.contentId;
           }
 
@@ -459,7 +417,7 @@ export class ERC721Service {
           const assetHistory: IAssetHistory = {
             id: assetTxHash,
             owner_id: ownerAddress,
-            txHash: assetTxHash,
+            tx_hash: assetTxHash,
             timestamp: block.timestamp,
             asset_id: asset.id,
           };
@@ -495,7 +453,7 @@ export class ERC721Service {
             const assetTxHash = String(log.transactionHash).toLowerCase();
             const assetHistory: IAssetHistory = {
               id: assetTxHash,
-              txHash: assetTxHash,
+              tx_hash: assetTxHash,
               timestamp: block.timestamp,
               asset_id: asset.id,
               owner_id: user.id,
@@ -548,7 +506,7 @@ export class ERC721Service {
             const assetHistory: IAssetHistory = {
               id: assetTxHash,
               owner_id: newUser.id,
-              txHash: assetTxHash,
+              tx_hash: assetTxHash,
               timestamp: block.timestamp,
               asset_id: asset.id,
             };
@@ -593,7 +551,8 @@ export class ERC721Service {
                 assetHistory.erc20 = String(
                   takerAsset.tokenAddress
                 ).toLowerCase();
-                assetHistory.erc20Amount = orderFillInfo.takerAssetFilledAmount;
+                assetHistory.erc20_amount =
+                  orderFillInfo.takerAssetFilledAmount;
               } else if (
                 takerAssetProxyId === ERC721_ASSET_PROXY_ID &&
                 makerAssetProxyId === ERC20_ASSET_PROXY_ID
@@ -601,11 +560,12 @@ export class ERC721Service {
                 assetHistory.erc20 = String(
                   makerAsset.tokenAddress
                 ).toLowerCase();
-                assetHistory.erc20Amount = orderFillInfo.makerAssetFilledAmount;
+                assetHistory.erc20_amount =
+                  orderFillInfo.makerAssetFilledAmount;
               }
 
               logger.info(
-                `====Order Filled => txHash${assetHistory.erc20} ${assetHistory.erc20Amount}===`
+                `====Order Filled => txHash${assetHistory.erc20} ${assetHistory.erc20_amount}===`
               );
             }
             await this.assetHistoryService.add(assetHistory);

@@ -8,6 +8,7 @@ import {
 } from "../shared/queries";
 import { request } from "../shared/request";
 import { ICollection } from "../types";
+import { collectionUtils } from "../utils/collectionUtils";
 
 export interface QueryCollectionData {
   collections: ICollection[];
@@ -37,7 +38,7 @@ export class CollectionService {
       { id }
     );
     if (!response.collections[0]) return null;
-    return response.collections[0];
+    return collectionUtils.toBNObj(response.collections[0]);
   }
 
   public async deleteAll() {
@@ -52,7 +53,9 @@ export class CollectionService {
       selectCollectionsForSync,
       { limit, offset }
     );
-    return response.collections;
+    return response.collections.map((collection) =>
+      collectionUtils.toBNObj(collection)
+    );
   }
 
   public async update(collection: ICollection): Promise<ICollection> {
@@ -60,19 +63,22 @@ export class CollectionService {
       updateCollectionByCollectionId,
       {
         id: collection.id,
-        changes: { ...collection },
+        changes: { ...collectionUtils.toStrObj(collection) },
       }
     );
-    return response.update_collections.returning[0];
+    return collectionUtils.toBNObj(response.update_collections.returning[0]);
   }
 
   private async _addRecordsAsnyc(
-    _collections: ICollection[]
+    collections: ICollection[]
   ): Promise<ICollection[]> {
-    const response = await request<InsertCollectionData>(
-      insertCollections,
-      _collections
+    const response = await request<InsertCollectionData>(insertCollections, {
+      collections_data: collections.map((collection) =>
+        collectionUtils.toStrObj(collection)
+      ),
+    });
+    return response.insert_collections.returning.map((collection) =>
+      collectionUtils.toBNObj(collection)
     );
-    return response.insert_collections.returning;
   }
 }

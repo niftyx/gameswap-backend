@@ -3,13 +3,13 @@ import { MigrationInterface, QueryRunner } from "typeorm";
 export class InitialTables1611934327198 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
-      `CREATE TABLE "assets" ("id" character varying NOT NULL, "asset_id"  character varying NOT NULL, "asset_url" character varying NOT NULL, "game_id" character varying NOT NULL,"collection_id" character varying NOT NULL, "content_id" character varying NOT NULL, "create_time_stamp" integer NOT NULL, "update_time_stamp" integer NOT NULL, PRIMARY KEY ("id"))`
+      `CREATE TABLE "assets" ("id" character varying NOT NULL, "asset_id"  character varying NOT NULL, "asset_url" character varying NOT NULL,"collection_id" character varying NOT NULL, "content_id" character varying NOT NULL, "create_time_stamp" integer NOT NULL, "update_time_stamp" integer NOT NULL, PRIMARY KEY ("id"))`
     );
     await queryRunner.query(
-      `CREATE TABLE "asset_histories" ("id" character varying NOT NULL, "tx_hash" character varying NOT NULL, "erc20" character varying NOT NULL, "erc20_amount"  character varying NOT NULL, "timestamp" integer NOT NULL, PRIMARY KEY ("id"))`
+      `CREATE TABLE "asset_histories" ("id" character varying NOT NULL, "tx_hash" character varying NOT NULL, "erc20" character varying, "erc20_amount"  character varying, "timestamp" integer NOT NULL, PRIMARY KEY ("id"))`
     );
     await queryRunner.query(
-      `CREATE TABLE "collections" ("id" character varying NOT NULL, "address" character varying NOT NULL UNIQUE, "name" character varying NOT NULL, "symbol" character varying NOT NULL, "image_url" character varying NOT NULL, "description" character varying, "total_supply"  character varying NOT NULL, "total_minted"  character varying NOT NULL, "total_burned"  character varying NOT NULL, "block" integer NOT NULL, "is_private" boolean NOT NULL,"is_verified" boolean NOT NULL,"is_premium" boolean NOT NULL,"is_featured" boolean NOT NULL,"game_ids" character varying NOT NULL , "create_time_stamp" integer NOT NULL, "update_time_stamp" integer NOT NULL, PRIMARY KEY ("id"))`
+      `CREATE TABLE "collections" ("id" character varying NOT NULL, "address" character varying NOT NULL UNIQUE, "name" character varying NOT NULL, "symbol" character varying NOT NULL, "image_url" character varying NOT NULL, "description" character varying, "total_supply"  character varying NOT NULL, "total_minted"  character varying NOT NULL, "total_burned"  character varying NOT NULL, "block" integer NOT NULL, "is_private" boolean NOT NULL,"is_verified" boolean NOT NULL,"is_premium" boolean NOT NULL,"is_featured" boolean NOT NULL,"game_id" character varying NOT NULL , "create_time_stamp" integer NOT NULL, "update_time_stamp" integer NOT NULL, PRIMARY KEY ("id"))`
     );
     await queryRunner.query(
       `CREATE TABLE "collection_histories" ("id" character varying NOT NULL, "timestamp" integer NOT NULL,"tx_hash" character varying NOT NULL, PRIMARY KEY ("id"))`
@@ -60,16 +60,7 @@ export class InitialTables1611934327198 implements MigrationInterface {
     );
 
     // tables for many-to-many relationship
-    // game===collections
-    await queryRunner.query(
-      `CREATE TABLE "games_collections_relations" ("game_id"  character varying NOT NULL, "collection_id"  character varying NOT NULL, PRIMARY KEY ("game_id", "collection_id"))`
-    );
-    await queryRunner.query(
-      `ALTER TABLE "games_collections_relations" ADD FOREIGN KEY ("game_id") REFERENCES "games"("id")`
-    );
-    await queryRunner.query(
-      `ALTER TABLE "games_collections_relations" ADD FOREIGN KEY ("collection_id") REFERENCES "collections"("id")`
-    );
+
     // game==users
     await queryRunner.query(
       `CREATE TABLE "games_followers" ("game_id"  character varying NOT NULL, "user_id"  character varying NOT NULL, PRIMARY KEY ("game_id", "user_id"))`
@@ -99,6 +90,11 @@ export class InitialTables1611934327198 implements MigrationInterface {
     );
     await queryRunner.query(
       `ALTER TABLE "users_follow" ADD FOREIGN KEY ("following_id") REFERENCES "users"("id")`
+    );
+
+    // collections(game) <=> games
+    await queryRunner.query(
+      `ALTER TABLE "collections" ADD FOREIGN KEY ("game_id") REFERENCES "games"("id")`
     );
 
     // assets(owner) <=> users
@@ -155,10 +151,6 @@ export class InitialTables1611934327198 implements MigrationInterface {
     await queryRunner.query(
       `ALTER TABLE "collection_histories" ADD FOREIGN KEY ("collection_id") REFERENCES "collections"("id")`
     );
-    // games <= assets
-    await queryRunner.query(
-      `ALTER TABLE "assets" ADD FOREIGN KEY ("game_id") REFERENCES "games"("id")`
-    );
 
     // user <= collection_histories
     await queryRunner.query(
@@ -172,9 +164,6 @@ export class InitialTables1611934327198 implements MigrationInterface {
     // assets
     await queryRunner.query(
       `CREATE INDEX "assets_asset_idx" ON "assets"("asset_id")`
-    );
-    await queryRunner.query(
-      `CREATE INDEX "assets_game_idx" ON "assets"("game_id")`
     );
     await queryRunner.query(
       `CREATE INDEX "assets_collection_idx" ON "assets"("collection_id")`
@@ -202,7 +191,6 @@ export class InitialTables1611934327198 implements MigrationInterface {
     await queryRunner.query(`DROP INDEX "games_category_idx"`);
     await queryRunner.query(`DROP INDEX "assets_content_idx"`);
     await queryRunner.query(`DROP INDEX "assets_collection_idx"`);
-    await queryRunner.query(`DROP INDEX "assets_game_idx"`);
     await queryRunner.query(`DROP INDEX "assets_asset_idx"`);
 
     // table
@@ -212,7 +200,6 @@ export class InitialTables1611934327198 implements MigrationInterface {
     await queryRunner.query(`DROP TABLE "users_follow"`);
     await queryRunner.query(`DROP TABLE "assets_likers"`);
     await queryRunner.query(`DROP TABLE "games_followers"`);
-    await queryRunner.query(`DROP TABLE "games_collections_relations"`);
 
     await queryRunner.query(`DROP TABLE "asset_histories"`);
     await queryRunner.query(`DROP TABLE "collection_histories"`);

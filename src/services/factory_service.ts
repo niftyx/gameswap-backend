@@ -14,10 +14,9 @@ import { CollectionHistoryService } from "./collection_history_service";
 import { CollectionService } from "./collection_service";
 import { ERC721Service } from "./erc721_service";
 import { GameService } from "./game_service";
-import * as isValidUUID from "uuid-validate";
 
 const abi = [
-  "event CollectionCreated(address indexed tokenAddress,string name,string symbol,string url,bool isPrivate)",
+  "event CollectionCreated(address indexed tokenAddress,string name,string symbol,string url,string gameId,bool isPrivate)",
 ];
 
 export class FactoryService {
@@ -61,7 +60,7 @@ export class FactoryService {
     await this.assetService.deleteAll();
     logger.info("====AssetEntity Removed====");
     await this.collectionHistoryService.deleteAll();
-    logger.info("====CollectionHistoryEntity Removed====");
+    logger.info("====GameCollectionEntity Removed====");
     await this.collectionService.deleteAll();
     logger.info("====CollectionEntity Removed====");
   }
@@ -106,14 +105,11 @@ export class FactoryService {
         } catch (error) {
           info = {};
         }
-        const gameIds = (
-          Array.isArray(info.gameIds) ? info.gameIds : []
-        ).filter((id: string) => isValidUUID(id));
-        logger.info(JSON.stringify(gameIds));
-        const owner = String(log.address).toLowerCase();
+        const gameId = parsed.args[4];
+        const ownerId = String(log.address).toLowerCase();
 
         // upsert user
-        await this.userService.upsert(owner, block.timestamp);
+        await this.userService.upsert(ownerId, block.timestamp);
 
         const collection: ICollection = {
           id: String(parsed.args[0]).toLowerCase(),
@@ -123,14 +119,14 @@ export class FactoryService {
           symbol: parsed.args[2],
           image_url: info.imageUrl || "",
           description: info.description || "",
-          is_private: parsed.args[4],
-          owner_id: owner,
+          is_private: parsed.args[5],
+          owner_id: ownerId,
           total_supply: ZERO_NUMBER,
           total_minted: ZERO_NUMBER,
           total_burned: ZERO_NUMBER,
           create_time_stamp: block.timestamp,
           update_time_stamp: block.timestamp,
-          game_ids: info.gameIds,
+          game_id: gameId,
           is_verified: false,
           is_premium: false,
           is_featured: false,
@@ -172,6 +168,7 @@ export class FactoryService {
         name: string,
         symbol: string,
         infoUrl: string,
+        gameId: string,
         isPrivate: boolean,
         log: ethers.providers.Log
       ) => {
@@ -186,10 +183,6 @@ export class FactoryService {
           info = {};
         }
 
-        const gameIds = (
-          Array.isArray(info.gameIds) ? info.gameIds : []
-        ).filter((id: string) => isValidUUID(id));
-        // const games = await this.gameService.getMultipleGames(gameIds);
         const owner = String(log.address).toLowerCase();
 
         const collection: ICollection = {
@@ -210,7 +203,7 @@ export class FactoryService {
           is_verified: false,
           is_featured: false,
           is_premium: false,
-          game_ids: gameIds,
+          game_id: gameId,
         };
 
         await this.createCollection(collection);
@@ -226,6 +219,7 @@ export class FactoryService {
           this.gameService,
           this.exchangeAddress
         );
+
         await erc721Service.listenAssets();
       }
     );
