@@ -158,7 +158,7 @@ export class ERC721Service {
 
           let asset: IAsset = {
             id: log.transactionHash.toLowerCase(),
-            asset_id: parsed.args[2],
+            asset_id: parsed.args[2] as BigNumber,
             asset_url: "",
             content_id: "",
             owner_id: ownerAddress,
@@ -223,10 +223,10 @@ export class ERC721Service {
           }
         } else {
           // transfer asset
-          logger.info("=====transfer======");
           const previousOwner = String(parsed.args[0]).toLowerCase();
           const newOwner = String(parsed.args[1]).toLowerCase();
           const assetId = parsed.args[2] as BigNumber;
+
           let asset = await this.assetService.getByTokenIdAndCollectionId(
             assetId.toHexString(),
             collection.id

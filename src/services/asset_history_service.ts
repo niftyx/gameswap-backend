@@ -41,7 +41,7 @@ export class AssetHistoryService {
       updateAssetHistoryById,
       {
         id: history.id,
-        changes: history,
+        changes: assetHistoryUtils.toStrObj(history),
       }
     );
     return assetHistoryUtils.toBNObj(

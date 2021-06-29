@@ -18,7 +18,7 @@ export const assetUtils = {
   toStrObj: function (payload: IAsset): any {
     return {
       ...payload,
-      asset_id: payload.asset_id.toString(),
+      asset_id: payload.asset_id.toHexString(),
     };
   },
 };
