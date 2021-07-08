@@ -55,12 +55,14 @@ export class FactoryService {
   async resetRelatedTables() {
     logger.info("==== reset tables start ====");
     await this.assetHistoryService.deleteAll();
-
     logger.info("====AssetHistoryEntity Removed====");
+
     await this.assetService.deleteAll();
     logger.info("====AssetEntity Removed====");
+
     await this.collectionHistoryService.deleteAll();
-    logger.info("====GameCollectionEntity Removed====");
+    logger.info("====CollectionCollectionEntity Removed====");
+
     await this.collectionService.deleteAll();
     logger.info("====CollectionEntity Removed====");
   }

@@ -74,8 +74,6 @@ export class ERC721Service {
 
     logger.info(`=== syncing asset start ${this.address}=====`);
 
-    logger.info("=== get Ownership transfer  ===");
-
     let collection = await this.collectionService.get(this.address);
 
     if (!collection) return;
@@ -115,7 +113,6 @@ export class ERC721Service {
         await this.collectionHistoryService.add(collectionHistory);
       }
 
-      logger.info("=== get transfer events  ===");
       filter = ens.filters.Transfer();
       filter.fromBlock = currentScannedBlockNumber + 1;
       filter.toBlock = currentScannedBlockNumber + LOG_PAGE_COUNT + 1;
@@ -255,7 +252,6 @@ export class ERC721Service {
         }
       }
 
-      logger.info("=== get VisibilityChanged events  ===");
       filter = ens.filters.VisibilityChanged();
       filter.fromBlock = currentScannedBlockNumber + 1;
       filter.toBlock = currentScannedBlockNumber + LOG_PAGE_COUNT + 1;
