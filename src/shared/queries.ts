@@ -160,7 +160,9 @@ export const queryAssetHistoryByHash = gql`
 export const updateAssetHistoryById = gql`
   mutation ($changes: asset_histories_set_input!, $id: String!) {
     update_asset_histories(where: { id: { _eq: $id } }, _set: $changes) {
-      ...assetHistoryFragment
+      returning {
+        ...assetHistoryFragment
+      }
       affected_rows
     }
   }
@@ -354,7 +356,9 @@ export const selectGamesById = gql`
 export const updateGameById = gql`
   mutation ($changes: games_set_input!, $id: String!) {
     update_games(where: { id: { _eq: $id } }, _set: $changes) {
-      ...gameFragment
+      returning {
+        ...gameFragment
+      }
       affected_rows
     }
   }
