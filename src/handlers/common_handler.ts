@@ -3,6 +3,11 @@ import * as HttpStatus from "http-status-codes";
 
 import { CommonService } from "../services/common_service";
 
+/**
+ * CommonHandler
+ *
+ * Handles common apis
+ */
 export class CommonHandler {
   private readonly commonService: CommonService;
 
@@ -10,6 +15,11 @@ export class CommonHandler {
     this.commonService = commonService;
   }
 
+  /**
+   * It check if custom-url is not duplicated and valid
+   *
+   * @returns true/false
+   */
   public async checkCustomUrlUsable(
     req: express.Request,
     res: express.Response

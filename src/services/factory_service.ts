@@ -86,6 +86,8 @@ export class FactoryService {
     let currentScannedBlockNumber = this._factoryBlockNumber - 1;
 
     while (currentScannedBlockNumber < latestBlockNumber) {
+      // fetch 512 blocks once
+
       let filter: any = ens.filters.CollectionCreated();
       filter.fromBlock = currentScannedBlockNumber + 1;
       filter.toBlock = currentScannedBlockNumber + LOG_PAGE_COUNT + 1;
@@ -93,6 +95,7 @@ export class FactoryService {
 
       const logs = await provider.getLogs(filter);
 
+      // scan all CollectionCreated events
       for (let index = 0; index < logs.length; index++) {
         const log = logs[index];
 
@@ -136,6 +139,7 @@ export class FactoryService {
         // collections <=> games many-to-many
         logger.info(`===collection=created=${collection.address}==`);
 
+        // create collection
         await this.createCollection(collection);
 
         erc721Contracts.push({
@@ -163,6 +167,7 @@ export class FactoryService {
     const iface = new Interface(abi);
     const ens = new Contract(this._factoryAddress, iface, provider);
 
+    // listen CollectionCreated
     ens.on(
       "CollectionCreated",
       async (

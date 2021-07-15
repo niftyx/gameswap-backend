@@ -1,14 +1,17 @@
 import { BigNumber } from "ethers";
 import { IAssetHistory } from "../types";
 
+/**
+ * assetHistoryUtils
+ *
+ */
+
 export const assetHistoryUtils = {
-  toSnakeCase: function (payload: any): IAssetHistory {
-    const obj: any = {};
-    Object.keys(payload || {}).forEach((key) => {
-      obj[toSnakeCase(key)] = (payload || {})[key];
-    });
-    return obj as IAssetHistory;
-  },
+  /**
+   * toBNObj convert bignumber string object to BigNumber object
+   * @param payload {any} assetHistoryObject with bignumber strings
+   * @returns {IAssetHistory} assetHistoryObject with BigNumber
+   */
   toBNObj: function (payload: any): IAssetHistory {
     return {
       ...payload,
@@ -17,6 +20,12 @@ export const assetHistoryUtils = {
         : undefined,
     } as IAssetHistory;
   },
+
+  /**
+   * toBNObj convert big number object child to string
+   * @param {IAssetHistory} assetHistoryObject with BigNumber
+   * @returns {any} assetHistoryObject with bignumber strings
+   */
   toStrObj: function (payload: IAssetHistory): any {
     return {
       ...payload,

@@ -33,6 +33,7 @@ export const RPC_RATE_LIMIT = 10;
 export const ERC20_ASSET_PROXY_ID = "0xf47261b0";
 export const ERC721_ASSET_PROXY_ID = "0x02571792";
 
+// custom url can't be the followings basically
 export const BANNED_CUSTOM_URLS = [
   "trade",
   "assets",

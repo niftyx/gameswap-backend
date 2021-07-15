@@ -2,13 +2,11 @@ import { BigNumber } from "ethers";
 import { ICollection } from "../types";
 
 export const collectionUtils = {
-  toSnakeCase: function (payload: any): ICollection {
-    const obj: any = {};
-    Object.keys(payload || {}).forEach((key) => {
-      obj[toSnakeCase(key)] = (payload || {})[key];
-    });
-    return obj as ICollection;
-  },
+  /**
+   * toBNObj convert bignumber string object to BigNumber object
+   * @param payload {any} collection with bignumber strings
+   * @returns {ICollection} collection with BigNumber
+   */
   toBNObj: function (payload: any): ICollection {
     return {
       ...payload,
@@ -17,6 +15,12 @@ export const collectionUtils = {
       total_burned: BigNumber.from(payload.total_burned || "0"),
     } as ICollection;
   },
+
+  /**
+   * toBNObj convert big number object child to string
+   * @param {ICollection} assetObject with BigNumber
+   * @returns {any} collection with bignumber strings
+   */
   toStrObj: function (payload: ICollection): any {
     return {
       ...payload,

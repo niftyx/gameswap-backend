@@ -7,6 +7,8 @@ const CryptoContentValidation = {
       contentStr: Joi.string().required(),
     }),
   },
+
+  // POST /lock-content/v1/decrypt
   decrypt: {
     body: Joi.object({
       contentStr: Joi.string().required(),

@@ -97,26 +97,34 @@ export const LOGGER_INCLUDE_TIMESTAMP = _.isEmpty(
 // Ethereum RPC Url
 export const ETHEREUM_RPC_URL = process.env.ETHEREUM_RPC_URL || "";
 
+// ERC721 Factory Contract Address
 export const ERC721FACTORY_CONTRACT = process.env.ERC721FACTORY_CONTRACT || "";
 
+// Creation Block Number of ERC721 Factory Contract
 export const ERC721FACTORY_CONTRACT_BLOCK = Number(
   process.env.ERC721FACTORY_CONTRACT_BLOCK || "0"
 );
 
+// Niftyx-Protocol EXCHANGE contract address
 export const EXCHANGE_CONTRACT = process.env.EXCHANGE_CONTRACT || "";
 
+// Creation Block Number of Niftyx-Protocol EXCHANGE contract
 export const EXCHANGE_CONTRACT_BLOCK = assertEnvVarType(
   "EXCHANGE_CONTRACT_BLOCK",
   process.env.EXCHANGE_CONTRACT_BLOCK,
   EnvVarType.Integer
 );
 
+// Hasura endPooint
 export const HASURA_ENDPOINT: string = process.env.HASURA_ENDPOINT || "";
+
+// Hasura Admin Secret key
 export const HASURA_GRAPHQL_ADMIN_SECRET: string =
   process.env.HASURA_GRAPHQL_ADMIN_SECRET || "";
 
-export const COOKIE_SECRET_KEY: string = process.env.COOKIE_SECRET || "";
-
+/**
+ * JWT RELATED FIELDS
+ */
 export const JWT_SECRET_KEY: string = process.env.JWT_SECRET || "aa";
 export const JWT_ALGORITHM: string = process.env.JWT_ALGORITHM || "HS256";
 export const JWT_CLAIMS_NAMESPACE: string =
@@ -125,11 +133,16 @@ export const JWT_EXPIRES_IN: number = Number(
   process.env.JWT_EXPIRES_IN || "15"
 );
 
+/**
+ * RATE LIMIT
+ */
 export const MAX_REQUESTS: number = Number(process.env.MAX_REQUESTS || "100");
 export const TIME_FRAME: number = Number(process.env.TIME_FRAME || "900000");
 
+// hasura request default user role
 export const DEFAULT_USER_ROLE: string =
   process.env.DEFAULT_USER_ROLE || "user";
+// hasura request default anonymous role
 export const DEFAULT_ANONYMOUS_ROLE: string =
   process.env.DEFAULT_ANONYMOUS_ROLE || "user";
 

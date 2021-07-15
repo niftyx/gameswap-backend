@@ -23,16 +23,16 @@ import { CommonService } from "./services/common_service";
 import { logger } from "./logger";
 
 export interface AppDependencies {
-  cryptoContentService: CryptoContentService; // encrypt/decrypt signedContentData with crypto algorithm
-  factoryService: FactoryService; // handles "CollectionCreation" or "CollectionOwnershipTransfer"
-  userService: UserService;
-  assetService: AssetService;
-  assetHistoryService: AssetHistoryService;
-  collectionService: CollectionService;
-  collectionHistoryService: CollectionHistoryService;
-  gameService: GameService;
+  cryptoContentService: CryptoContentService; // handle encrypt/decrypt signedContentData with crypto algorithm
+  factoryService: FactoryService; // handle collection creation
+  userService: UserService; // handle user service
+  assetService: AssetService; // handle asset service
+  assetHistoryService: AssetHistoryService; // handle asset history service
+  collectionService: CollectionService; // handle collection service
+  collectionHistoryService: CollectionHistoryService; // handle collection history service
+  gameService: GameService; // handle game service
   exchangeService: ExchangeService; // handles "OrderFilled" or "OrderCancelled" events of 0x exchange contract
-  commonService: CommonService;
+  commonService: CommonService; // handle common service
 }
 
 /**
@@ -93,7 +93,7 @@ export async function getAppAsync(
   const app = express();
   const { server } = await runHttpServiceAsync(dependencies, config, app);
 
-  // list contracts
+  // list all nft contracts
   try {
     dependencies.factoryService.listenERC721Contracts(); // list collection creation
     let allSet = false;

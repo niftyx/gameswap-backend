@@ -15,7 +15,7 @@ const client = new GraphQLClient(APPLICATION.HASURA_ENDPOINT, {
 
 /**
  * To take advantage of syntax highlighting and auto-formatting
- * for GraphQL template literal tags (`gql`) in `src/utils/queries.ts`,
+ * for GraphQL template literal tags (`gql`) in `src/shared/queries.ts`,
  * you need to `print()` queries before passing them to `graphql-request`.
 
  * https://github.com/prisma-labs/graphql-request/issues/10

@@ -12,6 +12,12 @@ export interface UpdateAccountData {
   };
 }
 
+/**
+ * UserService
+ *
+ * handles CRUD users to database using hasura
+ */
+
 export class UserService {
   public async upsert(id: string, timestamp: number) {
     await request<InsertAccountData>(upsertAccount, {

@@ -22,10 +22,12 @@ export function createGameRouter(
   router
     .route("/")
     .get(handlers.root)
+    // create Game
     .post(authMiddleware, asyncHandler(handlers.create.bind(handlers)));
 
   router
     .route("/update")
+    // update game
     .post(authMiddleware, asyncHandler(handlers.update.bind(handlers)));
 
   return router;

@@ -82,6 +82,7 @@ export class ERC721Service {
     let currentScannedBlockNumber = this.blockNumber - 1;
 
     while (currentScannedBlockNumber < latestBlockNumber) {
+      // scan 512 blocks once
       let filter: any = ens.filters.OwnershipTransferred();
       filter.fromBlock = currentScannedBlockNumber + 1;
       filter.toBlock = currentScannedBlockNumber + LOG_PAGE_COUNT + 1;
@@ -89,6 +90,7 @@ export class ERC721Service {
 
       let logs = await provider.getLogs(filter);
 
+      // scan OwnershipTransferred event of collection first
       for (let index = 0; index < logs.length; index++) {
         const log = logs[index];
         const blockNumber = log.blockNumber;
@@ -98,11 +100,12 @@ export class ERC721Service {
         const collectionTxHash = String(log.transactionHash).toLowerCase();
         const newOwner = String(parsed.args[1]).toLowerCase();
 
+        // update owner of collection
         collection.owner_id = newOwner;
         collection.update_time_stamp = block.timestamp;
-
         collection = await this.collectionService.update(collection);
 
+        // create collectionHistory
         const collectionHistory: ICollectionHistory = {
           id: `${collectionTxHash}${newOwner}`,
           timestamp: block.timestamp,
@@ -119,7 +122,7 @@ export class ERC721Service {
       filter.toBlock = Math.min(filter.toBlock, latestBlockNumber);
 
       logs = await provider.getLogs(filter);
-
+      // scan Transfer event of ERC721 contract
       for (let index = 0; index < logs.length; index++) {
         const log = logs[index];
 

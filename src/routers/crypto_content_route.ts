@@ -16,11 +16,18 @@ export function createCryptoContentRouter(
 
   router.get("/", handlers.root);
 
+  /**
+   * encrypt contentData
+   */
   router.post(
     "/encrypt",
     validate(CryptoContentValidation.encrypt),
     asyncHandler(handlers.encryptData.bind(handlers))
   );
+
+  /**
+   * decrypt contentData
+   */
   router.post(
     "/decrypt",
     validate(CryptoContentValidation.decrypt),

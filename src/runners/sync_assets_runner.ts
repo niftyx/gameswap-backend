@@ -29,7 +29,10 @@ if (require.main === module) {
     );
     // sync
     try {
+      // remove all collections/assets data on database first
       await dependencies.factoryService.resetRelatedTables();
+
+      // read CollectionCreation events on avax and write on db
       const erc721Contracts =
         await dependencies.factoryService.syncERC721Contracts();
       // const erc721Contracts = await dependencies.collectionService.listForSync(
@@ -50,6 +53,7 @@ if (require.main === module) {
           dependencies.gameService,
           EXCHANGE_CONTRACT
         );
+        // for each contract, get asset related events and write on db
         await erc721Service.syncAssets();
       }
       await dependencies.exchangeService.syncExchanges();

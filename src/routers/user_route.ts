@@ -31,6 +31,7 @@ export function createUserRouter(
 
   router
     .route("/:id")
+    // update user profile
     .post(
       validate(UserValidation.update),
       asyncHandler(handlers.update.bind(handlers))
