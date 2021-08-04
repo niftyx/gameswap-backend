@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from "uuid";
 import * as isValidUUID from "uuid-validate";
 import { CommonService } from "../services/common_service";
 import { UserService } from "../services/user_service";
+import { isAddress } from "ethers/lib/utils";
 export class GameHandler {
   private readonly gameService: GameService;
   private readonly commonService: CommonService;
@@ -19,6 +20,7 @@ export class GameHandler {
     this.commonService = commonService;
     this.userService = userService;
   }
+
   public async create(
     req: express.Request,
     res: express.Response
@@ -28,6 +30,11 @@ export class GameHandler {
       session_variables,
     } = req.body;
     const ownerId = String(session_variables["x-hasura-user-id"]).toLowerCase();
+
+    if (!ownerId || !isAddress(ownerId)) {
+      res.status(HttpStatus.BAD_REQUEST).send();
+      return;
+    }
 
     const customUrlValid = await this.commonService.checkCustomUrlUsable(
       gameData.customUrl.toLowerCase()
