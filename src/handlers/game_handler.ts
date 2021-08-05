@@ -6,7 +6,6 @@ import * as isValidUUID from "uuid-validate";
 import { CommonService } from "../services/common_service";
 import { UserService } from "../services/user_service";
 import { isAddress } from "ethers/lib/utils";
-import { logger } from "../logger";
 export class GameHandler {
   private readonly gameService: GameService;
   private readonly commonService: CommonService;
@@ -31,8 +30,6 @@ export class GameHandler {
       session_variables,
     } = req.body;
     const ownerId = String(session_variables["x-hasura-user-id"]).toLowerCase();
-
-    logger.info(`==ownerId==${ownerId}`);
 
     if (!ownerId || !isAddress(ownerId)) {
       res
