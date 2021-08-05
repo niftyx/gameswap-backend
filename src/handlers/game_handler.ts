@@ -26,10 +26,12 @@ export class GameHandler {
     res: express.Response
   ): Promise<void> {
     const {
-      input: { payload: gameData },
-      session_variables,
-    } = req.body;
-    const ownerId = String(session_variables["x-hasura-user-id"]).toLowerCase();
+      body: {
+        input: { payload: gameData },
+      },
+      permission_variables,
+    } = req as any;
+    const ownerId = String(permission_variables["user-id"]).toLowerCase();
 
     if (!ownerId || !isAddress(ownerId)) {
       res
@@ -78,10 +80,14 @@ export class GameHandler {
     res: express.Response
   ): Promise<void> {
     const {
-      input: { id, payload: gameData },
-      session_variables,
-    } = req.body;
-    const ownerId = String(session_variables["x-hasura-user-id"]).toLowerCase();
+      body: {
+        input: { id, payload: gameData },
+      },
+
+      permission_variables,
+    } = req as any;
+
+    const ownerId = String(permission_variables["user-id"]).toLowerCase();
 
     if (!isValidUUID(id)) {
       res.status(HttpStatus.NOT_FOUND).send();
